@@ -11,7 +11,7 @@ class CulturalHeritageBookController extends Controller
 {
     public function index()
     {
-        $books = Book::where('category_id', 4)->get();
+        $books = Book::with('category')->where('category_id', 4)->get();
 
         // Prepend full URL to cover_image path
         $books->transform(function ($book) {

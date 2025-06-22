@@ -7,6 +7,9 @@ use App\Http\Controllers\Admin\Books\CulturalHeritageBookController;
 use App\Http\Controllers\Admin\Books\EducationalBookController;
 use App\Http\Controllers\Admin\Books\StoryBookController;
 use App\Http\Controllers\Admin\CategoriesController;
+use App\Http\Controllers\Admin\Users\AllUsersController;
+use App\Http\Controllers\Admin\Users\VerifiedUsersController;
+use Illuminate\Auth\Events\Verified;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -54,6 +57,13 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::put('/books/culturalheritage/{id}', [CulturalHeritageBookController::class, 'update']);
     Route::delete('/books/culturalheritage/{id}', [CulturalHeritageBookController::class, 'destroy']);
 
+
+    //users
+    Route::get('/users/allusers', [AllUsersController::class, 'index'])->name('allusers');
+    Route::put('/users/allusers/{id}', [AllUsersController::class, 'verify']);
+
+    //Verified Users
+    Route::get('/users/verifiedusers', [VerifiedUsersController::class, 'index'])->name('verifiedusers');
     //bokmarks
     Route::post('/bookmarks', [BookMarkController::class, 'store']);
 });
