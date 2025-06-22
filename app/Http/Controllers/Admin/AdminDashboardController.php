@@ -14,7 +14,8 @@ class AdminDashboardController extends Controller
         return Inertia::render('Admin/Dashboard', [
             'totalBooks' => Book::count(),
             'totalUsers' => User::count(),
-            'activeUsers' => User::where('verified', true)->count()
+            'activeUsers' => User::where('verified', true)->count(),
+            'flash' => session('success')
         ]);
     }
 }

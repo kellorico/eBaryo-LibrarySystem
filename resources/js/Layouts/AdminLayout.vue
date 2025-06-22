@@ -179,10 +179,7 @@ import { Link } from '@inertiajs/vue3';
             <header class="bg-white shadow-sm py-3 border-bottom">
                 <div class="container-fluid px-4">
                     <div class="d-flex justify-content-between align-items-center">
-                        <div class="d-flex align-items-center">
-                            <h5 class="mb-0 text-muted">Welcome back, Admin!</h5>
-                        </div>
-                        <div class="d-flex align-items-center gap-3">
+                        <div class="d-flex align-items-center gap-3 ms-auto">
                             <div class="dropdown">
                                 <button class="btn btn-outline-success dropdown-toggle d-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown">
                                     <div class="admin-avatar">

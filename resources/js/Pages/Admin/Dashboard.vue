@@ -1,15 +1,31 @@
 <script setup>
 import AdminLayout from '@/Layouts/AdminLayout.vue';
+import { ref, onMounted } from 'vue';
 
 defineProps({
     totalBooks: Number,
     totalUsers: Number,
-    activeUsers: Number
+    activeUsers: Number,
+    flash: String
 })
+
+const showWelcome = ref(!!__props.flash);
+
+onMounted(() => {
+  if (showWelcome.value) {
+    setTimeout(() => showWelcome.value = false, 5000);
+  }
+});
 </script>
 
 <template>
     <AdminLayout>
+        <!-- Floating Welcome Message -->
+        <div v-if="showWelcome" class="floating-flash-message alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fa-solid fa-smile-beam me-2"></i>
+            {{ flash || 'Welcome back, Admin!' }}
+            <button type="button" class="btn-close" @click="showWelcome = false" aria-label="Close"></button>
+        </div>
         <div class="dashboard-container">
             <!-- Page Header -->
             <div class="page-header mb-4">
@@ -18,12 +34,7 @@ defineProps({
                         <h2 class="page-title mb-1">Dashboard Overview</h2>
                         <p class="text-muted mb-0">Welcome to your eBaryo Library management dashboard</p>
                     </div>
-                    <div class="header-actions">
-                        <button class="btn btn-success d-flex align-items-center gap-2">
-                            <i class="fa-solid fa-plus"></i>
-                            Add New Book
-                        </button>
-                    </div>
+                    
                 </div>
             </div>
 
@@ -666,6 +677,32 @@ defineProps({
     
     .dashboard-card-body {
         padding: 1rem;
+    }
+}
+
+.floating-flash-message {
+    position: fixed;
+    top: 32px;
+    right: 32px;
+    z-index: 1055;
+    min-width: 320px;
+    max-width: 90vw;
+    box-shadow: 0 8px 32px rgba(40, 167, 69, 0.15), 0 1.5px 6px rgba(0,0,0,0.08);
+    border-radius: 12px;
+    font-size: 1.05rem;
+    pointer-events: auto;
+    animation: floatIn 0.5s cubic-bezier(.4,2,.6,1) both;
+}
+@keyframes floatIn {
+    from { opacity: 0; transform: translateY(-30px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@media (max-width: 768px) {
+    .floating-flash-message {
+        top: 12px;
+        right: 12px;
+        min-width: 200px;
+        font-size: 0.95rem;
     }
 }
 </style>

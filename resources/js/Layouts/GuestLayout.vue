@@ -1,28 +1,34 @@
 <script setup>
-import { Link } from '@inertiajs/vue3';
+import { Link } from "@inertiajs/vue3";
 </script>
 
 <template>
-    <div class="min-vh-100 d-flex flex-column" style="min-height: 100vh;">
-        <!-- Header/Navigation -->
-        <header class="bg-success py-3 shadow-sm fixed-top">
+    <div class="min-vh-100 d-flex flex-column">
+        <!-- Header -->
+        <header class="bg-success shadow-sm fixed-top py-3">
             <div class="container">
-                <nav class="d-flex justify-content-between align-items-center">
-                    <Link href="/" class="text-decoration-none">
-                        <h1 class="h4 mb-0 text-white"><i class="fa-solid fa-book"></i> eBaryo Library</h1>
+                <nav
+                    class="navbar navbar-expand-lg navbar-dark justify-content-between"
+                >
+                    <Link
+                        href="/"
+                        class="navbar-brand d-flex align-items-center gap-2"
+                    >
+                        <i class="fa-solid fa-book fa-lg"></i>
+                        <span class="fw-bold">eBaryo Library</span>
                     </Link>
-                    <div class="d-flex gap-3">
-                        <Link 
-                            href="/login" 
-                            class="btn btn-outline-primary text-white"
-                            :class="{ 'active': $page.url === '/login' }"
+                    <div class="d-flex gap-2">
+                        <Link
+                            href="/login"
+                            class="btn btn-outline-light rounded-pill px-4"
+                            :class="{ active: $page.url === '/login' }"
                         >
                             Login
                         </Link>
-                        <Link 
-                            href="/register" 
-                            class="btn btn-primary text-white"
-                            :class="{ 'active': $page.url === '/register' }"
+                        <Link
+                            href="/register"
+                            class="btn btn-light text-success rounded-pill px-4"
+                            :class="{ active: $page.url === '/register' }"
                         >
                             Register
                         </Link>
@@ -31,22 +37,21 @@ import { Link } from '@inertiajs/vue3';
             </div>
         </header>
 
-        <!-- Main Content Slot -->
-        <main class="flex-grow-1" style="padding-top: 90px; padding-bottom: 60px;">
+        <!-- Main Content -->
+        <main
+            class="flex-grow-1 py-5"
+            style="padding-top: 100px; padding-bottom: 60px"
+        >
             <div class="container">
-                <div class="row justify-content-center">
-                    <div class="col-md-8 col-lg-6 col-xl-5">
-                        <!-- This slot will contain either login or register form -->
-                        <slot />
-                    </div>
-                </div>
+                <slot />
             </div>
         </main>
 
         <!-- Footer -->
-        <footer class="bg-light py-4 text-center text-muted small">
+        <footer class="bg-light py-4 text-center text-muted small border-top">
             <div class="container">
-                &copy; {{ new Date().getFullYear() }} eBaryo Library. All rights reserved.
+                &copy; {{ new Date().getFullYear() }} eBaryo Library. All rights
+                reserved.
             </div>
         </footer>
     </div>
@@ -55,5 +60,6 @@ import { Link } from '@inertiajs/vue3';
 <style scoped>
 .active {
     font-weight: 600;
+    box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.4);
 }
 </style>
