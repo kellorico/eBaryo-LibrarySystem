@@ -1,9 +1,12 @@
 <script setup>
-import Main from '@/Layouts/Main.vue';
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 </script>
 
 <template>
-    <Main>
-        <h1>Home</h1>
-    </Main>
+    <AuthenticatedLayout>
+        <div class="container">
+            <h1 class="text-center my-5">Welcome to the Home Page</h1>
+            <p class="text-center">This is a protected page that only authenticated users can see.</p>
+        </div>
+    </AuthenticatedLayout>
 </template>

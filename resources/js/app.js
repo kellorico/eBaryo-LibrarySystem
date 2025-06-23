@@ -1,17 +1,20 @@
 import '../css/app.css';
 import './bootstrap';
+
+//bootstrap
 import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap';
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+import 'bootstrap-icons/font/bootstrap-icons.css'
 
-import '@fortawesome/fontawesome-free/css/all.css';
+//fontawesome
+import '@fortawesome/fontawesome-free/css/all.min.css';
 
-
-import { createInertiaApp, Link, Head } from '@inertiajs/vue3';
+import { createInertiaApp } from '@inertiajs/vue3';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createApp, h } from 'vue';
 import { ZiggyVue } from '../../vendor/tightenco/ziggy';
 
-const appName = import.meta.env.VITE_APP_NAME || 'eBaryo Library';
+const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,
@@ -24,8 +27,6 @@ createInertiaApp({
         return createApp({ render: () => h(App, props) })
             .use(plugin)
             .use(ZiggyVue)
-            .use('Link', Link)
-            .use('Head', Head)
             .mount(el);
     },
     progress: {

@@ -1,134 +1,154 @@
 <script setup>
-import Main from '@/Layouts/Main.vue'
-import { useForm, Link } from '@inertiajs/vue3'
+import GuestLayout from "@/Layouts/GuestLayout.vue";
+import InputField from "@/Components/InputField.vue";
+import PrimaryButton from "@/Components/PrimaryButton.vue";
+import { useForm, Link, usePage } from "@inertiajs/vue3";
 
-const form = useForm({
-    email: '',
-    password: ''
-})
+const formData = useForm({
+    email: "",
+    password: "",
+});
 
-const login = () => {
-  form.post('/login', {
-    onError: () => {
-        form.password = ''
-        setTimeout(() => {
-          form.errors.email = null;
-          form.errors.password = null;
-        }, 2000);
-    }
-  })
+const page = usePage();
+
+if (page.props.google_error) {
+    console.error("Google login error:", page.props.google_error);
 }
+
+const submitForm = () => {
+    formData.post(route("login"), {
+        onSuccess: () => {
+            formData.processing = false;
+            formData.reset("password");
+        },
+        onError: (errors) => {
+            formData.processing = false;
+            formData.reset("password");
+            formData.errors = errors;
+        },
+    });
+};
 </script>
 
 <template>
-    <Main>
-        <div class="row justify-content-center">
-            <div class="col-md-6 col-lg-4">
-                <div class="card shadow-lg">
-                    <div class="card-body p-4">
-                        <div class="text-center mb-4">
-                            <i class="fas fa-user-circle display-4 text-primary mb-3"></i>
-                            <h2 class="h3 mb-3">Welcome Back</h2>
-                            <p class="text-muted">Please sign in to continue</p>
+    <GuestLayout>
+        <div
+            class="container min-vh-100 d-flex align-items-center justify-content-center py-5"
+        >
+            <div class="w-100" style="max-width: 420px">
+                <div class="card shadow-lg border-0 rounded-4">
+                    <div class="card-body p-5">
+                        <div
+                            v-if="page.props.google_error"
+                            class="alert alert-danger mt-3"
+                        >
+                            {{ page.props.google_error }}
                         </div>
-                        <form @submit.prevent="login">
+
+                        <div class="d-flex flex-column align-items-center mb-4">
+                            <!-- Logo Placeholder -->
                             <div class="mb-3">
-                                <label for="email" class="form-label">Email address</label>
-                                <div class="input-group">
-                                    <span class="input-group-text">
-                                        <i class="fas fa-envelope"></i>
-                                    </span>
-                                    <input
-                                        type="email"
-                                        class="form-control"
-                                        id="email"
-                                        v-model="form.email"
-                                        placeholder="Enter your email"
-                                        :class="{ 'is-invalid': form.errors.email }"
-                                    >
-                                </div>
-                                <div v-if="form.errors.email" class="invalid-feedback d-block">
-                                    {{ form.errors.email }}
-                                </div>
+                                <img
+                                    src="/img/image.png"
+                                    alt="Logo"
+                                    width="48"
+                                    height="48"
+                                    class="rounded-circle shadow-sm bg-light"
+                                />
                             </div>
-                            <div class="mb-4">
-                                <label for="password" class="form-label">Password</label>
-                                <div class="input-group">
-                                    <span class="input-group-text">
-                                        <i class="fas fa-lock"></i>
-                                    </span>
-                                    <input
-                                        type="password"
-                                        class="form-control"
-                                        id="password"
-                                        v-model="form.password"
-                                        placeholder="Enter your password"
-                                        :class="{ 'is-invalid': form.errors.password }"
-                                    >
-                                </div>
-                                <div v-if="form.errors.password" class="invalid-feedback d-block">
-                                    {{ form.errors.password }}
-                                </div>
-                            </div>
-                            <div class="d-grid">
-                                <button type="submit" class="btn btn-primary btn-lg" :disabled="form.processing">
-                                    <i class="fas fa-sign-in-alt me-2"></i>
-                                    {{ form.processing ? 'Signing in...' : 'Sign In' }}
-                                </button>
-                            </div>
-                        </form>
-                        <div class="text-center mt-4">
-                            <p class="mb-0">Don't have an account? 
-                                <Link :href="route('register')" class="text-primary fw-bold">Register here</Link>
+                            <h2 class="fw-bold mb-0 text-success">Sign In</h2>
+                            <p class="text-muted mt-1 mb-0 small">
+                                Welcome back! Please login to your account.
                             </p>
                         </div>
+                        <form @submit.prevent="submitForm" autocomplete="on">
+                            <InputField
+                                id="email"
+                                label="Email"
+                                type="email"
+                                v-model="formData.email"
+                                :error="formData.errors.email"
+                                class="mb-3"
+                                icon="bi bi-envelope"
+                            />
+                            <InputField
+                                id="password"
+                                label="Password"
+                                type="password"
+                                v-model="formData.password"
+                                :error="
+                                    formData.errors.password ||
+                                    (page.props.error ? page.props.error : '')
+                                "
+                                class="mb-2"
+                                icon="bi bi-lock"
+                            />
+                            <div class="d-flex justify-content-end mb-3">
+                                <Link href="/forgot-password" class="link small"
+                                    >Forgot Password?</Link
+                                >
+                            </div>
+                            <PrimaryButton
+                                class="w-100 py-2 fs-5 rounded-pill"
+                                :disabled="formData.processing"
+                                :isLoading="formData.processing"
+                            >
+                                Login
+                            </PrimaryButton>
+
+                            <!-- Divider -->
+                            <div class="d-flex align-items-center my-3">
+                                <hr class="flex-grow-1" />
+                                <span class="mx-2 text-muted small">or</span>
+                                <hr class="flex-grow-1" />
+                            </div>
+
+                            <!-- Social Login Buttons -->
+                            <div class="d-flex flex-column align-items-center">
+                                <div
+                                    class="d-flex justify-content-center gap-2 my-2"
+                                >
+                                    <a
+                                        href="/auth/google"
+                                        class="btn btn-outline-danger btn-sm d-flex align-items-center justify-content-center rounded-pill p-2"
+                                        aria-label="Sign in with Google"
+                                    >
+                                        <i class="bi bi-google fs-5"></i>
+                                    </a>
+                                </div>
+                                <div class="text-center">
+                                    <small class="text-muted"
+                                        >Sign in with</small
+                                    >
+                                </div>
+                            </div>
+                            <div class="text-center mt-4">
+                                <span class="text-muted"
+                                    >Don't have an account?</span
+                                >
+                                <Link
+                                    href="/register"
+                                    class="link fw-semibold ms-1"
+                                    >Register</Link
+                                >
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
-    </Main>
+    </GuestLayout>
 </template>
 
 <style scoped>
-.card {
-    border-radius: 15px;
-    border: none;
+.link {
+    color: #198754;
+    text-decoration: none;
+    transition: color 0.2s;
 }
 
-.input-group-text {
-    background-color: var(--background-green);
-    border: 2px solid #E0E0E0;
-    border-right: none;
-}
-
-.input-group .form-control {
-    border-left: none;
-}
-
-.input-group .form-control:focus {
-    border-color: #E0E0E0;
-    box-shadow: none;
-}
-
-.input-group:focus-within {
-    box-shadow: 0 0 0 0.25rem rgba(46, 125, 50, 0.25);
-    border-radius: 8px;
-}
-
-.input-group:focus-within .input-group-text,
-.input-group:focus-within .form-control {
-    border-color: var(--primary-green);
-}
-
-.btn-primary {
-    padding: 0.8rem;
-}
-
-@media (max-width: 768px) {
-    .card {
-        margin: 1rem;
-    }
+.link:hover {
+    text-decoration: underline;
+    color: #145c32;
 }
 </style>
-
-
