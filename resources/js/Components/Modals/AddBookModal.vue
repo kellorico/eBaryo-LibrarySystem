@@ -316,52 +316,53 @@ watch(() => props.show, (val) => {
 }
 
 .book-avatar .avatar-circle {
-    width: 50px;
-    height: 50px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
     background: rgba(255, 255, 255, 0.2);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.5rem;
+    font-size: 1.1rem;
 }
 
 .section-title {
     color: #495057;
     font-weight: 600;
-    border-bottom: 2px solid #e9ecef;
-    padding-bottom: 0.5rem;
-    margin-bottom: 1.5rem;
+    border-bottom: 1px solid #e9ecef;
+    padding-bottom: 0.25rem;
+    margin-bottom: 0.75rem;
+    font-size: 1rem;
 }
 
 .form-section {
     background: #f8f9fa;
-    border-radius: 12px;
-    padding: 1.5rem;
+    border-radius: 8px;
+    padding: 0.75rem;
     border: 1px solid #e9ecef;
 }
 
 .form-label {
     font-weight: 600;
     color: #495057;
-    margin-bottom: 0.5rem;
-    font-size: 0.875rem;
+    margin-bottom: 0.25rem;
+    font-size: 0.8rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
 .custom-input {
-    border: 2px solid #e9ecef;
-    border-radius: 8px;
-    padding: 0.75rem;
-    font-size: 0.9rem;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    padding: 0.5rem;
+    font-size: 0.85rem;
     transition: all 0.3s ease;
     background: white;
 }
 
 .custom-input:focus {
     border-color: #28a745;
-    box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+    box-shadow: 0 0 0 0.1rem rgba(40, 167, 69, 0.15);
     outline: none;
 }
 
@@ -372,18 +373,18 @@ watch(() => props.show, (val) => {
 
 .error-message {
     color: #dc3545;
-    font-size: 0.8rem;
-    margin-top: 0.25rem;
+    font-size: 0.75rem;
+    margin-top: 0.15rem;
     display: flex;
     align-items: center;
 }
 
 .category-display {
-    padding: 0.75rem;
+    padding: 0.5rem;
     background: white;
-    border: 2px solid #e9ecef;
-    border-radius: 8px;
-    min-height: 45px;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    min-height: 32px;
     display: flex;
     align-items: center;
 }
@@ -391,37 +392,37 @@ watch(() => props.show, (val) => {
 .category-badge {
     background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
     color: white;
-    padding: 0.25rem 0.75rem;
-    border-radius: 20px;
-    font-size: 0.875rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 14px;
+    font-size: 0.75rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
 .upload-group {
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
 }
 
 .upload-label {
     font-weight: 600;
     color: #495057;
-    margin-bottom: 0.5rem;
-    font-size: 0.875rem;
+    margin-bottom: 0.25rem;
+    font-size: 0.8rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
 .file-upload-area {
-    border: 2px dashed #dee2e6;
-    border-radius: 12px;
-    padding: 2rem;
+    border: 1px dashed #dee2e6;
+    border-radius: 8px;
+    padding: 1rem;
     text-align: center;
     background: white;
     transition: all 0.3s ease;
     cursor: pointer;
     position: relative;
-    min-height: 150px;
+    min-height: 80px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -452,87 +453,92 @@ watch(() => props.show, (val) => {
 }
 
 .upload-content i {
-    font-size: 2rem;
+    font-size: 1.2rem;
     color: #28a745;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.25rem;
 }
 
 .upload-content p {
-    margin: 0.5rem 0;
+    margin: 0.25rem 0;
     font-weight: 500;
     color: #495057;
+    font-size: 0.85rem;
 }
 
 .upload-content .file-name {
     color: #28a745;
     font-weight: 600;
+    font-size: 0.85rem;
 }
 
 .upload-content small {
     color: #6c757d;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
 }
 
 .action-btn {
-    border-radius: 8px;
+    border-radius: 6px;
     font-weight: 500;
-    padding: 0.75rem 1.5rem;
+    padding: 0.5rem 1rem;
     transition: all 0.3s ease;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    font-size: 0.875rem;
+    font-size: 0.8rem;
 }
 
 .action-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
 }
 
 .modal-content {
-    border-radius: 16px;
+    border-radius: 10px;
     overflow: hidden;
 }
 
 .modal-header {
-    padding: 1.5rem;
+    padding: 0.75rem 1rem;
 }
 
 .modal-body {
-    padding: 1.5rem;
+    padding: 0.75rem 1rem;
 }
 
 .modal-footer {
-    padding: 1rem 1.5rem;
+    padding: 0.5rem 1rem;
 }
 
 .btn {
-    border-radius: 8px;
+    border-radius: 6px;
     font-weight: 500;
-    padding: 0.5rem 1.5rem;
+    padding: 0.4rem 1rem;
     transition: all 0.3s ease;
+    font-size: 0.8rem;
 }
 
 .btn:hover {
     transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+.modal-dialog {
+    max-width: 540px;
 }
 
 @media (max-width: 768px) {
     .modal-dialog {
-        margin: 1rem;
+        margin: 0.5rem;
+        max-width: 98vw;
     }
-    
     .form-section {
-        padding: 1rem;
+        padding: 0.5rem;
     }
-    
     .file-upload-area {
-        padding: 1.5rem;
-        min-height: 120px;
+        padding: 0.5rem;
+        min-height: 60px;
     }
-    
     .upload-content i {
-        font-size: 1.5rem;
+        font-size: 1rem;
     }
 }
 </style> 

@@ -193,29 +193,30 @@ const openUserModal = (user) => {
 }
 
 .user-avatar .avatar-circle {
-    width: 50px;
-    height: 50px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
     background: rgba(255, 255, 255, 0.2);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.5rem;
+    font-size: 1.1rem;
 }
 
 .status-card {
     display: flex;
     align-items: center;
-    padding: 1rem;
-    border-radius: 12px;
+    padding: 0.5rem 0.75rem;
+    border-radius: 8px;
     background: #f8f9fa;
     border: 1px solid #e9ecef;
     transition: all 0.3s ease;
+    margin-bottom: 0.5rem;
 }
 
 .status-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
 .status-card.verified {
@@ -239,14 +240,14 @@ const openUserModal = (user) => {
 }
 
 .status-icon {
-    width: 40px;
-    height: 40px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-right: 1rem;
-    font-size: 1.2rem;
+    margin-right: 0.5rem;
+    font-size: 1rem;
 }
 
 .status-card.verified .status-icon {
@@ -275,16 +276,16 @@ const openUserModal = (user) => {
 
 .status-title {
     margin: 0;
-    font-size: 0.875rem;
+    font-size: 0.8rem;
     font-weight: 600;
     color: #495057;
 }
 
 .status-badge {
     display: inline-block;
-    padding: 0.25rem 0.75rem;
-    border-radius: 20px;
-    font-size: 0.75rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 14px;
+    font-size: 0.7rem;
     font-weight: 600;
     color: white;
     text-transform: uppercase;
@@ -294,40 +295,41 @@ const openUserModal = (user) => {
 .section-title {
     color: #495057;
     font-weight: 600;
-    border-bottom: 2px solid #e9ecef;
-    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #e9ecef;
+    padding-bottom: 0.25rem;
+    font-size: 1rem;
 }
 
 .info-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0.5rem;
 }
 
 .info-item {
     background: #f8f9fa;
-    border-radius: 8px;
-    padding: 1rem;
+    border-radius: 6px;
+    padding: 0.5rem;
     border: 1px solid #e9ecef;
     transition: all 0.3s ease;
 }
 
 .info-item:hover {
     background: #e9ecef;
-    transform: translateX(4px);
+    transform: translateX(2px);
 }
 
 .info-label {
-    font-size: 0.875rem;
+    font-size: 0.8rem;
     font-weight: 600;
     color: #6c757d;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.2rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
 .info-value {
-    font-size: 1rem;
+    font-size: 0.9rem;
     font-weight: 500;
     color: #212529;
 }
@@ -335,9 +337,9 @@ const openUserModal = (user) => {
 .role-badge {
     background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
     color: white;
-    padding: 0.25rem 0.75rem;
-    border-radius: 20px;
-    font-size: 0.875rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 14px;
+    font-size: 0.7rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -348,47 +350,54 @@ const openUserModal = (user) => {
 }
 
 .modal-content {
-    border-radius: 16px;
+    border-radius: 10px;
     overflow: hidden;
 }
 
 .modal-header {
-    padding: 1.5rem;
+    padding: 0.75rem 1rem;
 }
 
 .modal-body {
-    padding: 1.5rem;
+    padding: 0.75rem 1rem;
 }
 
 .modal-footer {
-    padding: 1rem 1.5rem;
+    padding: 0.5rem 1rem;
 }
 
 .btn {
-    border-radius: 8px;
+    border-radius: 6px;
     font-weight: 500;
-    padding: 0.5rem 1.5rem;
+    padding: 0.4rem 1rem;
     transition: all 0.3s ease;
+    font-size: 0.8rem;
 }
 
 .btn:hover {
     transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+.modal-dialog {
+    max-width: 540px;
 }
 
 @media (max-width: 768px) {
     .info-grid {
         grid-template-columns: 1fr;
     }
-    
     .status-card {
         flex-direction: column;
         text-align: center;
     }
-    
     .status-icon {
         margin-right: 0;
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.3rem;
+    }
+    .modal-dialog {
+        margin: 0.5rem;
+        max-width: 98vw;
     }
 }
 </style>

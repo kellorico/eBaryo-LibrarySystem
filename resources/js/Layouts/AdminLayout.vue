@@ -1,5 +1,26 @@
 <script setup>
 import { Link } from '@inertiajs/vue3';
+import { ref, onMounted, onBeforeUnmount } from 'vue';
+
+const profileDropdownOpen = ref(false);
+
+function toggleProfileDropdown() {
+  profileDropdownOpen.value = !profileDropdownOpen.value;
+}
+
+function closeProfileDropdown(e) {
+  // Only close if click is outside the dropdown
+  if (!e.target.closest('.profile-dropdown-wrapper')) {
+    profileDropdownOpen.value = false;
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('click', closeProfileDropdown);
+});
+onBeforeUnmount(() => {
+  document.removeEventListener('click', closeProfileDropdown);
+});
 </script>
 
 <template>
@@ -179,24 +200,23 @@ import { Link } from '@inertiajs/vue3';
             <header class="bg-white shadow-sm py-3 border-bottom">
                 <div class="container-fluid px-4">
                     <div class="d-flex justify-content-between align-items-center">
-                        <div class="d-flex align-items-center gap-3 ms-auto">
-                            <div class="dropdown">
-                                <button class="btn btn-outline-success dropdown-toggle d-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown">
-                                    <div class="admin-avatar">
-                                        <i class="fas fa-user"></i>
-                                    </div>
-                                    <span>Admin</span>
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-end shadow border-0">
-                                    <li><Link class="dropdown-item d-flex align-items-center gap-2" href="/profile">
-                                        <i class="fa-solid fa-user"></i> Profile
-                                    </Link></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><Link class="dropdown-item d-flex align-items-center gap-2 text-danger" :href="route('logout')" method="post">
-                                        <i class="fa-solid fa-sign-out-alt"></i> Logout
-                                    </Link></li>
-                                </ul>
-                            </div>
+                        <div class="d-flex align-items-center gap-3 ms-auto profile-dropdown-wrapper" style="position: relative;">
+                            <button class="btn btn-outline-success d-flex align-items-center gap-2" type="button" @click="toggleProfileDropdown">
+                                <div class="admin-avatar">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <span>Admin</span>
+                                <i class="fa fa-caret-down"></i>
+                            </button>
+                            <ul v-show="profileDropdownOpen" class="dropdown-menu dropdown-menu-end shadow border-0 show" style="display: block; position: absolute; right: 0; top: 110%; min-width: 180px;">
+                                <li><Link class="dropdown-item d-flex align-items-center gap-2" :href="route('admin.profile')">
+                                    <i class="fa-solid fa-user"></i> Profile
+                                </Link></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><Link class="dropdown-item d-flex align-items-center gap-2 text-danger" :href="route('logout')" method="post">
+                                    <i class="fa-solid fa-sign-out-alt"></i> Logout
+                                </Link></li>
+                            </ul>
                         </div>
                     </div>
                 </div>

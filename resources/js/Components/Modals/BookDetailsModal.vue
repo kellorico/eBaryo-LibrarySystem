@@ -286,16 +286,17 @@ const onDelete = (event) => {
 .status-card {
     display: flex;
     align-items: center;
-    padding: 1rem;
-    border-radius: 12px;
-    background: #f8f9fa;
+    background: #fff;
+    border-radius: 8px;
+    padding: 0.5rem 0.75rem;
     border: 1px solid #e9ecef;
+    margin-bottom: 0.5rem;
     transition: all 0.3s ease;
 }
 
 .status-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
 .status-card.available {
@@ -309,14 +310,14 @@ const onDelete = (event) => {
 }
 
 .status-icon {
-    width: 40px;
-    height: 40px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-right: 1rem;
-    font-size: 1.2rem;
+    margin-right: 0.5rem;
+    font-size: 1rem;
 }
 
 .status-card.available .status-icon {
@@ -335,16 +336,16 @@ const onDelete = (event) => {
 
 .status-title {
     margin: 0;
-    font-size: 0.875rem;
+    font-size: 0.8rem;
     font-weight: 600;
     color: #495057;
 }
 
 .status-badge {
     display: inline-block;
-    padding: 0.25rem 0.75rem;
-    border-radius: 20px;
-    font-size: 0.75rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 14px;
+    font-size: 0.7rem;
     font-weight: 600;
     color: white;
     text-transform: uppercase;
@@ -354,20 +355,21 @@ const onDelete = (event) => {
 .section-title {
     color: #495057;
     font-weight: 600;
-    border-bottom: 2px solid #e9ecef;
-    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #e9ecef;
+    padding-bottom: 0.25rem;
+    font-size: 1rem;
 }
 
 .info-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0.5rem;
 }
 
 .info-item {
     background: #f8f9fa;
-    border-radius: 8px;
-    padding: 1rem;
+    border-radius: 6px;
+    padding: 0.5rem;
     border: 1px solid #e9ecef;
     transition: all 0.3s ease;
 }
@@ -378,36 +380,36 @@ const onDelete = (event) => {
 
 .info-item:hover {
     background: #e9ecef;
-    transform: translateX(4px);
+    transform: translateX(2px);
 }
 
 .info-label {
-    font-size: 0.875rem;
+    font-size: 0.8rem;
     font-weight: 600;
     color: #6c757d;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.2rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
 .info-value {
-    font-size: 1rem;
+    font-size: 0.9rem;
     font-weight: 500;
     color: #212529;
 }
 
 .description-text {
-    line-height: 1.6;
-    max-height: 100px;
+    line-height: 1.5;
+    max-height: 70px;
     overflow-y: auto;
 }
 
 .category-badge {
     background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
     color: white;
-    padding: 0.25rem 0.75rem;
-    border-radius: 20px;
-    font-size: 0.875rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 14px;
+    font-size: 0.7rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -415,22 +417,22 @@ const onDelete = (event) => {
 
 .action-buttons {
     border-top: 1px solid #e9ecef;
-    padding-top: 1.5rem;
+    padding-top: 0.75rem;
 }
 
 .action-btn {
-    border-radius: 8px;
+    border-radius: 6px;
     font-weight: 500;
-    padding: 0.75rem 1.5rem;
+    padding: 0.5rem 1rem;
     transition: all 0.3s ease;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    font-size: 0.875rem;
+    font-size: 0.8rem;
 }
 
 .action-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
 }
 
 .empty-state {
@@ -438,56 +440,61 @@ const onDelete = (event) => {
 }
 
 .modal-content {
-    border-radius: 16px;
+    border-radius: 10px;
     overflow: hidden;
 }
 
 .modal-header {
-    padding: 1.5rem;
+    padding: 0.75rem 1rem;
 }
 
 .modal-body {
-    padding: 1.5rem;
+    padding: 0.75rem 1rem;
 }
 
 .modal-footer {
-    padding: 1rem 1.5rem;
+    padding: 0.5rem 1rem;
 }
 
 .btn {
-    border-radius: 8px;
+    border-radius: 6px;
     font-weight: 500;
-    padding: 0.5rem 1.5rem;
+    padding: 0.4rem 1rem;
     transition: all 0.3s ease;
+    font-size: 0.8rem;
 }
 
 .btn:hover {
     transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+.modal-dialog {
+    max-width: 540px;
 }
 
 @media (max-width: 768px) {
     .info-grid {
         grid-template-columns: 1fr;
     }
-    
     .status-card {
         flex-direction: column;
         text-align: center;
     }
-    
     .status-icon {
         margin-right: 0;
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.3rem;
     }
-    
     .action-buttons .d-flex {
         flex-direction: column;
     }
-    
     .action-btn {
         width: 100%;
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.3rem;
+    }
+    .modal-dialog {
+        margin: 0.5rem;
+        max-width: 98vw;
     }
 }
 </style> 

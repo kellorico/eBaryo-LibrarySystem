@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\Books\CulturalHeritageBookController;
 use App\Http\Controllers\Admin\Books\EducationalBookController;
 use App\Http\Controllers\Admin\Books\StoryBookController;
 use App\Http\Controllers\Admin\CategoriesController;
+use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\Users\AllUsersController;
 use App\Http\Controllers\Admin\Users\VerifiedUsersController;
 use Illuminate\Auth\Events\Verified;
@@ -66,6 +67,9 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/users/verifiedusers', [VerifiedUsersController::class, 'index'])->name('verifiedusers');
     //bokmarks
     Route::post('/bookmarks', [BookMarkController::class, 'store']);
+
+    //Admin Profile
+    Route::get('/profile',[ProfileController::class, 'index'])->name('admin.profile');
 });
 
 
