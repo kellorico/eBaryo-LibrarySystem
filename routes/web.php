@@ -10,9 +10,13 @@ use App\Http\Controllers\Admin\CategoriesController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\Users\AllUsersController;
 use App\Http\Controllers\Admin\Users\VerifiedUsersController;
+use App\Http\Controllers\Admin\Users\UnVerifiedUsersController;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 
 Route::get('/', function () {
     return Inertia::render('Welcome');
@@ -26,9 +30,7 @@ Route::middleware(['auth', 'role:user'])->group(function () {
 Route::middleware(['auth', 'role:admin'])->group(function () {
 
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
-    Route::get('/categories', [CategoriesController::class, 'index'])->name('categories');
-    Route::post('/categories', [CategoriesController::class, 'store']);
-
+    
     //Books
     //story books
     Route::get('/books/storybooks', [StoryBookController::class, 'index'])
@@ -63,6 +65,11 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/users/allusers', [AllUsersController::class, 'index'])->name('allusers');
     Route::put('/users/allusers/{id}', [AllUsersController::class, 'verify']);
 
+    // Unverified Users
+    Route::get('/users/unverifiedusers', [UnVerifiedUsersController::class, 'index'])->name('unverifiedusers');
+    Route::put('/users/unverifiedusers/{id}', [UnVerifiedUsersController::class, 'verify']);
+    Route::delete('/users/unverifiedusers/{id}', [UnVerifiedUsersController::class, 'destroy']);
+
     //Verified Users
     Route::get('/users/verifiedusers', [VerifiedUsersController::class, 'index'])->name('verifiedusers');
     //bokmarks
@@ -70,7 +77,28 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
     //Admin Profile
     Route::get('/profile',[ProfileController::class, 'index'])->name('admin.profile');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('admin.profile.update');
+    Route::put('/profile/password', [ProfileController::class, 'changePassword'])->name('admin.profile.password');
+    Route::post('/profile/avatar', [ProfileController::class, 'uploadAvatar'])->name('admin.profile.avatar');
+    Route::post('/profile/send-verification', [ProfileController::class, 'sendVerificationEmail'])->name('admin.profile.sendVerification');
 });
 
 
 require __DIR__.'/auth.php';
+
+// Add Laravel email verification routes
+Route::middleware('auth')->group(function () {
+    Route::get('/email/verify', function () {
+        return inertia('Auth/VerifyEmail');
+    })->name('verification.notice');
+
+    Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
+        $request->fulfill();
+        return redirect(Auth::user()->role === 'admin' ? '/profile' : '/home');
+    })->middleware(['signed'])->name('verification.verify');
+
+    Route::post('/email/verification-notification', function (Request $request) {
+        $request->user()->sendEmailVerificationNotification();
+        return back()->with('success', 'Verification link sent!');
+    })->middleware(['throttle:6,1'])->name('verification.send');
+});

@@ -3,23 +3,36 @@ import { Link } from '@inertiajs/vue3';
 import { ref, onMounted, onBeforeUnmount } from 'vue';
 
 const profileDropdownOpen = ref(false);
+const notificationDropdownOpen = ref(false);
+
+const dummyNotifications = ref([
+  { id: 1, message: 'New user registered', time: '2 mins ago' },
+  { id: 2, message: 'Book "Agri 101" was added', time: '10 mins ago' },
+  { id: 3, message: 'System backup completed', time: '1 hour ago' },
+]);
 
 function toggleProfileDropdown() {
   profileDropdownOpen.value = !profileDropdownOpen.value;
 }
 
-function closeProfileDropdown(e) {
-  // Only close if click is outside the dropdown
+function toggleNotificationDropdown() {
+  notificationDropdownOpen.value = !notificationDropdownOpen.value;
+}
+
+function closeDropdowns(e) {
   if (!e.target.closest('.profile-dropdown-wrapper')) {
     profileDropdownOpen.value = false;
+  }
+  if (!e.target.closest('.notification-dropdown-wrapper')) {
+    notificationDropdownOpen.value = false;
   }
 }
 
 onMounted(() => {
-  document.addEventListener('click', closeProfileDropdown);
+  document.addEventListener('click', closeDropdowns);
 });
 onBeforeUnmount(() => {
-  document.removeEventListener('click', closeProfileDropdown);
+  document.removeEventListener('click', closeDropdowns);
 });
 </script>
 
@@ -178,18 +191,6 @@ onBeforeUnmount(() => {
                             </div>
                         </div>
                     </div>
-
-                    <!-- Categories -->
-                    <Link 
-                        href="/categories" 
-                        class="nav-item d-flex align-items-center text-white p-3 rounded-3"
-                        :class="{ 'nav-item-active': $page.url === '/categories' }"
-                    >
-                        <div class="nav-icon me-3">
-                            <i class="fa-solid fa-list"></i>
-                        </div>
-                        <span class="nav-text fw-medium">Categories</span>
-                    </Link>
                 </nav> 
             </div>
         </aside>
@@ -197,33 +198,53 @@ onBeforeUnmount(() => {
         <!-- Main Content Area -->
         <div class="flex-grow-1 d-flex flex-column">
             <!-- Enhanced Header -->
-            <header class="bg-white shadow-sm py-3 border-bottom">
+            <header class="bg-white shadow-sm py-3 border-bottom fixed-header">
                 <div class="container-fluid px-4">
                     <div class="d-flex justify-content-between align-items-center">
-                        <div class="d-flex align-items-center gap-3 ms-auto profile-dropdown-wrapper" style="position: relative;">
-                            <button class="btn btn-outline-success d-flex align-items-center gap-2" type="button" @click="toggleProfileDropdown">
-                                <div class="admin-avatar">
-                                    <i class="fas fa-user"></i>
-                                </div>
-                                <span>Admin</span>
-                                <i class="fa fa-caret-down"></i>
-                            </button>
-                            <ul v-show="profileDropdownOpen" class="dropdown-menu dropdown-menu-end shadow border-0 show" style="display: block; position: absolute; right: 0; top: 110%; min-width: 180px;">
-                                <li><Link class="dropdown-item d-flex align-items-center gap-2" :href="route('admin.profile')">
-                                    <i class="fa-solid fa-user"></i> Profile
-                                </Link></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><Link class="dropdown-item d-flex align-items-center gap-2 text-danger" :href="route('logout')" method="post">
-                                    <i class="fa-solid fa-sign-out-alt"></i> Logout
-                                </Link></li>
-                            </ul>
+                        <div class="d-flex align-items-center gap-3 ms-auto">
+                            <!-- Notification Bell -->
+                            <div class="notification-dropdown-wrapper" style="position: relative;">
+                                <button class="btn btn-outline-secondary position-relative d-flex align-items-center" type="button" @click="toggleNotificationDropdown">
+                                    <i class="fa fa-bell"></i>
+                                    <span v-if="dummyNotifications.length" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.7rem;">{{ dummyNotifications.length }}</span>
+                                </button>
+                                <ul v-show="notificationDropdownOpen" class="dropdown-menu dropdown-menu-end shadow border-0 show" style="display: block; position: absolute; right: 0; top: 110%; min-width: 260px; max-width: 320px;">
+                                    <li class="dropdown-header fw-bold text-success">Notifications</li>
+                                    <li v-if="dummyNotifications.length === 0" class="dropdown-item text-muted">No notifications</li>
+                                    <li v-for="notif in dummyNotifications" :key="notif.id" class="dropdown-item d-flex flex-column gap-1">
+                                        <span>{{ notif.message }}</span>
+                                        <small class="text-muted" style="font-size: 0.8em;">{{ notif.time }}</small>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><button class="dropdown-item text-center text-primary" style="background: none; border: none;" @click="dummyNotifications = []">Clear All</button></li>
+                                </ul>
+                            </div>
+                            <!-- Profile Dropdown -->
+                            <div class="profile-dropdown-wrapper" style="position: relative;">
+                                <button class="btn btn-outline-success d-flex align-items-center gap-2" type="button" @click="toggleProfileDropdown">
+                                    <div class="admin-avatar">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                    <span>Admin</span>
+                                    <i class="fa fa-caret-down"></i>
+                                </button>
+                                <ul v-show="profileDropdownOpen" class="dropdown-menu dropdown-menu-end shadow border-0 show" style="display: block; position: absolute; right: 0; top: 110%; min-width: 180px;">
+                                    <li><Link class="dropdown-item d-flex align-items-center gap-2" :href="route('admin.profile')">
+                                        <i class="fa-solid fa-user"></i> Profile
+                                    </Link></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><Link class="dropdown-item d-flex align-items-center gap-2 text-danger" :href="route('logout')" method="post">
+                                        <i class="fa-solid fa-sign-out-alt"></i> Logout
+                                    </Link></li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
                 </div>
             </header>
 
             <!-- Main Content -->
-            <main class="flex-grow-1 p-4 bg-light">
+            <main class="flex-grow-1 p-4 bg-light main-content-with-header">
                 <div class="container-fluid">
                     <slot />
                 </div>
@@ -404,5 +425,42 @@ main {
 
 .sidebar::-webkit-scrollbar-thumb:hover {
     background: rgba(255, 255, 255, 0.5);
+}
+
+.notification-dropdown-wrapper .btn {
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+}
+
+.notification-dropdown-wrapper .badge {
+    pointer-events: none;
+}
+
+.fixed-header {
+    position: fixed;
+    top: 0;
+    left: 280px; /* width of sidebar */
+    right: 0;
+    z-index: 1050;
+    width: calc(100% - 280px);
+}
+
+.main-content-with-header {
+    margin-top: 72px; /* adjust if header height changes */
+}
+
+@media (max-width: 768px) {
+    .fixed-header {
+        left: 0;
+        width: 100%;
+    }
+    .main-content-with-header {
+        margin-top: 72px;
+    }
 }
 </style>

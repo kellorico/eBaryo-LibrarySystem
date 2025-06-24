@@ -11,7 +11,12 @@ class VerifiedUsersController extends Controller
     public function index () {
         $verifiedUsers = User::where('verified', 1)
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->get()
+            ->map(function($user) {
+                $userArray = $user->toArray();
+                $userArray['avatar_url'] = $user->avatar_url;
+                return $userArray;
+            });
 
             return inertia('Admin/Users/VerifiedUsers', [
                 'verifiedUsers' => $verifiedUsers

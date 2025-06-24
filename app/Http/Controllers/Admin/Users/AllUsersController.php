@@ -10,11 +10,16 @@ class AllUsersController extends Controller
 {
     public function index () {
 
-        $user = User::where('role', '!=', 'admin')
+        $users = User::where('role', '!=', 'admin')
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->get()
+            ->map(function($user) {
+                $userArray = $user->toArray();
+                $userArray['avatar_url'] = $user->avatar_url;
+                return $userArray;
+            });
         return inertia('Admin/Users/AllUsers',[
-            'users' => $user
+            'users' => $users
         ]);
     }
 

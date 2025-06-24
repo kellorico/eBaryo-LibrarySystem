@@ -64,7 +64,7 @@ class AgricultureandLivelihoodBookController extends Controller
             'title' => 'required|string|max:255',
             'author' => 'required|string|max:255',
             'description' => 'required|string',
-            'file_path' => 'nullable|file|mimes:pdf,epub|max:10240', // 10MB max
+            'file_path' => 'nullable|file|mimes:pdf,epub|max:512000', // 10MB max
             'cover_image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'published_year' => 'required|integer|min:1900|max:' . date('Y'),
             'category_id' => 'required|exists:categories,id',

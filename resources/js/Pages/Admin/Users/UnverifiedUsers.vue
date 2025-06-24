@@ -1,9 +1,12 @@
 <script setup>
-import AdminLayout from '@/Layouts/AdminLayout.vue';
-import { router } from "@inertiajs/vue3";
-import { ref } from "vue";
+import AdminLayout from "@/Layouts/AdminLayout.vue";
+import { router, usePage } from "@inertiajs/vue3";
+import { ref, computed } from "vue";
 import Swal from "sweetalert2";
 import UserDetailsModal from "@/Components/Modals/UserDetailsModal.vue";
+import SearchBar from "@/Components/SearchBar.vue";
+
+const page = usePage();
 
 const confirmDelete = (userId) => {
     Swal.fire({
@@ -16,7 +19,7 @@ const confirmDelete = (userId) => {
         confirmButtonText: "Yes, delete it!",
     }).then((result) => {
         if (result.isConfirmed) {
-            router.delete(`/admin/users/${userId}`);
+            router.delete(`/users/unverifiedusers/${userId}`);
         }
     });
 };
@@ -32,16 +35,20 @@ const confirmVerify = (userId) => {
         confirmButtonText: "Yes, verify",
     }).then((result) => {
         if (result.isConfirmed) {
-            router.put(`/admin/users/${userId}`, {}, {
-                onSuccess: () => {
-                    Swal.fire({
-                        icon: "success",
-                        title: "Verified!",
-                        text: "User has been verified successfully.",
-                        confirmButtonColor: "#198754",
-                    });
-                },
-            });
+            router.put(
+                `/users/unverifiedusers/${userId}`,
+                {},
+                {
+                    onSuccess: () => {
+                        Swal.fire({
+                            icon: "success",
+                            title: "Verified!",
+                            text: "User has been verified successfully.",
+                            confirmButtonColor: "#198754",
+                        });
+                    },
+                }
+            );
         }
     });
 };
@@ -53,6 +60,19 @@ const openUserModal = (user) => {
     selectedUser.value = user;
     showModal.value = true;
 };
+
+const search = ref('');
+
+const filteredUsers = computed(() => {
+    if (!search.value) return page.props.users;
+    return page.props.users.filter(user => {
+        const term = search.value.toLowerCase();
+        return (
+            user.name.toLowerCase().includes(term) ||
+            user.email.toLowerCase().includes(term)
+        );
+    });
+});
 </script>
 
 <template>
@@ -61,111 +81,165 @@ const openUserModal = (user) => {
             <!-- Header Section -->
             <div class="row mb-4">
                 <div class="col-12">
-                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
+                    <div
+                        class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center"
+                    >
                         <div class="mb-3 mb-md-0">
                             <div class="d-flex align-items-center mb-2">
-                                <div class="bg-warning bg-opacity-10 rounded-3 p-2 me-3">
-                                    <i class="fas fa-user-clock text-warning" style="font-size: 1.5rem;"></i>
+                                <div
+                                    class="bg-warning bg-opacity-10 rounded-3 p-2 me-3"
+                                >
+                                    <i
+                                        class="fas fa-user-clock text-warning"
+                                        style="font-size: 1.5rem"
+                                    ></i>
                                 </div>
-                                <h1 class="h2 fw-bold text-dark mb-0">Unverified Users</h1>
+                                <h1 class="h2 fw-bold text-dark mb-0">
+                                    Unverified Users
+                                </h1>
                             </div>
-                            <p class="text-muted mb-0">Review and approve pending user registrations</p>
+                            <p class="text-muted mb-0">
+                                Review and approve pending user registrations
+                            </p>
                         </div>
                         <div class="d-flex align-items-center">
-                            <span class="badge bg-warning bg-opacity-10 text-warning me-3 px-3 py-2">
+                            <span
+                                class="badge bg-warning bg-opacity-10 text-warning me-3 px-3 py-2"
+                            >
                                 <i class="fas fa-clock me-1"></i>
-                                {{ $page.props.users?.length || 0 }} Pending
+                                {{ page.props.users?.length || 0 }} Pending
                             </span>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Users Grid -->
-            <div v-if="$page.props.users && $page.props.users.length" class="row g-4">
-                <div v-for="user in $page.props.users" :key="user.id" class="col-12 col-lg-6 col-xl-4">
-                    <div class="card border-0 shadow-sm hover-shadow transition-all">
-                        <div class="card-body p-4">
-                            <!-- User Header -->
-                            <div class="d-flex align-items-center mb-3">
-                                <div class="bg-warning bg-opacity-10 rounded-circle p-3 me-3">
-                                    <i class="fas fa-user-clock text-warning"></i>
-                                </div>
-                                <div class="flex-grow-1">
-                                    <h5 class="card-title fw-semibold text-dark mb-1">{{ user.name }}</h5>
-                                    <p class="text-muted small mb-0">{{ user.email }}</p>
-                                </div>
-                                <div class="dropdown">
-                                    <ul class="dropdown-menu">
-                                        <li><button class="dropdown-item" @click="openUserModal(user)">
-                                            <i class="fas fa-eye me-2"></i>View Details
-                                        </button></li>
-                                        <li><button class="dropdown-item text-success" @click="confirmVerify(user.id)">
-                                            <i class="fas fa-check me-2"></i>Verify User
-                                        </button></li>
-                                        <li><hr class="dropdown-divider"></li>
-                                        <li><button class="dropdown-item text-danger" @click="confirmDelete(user.id)">
-                                            <i class="fas fa-trash me-2"></i>Delete User
-                                        </button></li>
-                                    </ul>
+            <SearchBar v-model="search" placeholder="Search by name or email..." />
+            <table
+                class="table align-middle table-hover bg-white rounded shadow-sm"
+            >
+                <thead class="table-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>User</th>
+                        <th>Status</th>
+                        <th>Email</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-if="filteredUsers.length === 0">
+                        <td colspan="5" class="text-center text-muted">No users found.</td>
+                    </tr>
+                    <tr v-for="user in filteredUsers" :key="user.id">
+                        <td>{{ user.id }}</td>
+                        <td class="d-flex align-items-center gap-2">
+                            <img
+                                v-if="user.avatar_url"
+                                :src="user.avatar_url"
+                                alt="Avatar"
+                                style="
+                                    width: 40px;
+                                    height: 40px;
+                                    border-radius: 50%;
+                                    object-fit: cover;
+                                "
+                            />
+                            <i
+                                v-else
+                                class="fas fa-user-clock text-warning bg-light p-2 rounded-circle"
+                                style="
+                                    width: 40px;
+                                    height: 40px;
+                                    font-size: 1.5rem;
+                                "
+                            ></i>
+                            <div>
+                                <div class="fw-semibold">{{ user.name }}</div>
+                                <div class="text-muted small">
+                                    {{ user.role }}
                                 </div>
                             </div>
-
-                            <!-- User Info -->
-                            <div class="row g-3 mb-3">
-                                <div class="col-6">
-                                    <div class="d-flex align-items-center">
-                                        <i class="fas fa-id-badge text-muted me-2"></i>
-                                        <span class="small text-muted">ID: {{ user.id }}</span>
-                                    </div>
-                                </div>
-                                <div class="col-6">
-                                    <div class="d-flex align-items-center">
-                                        <i class="fas fa-user-tag text-muted me-2"></i>
-                                        <span class="small text-muted">{{ user.role }}</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Status Badges -->
-                            <div class="d-flex flex-wrap gap-2 mb-3">
-                                <span class="badge bg-warning text-dark">
-                                    <i class="fas fa-clock me-1"></i>
-                                    Pending Verification
-                                </span>
-                            </div>
-
-                            <!-- Action Buttons -->
-                            <div class="d-flex gap-2">
-                                <button class="btn btn-outline-success btn-sm flex-fill" @click="confirmVerify(user.id)">
-                                    <i class="fas fa-check me-1"></i>Verify
-                                </button>
-                                <button class="btn btn-outline-info btn-sm" @click="openUserModal(user)">
-                                    <i class="fas fa-eye me-1"></i>View
-                                </button>
-                                <button class="btn btn-outline-danger btn-sm" @click="confirmDelete(user.id)">
-                                    <i class="fas fa-trash me-1"></i>Delete
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Empty State -->
-            <div v-else class="text-center py-5">
-                <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
-                    <i class="fas fa-user-clock fa-2x text-muted"></i>
-                </div>
-                <h3 class="h5 fw-semibold text-dark mb-2">No unverified users</h3>
-                <p class="text-muted mb-4">All users have been verified or there are no pending registrations.</p>
-                <div class="alert alert-success border-0 bg-success bg-opacity-10 d-inline-block">
-                    <div class="d-flex align-items-center">
-                        <i class="fas fa-check-circle text-success me-2"></i>
-                        <span class="small">Great! All users are up to date.</span>
-                    </div>
-                </div>
-            </div>
+                        </td>
+                        <td>
+                            <span
+                                class="badge bg-warning text-dark"
+                                style="font-size: 0.85rem"
+                                >Pending</span
+                            >
+                            <span
+                                v-if="user.is_student == 1"
+                                class="badge bg-info ms-1"
+                                style="font-size: 0.85rem"
+                                >Student</span
+                            >
+                            <span
+                                v-else
+                                class="badge bg-secondary ms-1"
+                                style="font-size: 0.85rem"
+                                >Not a Student</span
+                            >
+                            <span
+                                :class="
+                                    user.email_verified_at
+                                        ? 'badge bg-success ms-1'
+                                        : 'badge bg-danger ms-1'
+                                "
+                                style="font-size: 0.85rem"
+                            >
+                                {{
+                                    user.email_verified_at
+                                        ? "Email Verified"
+                                        : "Email Not Verified"
+                                }}
+                            </span>
+                        </td>
+                        <td>{{ user.email }}</td>
+                        <td class="text-end">
+                            <button
+                                class="btn btn-link text-primary p-0 me-2"
+                                @click="openUserModal(user)"
+                                title="View"
+                            >
+                                <i class="fas fa-search"></i>
+                            </button>
+                            <button
+                                class="btn btn-link text-success p-0 me-2"
+                                @click="confirmVerify(user.id)"
+                                title="Verify"
+                            >
+                                <i class="fas fa-check"></i>
+                            </button>
+                            <button
+                                class="btn btn-link text-danger p-0"
+                                @click="confirmDelete(user.id)"
+                                title="Delete"
+                            >
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <nav class="mt-3">
+                <ul class="pagination justify-content-end mb-0">
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#">&laquo;</a>
+                    </li>
+                    <li class="page-item active">
+                        <a class="page-link" href="#">1</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="#">2</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="#">3</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="#">&raquo;</a>
+                    </li>
+                </ul>
+            </nav>
         </div>
 
         <UserDetailsModal

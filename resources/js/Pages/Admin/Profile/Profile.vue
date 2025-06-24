@@ -1,6 +1,6 @@
 <script setup>
-import { ref, computed } from "vue";
-import { usePage } from "@inertiajs/vue3";
+import { ref, computed, onMounted } from "vue";
+import { usePage, router } from "@inertiajs/vue3";
 import AdminLayout from "@/Layouts/AdminLayout.vue";
 
 const page = usePage();
@@ -79,13 +79,30 @@ function closeEditModal() {
 }
 
 function submitEditProfile() {
-    toast.value = {
-        show: true,
-        message: "Profile updated successfully!",
-        success: true,
-    };
-    showEditModal.value = false;
-    setTimeout(() => (toast.value.show = false), 3000);
+    router.put(
+        '/profile',
+        form.value,
+        {
+            preserveScroll: true,
+            onSuccess: () => {
+                toast.value = {
+                    show: true,
+                    message: "Profile updated successfully!",
+                    success: true,
+                };
+                showEditModal.value = false;
+                setTimeout(() => (toast.value.show = false), 3000);
+            },
+            onError: (errors) => {
+                toast.value = {
+                    show: true,
+                    message: errors && Object.values(errors)[0] ? Object.values(errors)[0] : "Failed to update profile.",
+                    success: false,
+                };
+                setTimeout(() => (toast.value.show = false), 3000);
+            },
+        }
+    );
 }
 
 function submitChangePassword() {
@@ -97,28 +114,106 @@ function submitChangePassword() {
         };
         return setTimeout(() => (toast.value.show = false), 3000);
     }
-    toast.value = {
-        show: true,
-        message: "Password changed successfully!",
-        success: true,
-    };
-    passwordForm.value = { current: "", new: "", confirm: "" };
-    setTimeout(() => (toast.value.show = false), 3000);
+    router.put(
+        '/profile/password',
+        {
+            current: passwordForm.value.current,
+            new: passwordForm.value.new,
+            new_confirmation: passwordForm.value.confirm,
+        },
+        {
+            preserveScroll: true,
+            onSuccess: () => {
+                toast.value = {
+                    show: true,
+                    message: "Password changed successfully!",
+                    success: true,
+                };
+                passwordForm.value = { current: "", new: "", confirm: "" };
+                setTimeout(() => (toast.value.show = false), 3000);
+            },
+            onError: (errors) => {
+                toast.value = {
+                    show: true,
+                    message: errors && Object.values(errors)[0] ? Object.values(errors)[0] : "Failed to change password.",
+                    success: false,
+                };
+                setTimeout(() => (toast.value.show = false), 3000);
+            },
+        }
+    );
 }
+
 function triggerAvatarUpload() {
     avatarInput.value && avatarInput.value.click();
 }
+
 function handleAvatarChange(e) {
     const file = e.target.files[0];
     if (file) {
+        const formData = new FormData();
+        formData.append('avatar', file);
+        router.post('/profile/avatar', formData, {
+            forceFormData: true,
+            onSuccess: (page) => {
+                if (page.props.avatar_url) {
+                    user.value.avatar_url = page.props.avatar_url;
+                }
+                toast.value = {
+                    show: true,
+                    message: "Avatar updated!",
+                    success: true,
+                };
+                setTimeout(() => (toast.value.show = false), 3000);
+            },
+            onError: (errors) => {
+                toast.value = {
+                    show: true,
+                    message: errors && Object.values(errors)[0] ? Object.values(errors)[0] : "Failed to upload avatar.",
+                    success: false,
+                };
+                setTimeout(() => (toast.value.show = false), 3000);
+            },
+        });
+    }
+}
+
+function sendVerificationEmail() {
+    router.post(
+        '/profile/send-verification',
+        {},
+        {
+            preserveScroll: true,
+            onSuccess: () => {
+                toast.value = {
+                    show: true,
+                    message: "Verification email sent!",
+                    success: true,
+                };
+                setTimeout(() => (toast.value.show = false), 3000);
+            },
+            onError: (errors) => {
+                toast.value = {
+                    show: true,
+                    message: errors && Object.values(errors)[0] ? Object.values(errors)[0] : "Failed to send verification email.",
+                    success: false,
+                };
+                setTimeout(() => (toast.value.show = false), 3000);
+            },
+        }
+    );
+}
+
+onMounted(() => {
+    if (page.props.status === 'verified') {
         toast.value = {
             show: true,
-            message: "Avatar updated! (Not yet saved to backend)",
+            message: "Your email is now verified!",
             success: true,
         };
         setTimeout(() => (toast.value.show = false), 3000);
     }
-}
+});
 </script>
 
 <template>
@@ -139,6 +234,13 @@ function handleAvatarChange(e) {
                             <div
                                 class="profile-accent-bar bg-gradient-success position-absolute top-0 start-0 w-100"
                             ></div>
+                            <button
+                                class="btn btn-success position-absolute top-0 end-0 m-3 z-3"
+                                style="border-radius: 50px;"
+                                @click="openEditModal"
+                            >
+                                <i class="fa fa-edit me-1"></i> Edit Profile
+                            </button>
                         </div>
                         <div
                             class="d-flex flex-column align-items-center p-4 pb-3 bg-white position-relative"
@@ -351,7 +453,7 @@ function handleAvatarChange(e) {
                                                     "
                                                 />
                                             </div>
-                                            <div class="fw-semibold">
+                                            <div class="fw-semibold d-flex align-items-center gap-2">
                                                 <span
                                                     :class="
                                                         user.email_verified_at
@@ -365,17 +467,16 @@ function handleAvatarChange(e) {
                                                             : "No"
                                                     }}
                                                 </span>
+                                                <button
+                                                    v-if="!user.email_verified_at"
+                                                    class="btn btn-sm btn-outline-success ms-2"
+                                                    @click="sendVerificationEmail"
+                                                    style="font-size: 0.85rem;"
+                                                >
+                                                    <i class="fa fa-envelope me-1"></i> Verify Email
+                                                </button>
                                             </div>
                                         </div>
-                                    </div>
-                                    <div class="col-12 text-center mt-3">
-                                        <button
-                                            class="btn btn-success"
-                                            @click="openEditModal"
-                                        >
-                                            <i class="fa fa-edit me-1"></i> Edit
-                                            Profile
-                                        </button>
                                     </div>
                                 </div>
                                 <!-- Quick Stats Section -->

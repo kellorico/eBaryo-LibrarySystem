@@ -73,7 +73,8 @@ const openUserModal = (user) => {
                     <div class="d-flex align-items-center">
                         <div class="user-avatar me-3">
                             <div class="avatar-circle">
-                                <i class="fas fa-user"></i>
+                                <img v-if="user && user.avatar_url" :src="user.avatar_url" alt="Avatar" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;" />
+                                <i v-else class="fas fa-user"></i>
                             </div>
                         </div>
                         <div>
@@ -91,34 +92,20 @@ const openUserModal = (user) => {
                         </div>
                     </div>
                     <div v-else class="user-details">
-                        <!-- User Status Cards -->
-                        <div class="row mb-4">
-                            <div class="col-md-6 mb-3">
-                                <div class="status-card" :class="user.verified ? 'verified' : 'unverified'">
-                                    <div class="status-icon">
-                                        <i :class="user.verified == 1 ? 'fas fa-check-circle' : 'fas fa-clock'"></i>
-                                    </div>
-                                    <div class="status-content">
-                                        <h6 class="status-title">Verification Status</h6>
-                                        <span class="status-badge" :class="user.verified == 1 ? 'bg-success' : 'bg-warning'">
-                                            {{ user.verified == 1 ? 'Verified' : 'Not Verified' }}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <div class="status-card" :class="user.is_student ? 'student' : 'non-student'">
-                                    <div class="status-icon">
-                                        <i :class="user.is_student ? 'fas fa-graduation-cap' : 'fas fa-user-tie'"></i>
-                                    </div>
-                                    <div class="status-content">
-                                        <h6 class="status-title">User Type</h6>
-                                        <span class="status-badge" :class="user.is_student ? 'bg-info' : 'bg-secondary'">
-                                            {{ user.is_student ? 'Student' : 'Not a Student' }}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
+                        <!-- User Status Badges Section (add after modal-title or in user-details) -->
+                        <div class="mb-3 d-flex flex-wrap gap-2">
+                            <span :class="user.verified == 1 ? 'badge bg-success' : 'badge bg-warning text-dark'">
+                                <i class="fas fa-check-circle me-1"></i>
+                                {{ user.verified == 1 ? 'Verified' : 'Not Verified' }}
+                            </span>
+                            <span :class="user.is_student ? 'badge bg-info' : 'badge bg-secondary'">
+                                <i :class="user.is_student ? 'fas fa-user-graduate me-1' : 'fas fa-user-tie me-1'" />
+                                {{ user.is_student ? 'Student' : 'Not a Student' }}
+                            </span>
+                            <span :class="user.email_verified_at ? 'badge bg-success' : 'badge bg-danger'">
+                                <i class="fas fa-envelope me-1"></i>
+                                {{ user.email_verified_at ? 'Email Verified' : 'Email Not Verified' }}
+                            </span>
                         </div>
 
                         <!-- User Information -->

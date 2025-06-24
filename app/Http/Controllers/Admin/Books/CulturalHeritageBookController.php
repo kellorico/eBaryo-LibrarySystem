@@ -33,7 +33,7 @@ class CulturalHeritageBookController extends Controller
             'title' => 'required|string|max:255',
             'author' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'file_path' => 'required|file|mimes:pdf,epub',
+            'file_path' => 'required|file|mimes:pdf,epub|max:512000',
             'cover_image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'published_year' => 'required|integer|min:1900|max:' . date('Y'),
             'category_id' => 'required|exists:categories,id',
