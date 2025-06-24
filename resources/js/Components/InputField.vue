@@ -37,7 +37,6 @@ const emit = defineEmits(['update:modelValue']);
       :type="type"
       :value="modelValue"
       @input="emit('update:modelValue', $event.target.value)"
-      :required="required"
       class="form-control"
       :class="{ 'is-invalid': error }"
     />

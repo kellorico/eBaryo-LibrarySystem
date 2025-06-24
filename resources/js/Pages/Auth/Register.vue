@@ -14,12 +14,12 @@ const formData = useForm({
 const submitForm = () => {
     formData.processing = true;
     formData.post(route("register"), {
-        onFinish: () => {
-            formData.processing = false;
-            formData.reset();
-        },
+        onSuccess: () => formData.reset(),
         preserveScroll: true,
-        errorBag: "register",
+        onError: (error) => {
+            formData.reset("email", "password", "password_confirmation");
+            formData.processing = false;
+        },
     });
 };
 </script>
@@ -37,7 +37,6 @@ const submitForm = () => {
                             type="text"
                             v-model="formData.name"
                             :error="formData.errors.name"
-                            required
                         />
                         <InputField
                             id="email"
@@ -45,7 +44,6 @@ const submitForm = () => {
                             type="email"
                             v-model="formData.email"
                             :error="formData.errors.email"
-                            required
                         />
                         <InputField
                             id="password"
@@ -53,7 +51,6 @@ const submitForm = () => {
                             type="password"
                             v-model="formData.password"
                             :error="formData.errors.password"
-                            required
                         />
                         <InputField
                             id="password_confirmation"
@@ -61,7 +58,6 @@ const submitForm = () => {
                             type="password"
                             v-model="formData.password_confirmation"
                             :error="formData.errors.password_confirmation"
-                            required
                         />
 
                         <PrimaryButton
@@ -78,7 +74,7 @@ const submitForm = () => {
                                 <Link href="/login" class="link">Login</Link>
                             </p>
                             <p>
-                                <Link href="/forgot-password" class="link"
+                                <Link :href="route('password.request')" class="link"
                                     >Forgot Password?</Link
                                 >
                             </p>

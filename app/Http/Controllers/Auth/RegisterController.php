@@ -9,16 +9,25 @@ use Illuminate\Http\Request;
 
 class RegisterController extends Controller
 {
-    public function show () {
+    public function show()
+    {
         return inertia('Auth/Register');
     }
 
-    public function store (Request $request) {
+    public function store(Request $request)
+    {
         $credentials = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
         ]);
+
+
+        if (User::where('email', $credentials['email'])->exists()) {
+            return back()->withErrors([
+                'email' => 'This email is already registered.',
+            ])->onlyInput('email');
+        }
 
         $user = User::create($credentials);
 

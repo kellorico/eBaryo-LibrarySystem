@@ -2,24 +2,58 @@
 import GuestLayout from "@/Layouts/GuestLayout.vue";
 import InputField from "@/Components/InputField.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
-import { useForm, Link } from "@inertiajs/vue3";
+import { useForm, Link,usePage } from "@inertiajs/vue3";
+import Toast from '@/Components/Toast.vue';
+import { ref, watch, computed, onMounted } from 'vue';
 
 const formData = useForm({
     email: "",
     password: "",
 });
 
+const props = defineProps({
+    success: String
+});
+
+const showToast = ref(false);
+
+const successMessage = computed(() => props.success || (new URLSearchParams(window.location.search)).get('success'));
+
+watch(() => successMessage.value, (val) => {
+  if (val) showToast.value = true;
+});
+
+watch(showToast, (val) => {
+  if (val) {
+    setTimeout(() => {
+      showToast.value = false;
+    }, 3000);
+  }
+});
+
 const submitForm = () => {
-    formData.post("/login", {
-        onFinish: () => formData.reset(),
+    formData.post(route("login"), {
+        onSuccess: () => formData.reset(),
         preserveScroll: true,
-        errorBag: "login",
+        onError: (error) => {
+            formData.reset("password");
+        },
     });
 };
+
+onMounted(() => {
+  if (successMessage.value) {
+    showToast.value = true;
+    const url = new URL(window.location.href);
+    url.searchParams.delete('success');
+    window.history.replaceState({}, document.title, url.pathname + url.search);
+  }
+});
 </script>
 
 <template>
     <GuestLayout>
+        <Toast v-model="showToast" v-if="successMessage">{{ successMessage }}</Toast>
         <div class="container py-5">
             <div class="card shadow border-0 rounded-4">
                 <div class="card-body p-5">
@@ -32,7 +66,6 @@ const submitForm = () => {
                             label="Email"
                             type="email"
                             v-model="formData.email"
-                            required
                             :error="formData.errors.email"
                         />
                         <InputField
@@ -40,7 +73,6 @@ const submitForm = () => {
                             label="Password"
                             type="password"
                             v-model="formData.password"
-                            required
                             :error="formData.errors.password"
                         />
 
@@ -60,7 +92,7 @@ const submitForm = () => {
                                 >
                             </p>
                             <p>
-                                <Link href="/forgot-password" class="link"
+                                <Link :href="route('password.request')" class="link"
                                     >Forgot Password?</Link
                                 >
                             </p>

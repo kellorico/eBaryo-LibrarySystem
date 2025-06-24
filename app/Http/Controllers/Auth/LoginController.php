@@ -8,12 +8,13 @@ use Illuminate\Support\Facades\Auth;
 
 class LoginController extends Controller
 {
-    public function show () {
+    public function show()
+    {
         return inertia('Auth/Login');
     }
 
-    public function login (Request $request) {
-        
+    public function login(Request $request)
+    {
         $credentials = $request->validate([
             'email' => 'required|string|email',
             'password' => 'required|string|min:8',
@@ -23,15 +24,21 @@ class LoginController extends Controller
             $request->session()->regenerate();
 
             $user = Auth::user();
-            if ($user->role === 'admin') {
-                return redirect()->route('dashboard')->with('success', 'Login successful! Welcome Back Admin!');
-            } else {
-                return redirect()->route('home')->with('success', 'Login successful! Welcome Back!');
-            }
-        }   
+
+
+            return redirect()->intended(
+                $user->role === 'admin' ? route('dashboard') : route('home')
+            )->with('success', 'Login successful!');
+        }
+
+
+        return back()->withErrors([
+            'email' => 'Invalid credentials. Please try again.',
+        ])->onlyInput('email');
     }
 
-    public function logout (Request $request) {
+    public function logout(Request $request)
+    {
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
