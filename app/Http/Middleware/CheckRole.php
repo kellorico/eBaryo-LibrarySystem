@@ -3,9 +3,10 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Illuminate\Support\Facades\Auth;
+
 class CheckRole
 {
     /**
@@ -15,19 +16,15 @@ class CheckRole
      */
     public function handle(Request $request, Closure $next, string $role): Response
     {
-        if (!Auth::check()) 
-        {
+        if (!Auth::check()) {
             return redirect()->route('login');
         }
 
-        if (Auth::user()->role !== $role) 
-        {
-            return match(Auth::user()->role) {
-                'admin' => redirect()->route('dashboard'),
-                'user' => redirect()->route('home'),
-                default => redirect()->route('login')
-            };
+        if (Auth::user()->role !== $role) {
+            // Avoid redirect loops by returning a 403 or redirecting to a safe route
+            abort(403, 'Unauthorized action.');
         }
+
         return $next($request);
     }
 }

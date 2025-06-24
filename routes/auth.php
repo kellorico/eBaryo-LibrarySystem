@@ -3,7 +3,7 @@
 use App\Http\Controllers\Auth\RegisterController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\Auth\SocialAuthController;
+
 
 Route::middleware('guest')->group(function () {
     //login and register routes
@@ -12,10 +12,6 @@ Route::middleware('guest')->group(function () {
 
     Route::get('/register', [RegisterController::class, 'show'])->name('register');
     Route::post('/register', [RegisterController::class, 'store']);
-
-    //Social Auth
-    Route::get('auth/google', [SocialAuthController::class, 'redirect']);
-    Route::get('auth/google/callback', [SocialAuthController::class, 'callback']);
 });
 
 Route::middleware('auth')->group(function () {

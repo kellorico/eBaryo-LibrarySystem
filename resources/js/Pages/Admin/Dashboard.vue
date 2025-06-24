@@ -23,7 +23,7 @@ onMounted(() => {
         <!-- Floating Welcome Message -->
         <div v-if="showWelcome" class="floating-flash-message alert alert-success alert-dismissible fade show" role="alert">
             <i class="fa-solid fa-smile-beam me-2"></i>
-            {{ flash  }}
+            {{ flash || 'Welcome back, Admin!' }}
             <button type="button" class="btn-close" @click="showWelcome = false" aria-label="Close"></button>
         </div>
         <div class="dashboard-container">

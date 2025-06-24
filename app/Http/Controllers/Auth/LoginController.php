@@ -3,48 +3,38 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Auth;
 
 class LoginController extends Controller
 {
-    public function show()
-    {
+    public function show () {
         return inertia('Auth/Login');
     }
 
-    public function login(Request $request)
-    {
+    public function login (Request $request) {
+        
         $credentials = $request->validate([
-            'email' => 'required|email',
-            'password' => 'required|min:8'
+            'email' => 'required|string|email',
+            'password' => 'required|string|min:8',
         ]);
 
-        if (Auth::attempt($credentials))
-        {
+        if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
 
             $user = Auth::user();
-            if ($user->role === 'admin')
-            {
-                return redirect()->route('dashboard');
+            if ($user->role === 'admin') {
+                return redirect()->route('dashboard')->with('success', 'Login successful! Welcome Back Admin!');
             } else {
-                return redirect()->route('home');
+                return redirect()->route('home')->with('success', 'Login successful! Welcome Back!');
             }
-        }
-
-        return back()->withErrors([
-            'email' => 'The provided credentials do not match our records.'
-        ])->onlyInput('email');
+        }   
     }
 
-    public function logout(Request $request)
-    {
+    public function logout (Request $request) {
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-
-        return redirect()->route('welcome');
+        return redirect()->route('welcome')->with('success', 'Logout successful!');
     }
 }
