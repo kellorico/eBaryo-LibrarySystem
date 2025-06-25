@@ -11,10 +11,21 @@ defineProps({
 
 const showWelcome = ref(!!__props.flash);
 
+// Recent activity state
+const activities = ref([]);
+const loadingActivity = ref(true);
+
 onMounted(() => {
   if (showWelcome.value) {
     setTimeout(() => showWelcome.value = false, 5000);
   }
+  // Fetch recent activity
+  fetch('/recent-activity')
+    .then(res => res.json())
+    .then(data => {
+      activities.value = data.activities || [];
+    })
+    .finally(() => loadingActivity.value = false);
 });
 </script>
 
@@ -218,42 +229,26 @@ onMounted(() => {
                         </div>
                         <div class="dashboard-card-body">
                             <div class="activity-list">
-                                <div class="activity-item">
-                                    <div class="activity-icon activity-icon-success">
-                                        <i class="fa-solid fa-user-plus"></i>
-                                    </div>
-                                    <div class="activity-content">
-                                        <p class="activity-text"><strong>New user registered:</strong> Maria Santos</p>
-                                        <small class="activity-time">2 minutes ago</small>
+                                <div v-if="loadingActivity" class="text-center py-4">
+                                    <div class="spinner-border text-success" role="status">
+                                        <span class="visually-hidden">Loading...</span>
                                     </div>
                                 </div>
-                                <div class="activity-item">
-                                    <div class="activity-icon activity-icon-info">
-                                        <i class="fa-solid fa-download"></i>
+                                <template v-else>
+                                    <div v-if="activities.length === 0" class="text-muted text-center py-4">
+                                        <i class="fa-regular fa-bell-slash fa-2x mb-2"></i>
+                                        <div>No recent activity</div>
                                     </div>
-                                    <div class="activity-content">
-                                        <p class="activity-text"><strong>Book downloaded:</strong> "The Farmer's Guide"</p>
-                                        <small class="activity-time">15 minutes ago</small>
+                                    <div v-else v-for="activity in activities" :key="activity.id" class="activity-item">
+                                        <div class="activity-icon" :class="activity.color_class">
+                                            <i :class="['fa-solid', activity.icon || 'fa-bell']"></i>
+                                        </div>
+                                        <div class="activity-content">
+                                            <p class="activity-text"><strong>{{ activity.title }}:</strong> {{ activity.message }}</p>
+                                            <small class="activity-time">{{ activity.time_ago }}</small>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="activity-item">
-                                    <div class="activity-icon activity-icon-warning">
-                                        <i class="fa-solid fa-book"></i>
-                                    </div>
-                                    <div class="activity-content">
-                                        <p class="activity-text"><strong>New book added:</strong> "Cultural Stories"</p>
-                                        <small class="activity-time">1 hour ago</small>
-                                    </div>
-                                </div>
-                                <div class="activity-item">
-                                    <div class="activity-icon activity-icon-primary">
-                                        <i class="fa-solid fa-user-check"></i>
-                                    </div>
-                                    <div class="activity-content">
-                                        <p class="activity-text"><strong>User verified:</strong> Juan Dela Cruz</p>
-                                        <small class="activity-time">2 hours ago</small>
-                                    </div>
-                                </div>
+                                </template>
                             </div>
                         </div>
                     </div>

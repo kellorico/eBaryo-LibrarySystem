@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\NotificationService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
@@ -30,6 +31,9 @@ class RegisterController extends Controller
         }
 
         $user = User::create($credentials);
+
+        // Create notification for admin
+        NotificationService::userRegistered($user);
 
         Auth::login($user);
         return redirect()->route('home')->with('success', 'Registration successful!');

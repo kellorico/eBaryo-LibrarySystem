@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin\Users;
 
 use App\Http\Controllers\Controller;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use App\Models\User;
 
@@ -28,6 +29,10 @@ class UnVerifiedUsersController extends Controller
         $user = User::findOrFail($id);
         $user->verified = true;
         $user->save();
+        
+        // Create notification for user verification
+        NotificationService::userVerified($user);
+        
         return redirect()->back()->with('message', 'User verified successfully.');
     }
 

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { usePage, router } from "@inertiajs/vue3";
 import AdminLayout from "@/Layouts/AdminLayout.vue";
 
@@ -18,32 +18,25 @@ const tabs = [
     { id: "activity", name: "Activity", icon: "fa fa-history" },
 ];
 
-const activityLog = ref([
-    {
-        id: 1,
-        icon: "fa fa-book",
-        description: 'Added new book "The Alchemist"',
-        timestamp: "2 hours ago",
-    },
-    {
-        id: 2,
-        icon: "fa fa-user-check",
-        description: 'Verified user "Jane Doe"',
-        timestamp: "1 day ago",
-    },
-    {
-        id: 3,
-        icon: "fa fa-key",
-        description: "Password was changed",
-        timestamp: "3 days ago",
-    },
-    {
-        id: 4,
-        icon: "fa fa-sign-in-alt",
-        description: "Logged in from new device",
-        timestamp: "3 days ago",
-    },
-]);
+// Real activity log
+const activityLog = ref([]);
+const loadingActivity = ref(false);
+
+function fetchActivityLog() {
+    loadingActivity.value = true;
+    fetch('/profile/activity-log')
+        .then(res => res.json())
+        .then(data => {
+            activityLog.value = data.activities || [];
+        })
+        .finally(() => loadingActivity.value = false);
+}
+
+watch(activeTab, (tab) => {
+    if (tab === 'activity' && activityLog.value.length === 0) {
+        fetchActivityLog();
+    }
+});
 
 const form = ref({
     name: "",
@@ -622,24 +615,32 @@ onMounted(() => {
                             <!-- Activity Tab -->
                             <div v-if="activeTab === 'activity'">
                                 <h5 class="fw-bold mb-4">Recent Activity</h5>
-                                <ul class="list-group list-group-flush">
-                                    <li
-                                        v-for="item in activityLog"
-                                        :key="item.id"
-                                        class="list-group-item d-flex justify-content-between align-items-center"
-                                    >
-                                        <div>
-                                            <i
-                                                :class="item.icon"
-                                                class="me-2 text-secondary"
-                                            ></i>
-                                            <span>{{ item.description }}</span>
-                                        </div>
-                                        <small class="text-muted">{{
-                                            item.timestamp
-                                        }}</small>
-                                    </li>
-                                </ul>
+                                <div v-if="loadingActivity" class="text-center py-4">
+                                    <div class="spinner-border text-success" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </div>
+                                <template v-else>
+                                    <div v-if="activityLog.length === 0" class="text-muted text-center py-4">
+                                        <i class="fa-regular fa-bell-slash fa-2x mb-2"></i>
+                                        <div>No recent activity</div>
+                                    </div>
+                                    <ul v-else class="list-group list-group-flush">
+                                        <li
+                                            v-for="item in activityLog"
+                                            :key="item.id"
+                                            class="list-group-item d-flex justify-content-between align-items-center"
+                                        >
+                                            <div>
+                                                <i
+                                                    :class="['me-2', item.icon || 'fa-bell', item.color_class || 'text-secondary']"
+                                                ></i>
+                                                <span><strong>{{ item.title }}:</strong> {{ item.message }}</span>
+                                            </div>
+                                            <small class="text-muted">{{ item.time_ago }}</small>
+                                        </li>
+                                    </ul>
+                                </template>
                             </div>
                         </div>
                     </div>

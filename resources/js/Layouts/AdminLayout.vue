@@ -1,15 +1,135 @@
 <script setup>
-import { Link } from '@inertiajs/vue3';
-import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { Link, router } from '@inertiajs/vue3';
+import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
+import Toast from '../Components/Toast.vue';
 
 const profileDropdownOpen = ref(false);
 const notificationDropdownOpen = ref(false);
+const notifications = ref([]);
+const unreadCount = ref(0);
+const loading = ref(false);
+const showToast = ref(false);
+const toastMessage = ref('');
+const toastTitle = ref('');
+const audioRef = ref(null);
+let lastUnreadCount = 0;
+const selectedNotification = ref(null);
+const showNotificationModal = ref(false);
 
-const dummyNotifications = ref([
-  { id: 1, message: 'New user registered', time: '2 mins ago' },
-  { id: 2, message: 'Book "Agri 101" was added', time: '10 mins ago' },
-  { id: 3, message: 'System backup completed', time: '1 hour ago' },
-]);
+// Fetch notifications from the backend
+async function fetchNotifications() {
+    try {
+        loading.value = true;
+        const response = await fetch('/notifications');
+        const data = await response.json();
+        notifications.value = data.notifications.data || [];
+        unreadCount.value = data.unread_count || 0;
+    } catch (error) {
+        console.error('Error fetching notifications:', error);
+    } finally {
+        loading.value = false;
+    }
+}
+
+// Fetch unread count
+async function fetchUnreadCount() {
+    try {
+        const response = await fetch('/notifications/unread-count');
+        const data = await response.json();
+        unreadCount.value = data.count || 0;
+    } catch (error) {
+        console.error('Error fetching unread count:', error);
+    }
+}
+
+// Mark notification as read
+async function markAsRead(notificationId) {
+    try {
+        const response = await fetch(`/notifications/${notificationId}/read`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            }
+        });
+        const data = await response.json();
+        if (data.success) {
+            unreadCount.value = data.unread_count;
+            // Update the notification in the list
+            const notification = notifications.value.find(n => n.id === notificationId);
+            if (notification) {
+                notification.is_read = true;
+                notification.read_at = new Date().toISOString();
+            }
+        }
+    } catch (error) {
+        console.error('Error marking notification as read:', error);
+    }
+}
+
+// Mark all notifications as read
+async function markAllAsRead() {
+    try {
+        const response = await fetch('/notifications/mark-all-read', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            }
+        });
+        const data = await response.json();
+        if (data.success) {
+            unreadCount.value = 0;
+            notifications.value.forEach(notification => {
+                notification.is_read = true;
+                notification.read_at = new Date().toISOString();
+            });
+        }
+    } catch (error) {
+        console.error('Error marking all notifications as read:', error);
+    }
+}
+
+// Clear all notifications
+async function clearAllNotifications() {
+    try {
+        const response = await fetch('/notifications', {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            }
+        });
+        const data = await response.json();
+        if (data.success) {
+            notifications.value = [];
+            unreadCount.value = 0;
+            notificationDropdownOpen.value = false;
+        }
+    } catch (error) {
+        console.error('Error clearing notifications:', error);
+    }
+}
+
+// Delete single notification
+async function deleteNotification(notificationId) {
+    try {
+        const response = await fetch(`/notifications/${notificationId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            }
+        });
+        const data = await response.json();
+        if (data.success) {
+            unreadCount.value = data.unread_count;
+            notifications.value = notifications.value.filter(n => n.id !== notificationId);
+        }
+    } catch (error) {
+        console.error('Error deleting notification:', error);
+    }
+}
 
 function toggleProfileDropdown() {
   profileDropdownOpen.value = !profileDropdownOpen.value;
@@ -17,6 +137,9 @@ function toggleProfileDropdown() {
 
 function toggleNotificationDropdown() {
   notificationDropdownOpen.value = !notificationDropdownOpen.value;
+    if (notificationDropdownOpen.value) {
+        fetchNotifications();
+    }
 }
 
 function closeDropdowns(e) {
@@ -28,12 +151,47 @@ function closeDropdowns(e) {
   }
 }
 
+// Auto-refresh unread count every 30 seconds
+let unreadCountInterval;
+
 onMounted(() => {
   document.addEventListener('click', closeDropdowns);
+    fetchUnreadCount();
+    
+    // Set up auto-refresh for unread count
+    unreadCountInterval = setInterval(fetchUnreadCount, 30000);
 });
+
 onBeforeUnmount(() => {
   document.removeEventListener('click', closeDropdowns);
+    if (unreadCountInterval) {
+        clearInterval(unreadCountInterval);
+    }
 });
+
+// Watch for new notifications
+watch(unreadCount, (newVal, oldVal) => {
+    if (newVal > oldVal && oldVal !== 0) {
+        // Play sound
+        if (audioRef.value) audioRef.value.play();
+        // Show toast for the latest notification
+        if (notifications.value.length > 0) {
+            const latest = notifications.value[0];
+            toastTitle.value = latest.title;
+            toastMessage.value = latest.message;
+            showToast.value = true;
+        }
+    }
+    lastUnreadCount = newVal;
+});
+
+function openNotification(notification) {
+    selectedNotification.value = notification;
+    showNotificationModal.value = true;
+    if (!notification.is_read) {
+        markAsRead(notification.id);
+    }
+}
 </script>
 
 <template>
@@ -191,6 +349,62 @@ onBeforeUnmount(() => {
                             </div>
                         </div>
                     </div>
+
+                    <!-- Analytics Link -->
+                    <Link 
+                        href="/analytics" 
+                        class="nav-item d-flex align-items-center text-white p-3 rounded-3 mt-3"
+                        :class="{ 'nav-item-active': $page.url === '/analytics' }"
+                    >
+                        <div class="nav-icon me-3">
+                            <i class="fa-solid fa-chart-bar"></i>
+                        </div>
+                        <span class="nav-text fw-medium">Analytics</span>
+                    </Link>
+                    <!-- Announcements Link -->
+                    <Link 
+                        href="/announcements" 
+                        class="nav-item d-flex align-items-center text-white p-3 rounded-3"
+                        :class="{ 'nav-item-active': $page.url === '/announcements' }"
+                    >
+                        <div class="nav-icon me-3">
+                            <i class="fa-solid fa-bullhorn"></i>
+                        </div>
+                        <span class="nav-text fw-medium">Announcements</span>
+                    </Link>
+                    <!-- Reading Challenges Link -->
+                    <Link 
+                        href="/challenges" 
+                        class="nav-item d-flex align-items-center text-white p-3 rounded-3"
+                        :class="{ 'nav-item-active': $page.url === '/challenges' }"
+                    >
+                        <div class="nav-icon me-3">
+                            <i class="fa-solid fa-trophy"></i>
+                        </div>
+                        <span class="nav-text fw-medium">Reading Challenges</span>
+                    </Link>
+                    <!-- Suggestions Link -->
+                    <Link 
+                        href="/admin/suggestions" 
+                        class="nav-item d-flex align-items-center text-white p-3 rounded-3"
+                        :class="{ 'nav-item-active': $page.url === '/admin/suggestions' }"
+                    >
+                        <div class="nav-icon me-3">
+                            <i class="fa-solid fa-lightbulb"></i>
+                        </div>
+                        <span class="nav-text fw-medium">Suggestions</span>
+                    </Link>
+                    <!-- Review Moderation Link -->
+                    <Link 
+                        href="/reviews/moderation" 
+                        class="nav-item d-flex align-items-center text-white p-3 rounded-3"
+                        :class="{ 'nav-item-active': $page.url === '/reviews/moderation' }"
+                    >
+                        <div class="nav-icon me-3">
+                            <i class="fa-solid fa-gavel"></i>
+                        </div>
+                        <span class="nav-text fw-medium">Review Moderation</span>
+                    </Link>
                 </nav> 
             </div>
         </aside>
@@ -206,18 +420,81 @@ onBeforeUnmount(() => {
                             <div class="notification-dropdown-wrapper" style="position: relative;">
                                 <button class="btn btn-outline-secondary position-relative d-flex align-items-center" type="button" @click="toggleNotificationDropdown">
                                     <i class="fa fa-bell"></i>
-                                    <span v-if="dummyNotifications.length" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.7rem;">{{ dummyNotifications.length }}</span>
+                                    <span v-if="unreadCount > 0" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger animate__animated animate__bounceIn" style="font-size: 0.7rem;">{{ unreadCount }}</span>
                                 </button>
-                                <ul v-show="notificationDropdownOpen" class="dropdown-menu dropdown-menu-end shadow border-0 show" style="display: block; position: absolute; right: 0; top: 110%; min-width: 260px; max-width: 320px;">
-                                    <li class="dropdown-header fw-bold text-success">Notifications</li>
-                                    <li v-if="dummyNotifications.length === 0" class="dropdown-item text-muted">No notifications</li>
-                                    <li v-for="notif in dummyNotifications" :key="notif.id" class="dropdown-item d-flex flex-column gap-1">
-                                        <span>{{ notif.message }}</span>
-                                        <small class="text-muted" style="font-size: 0.8em;">{{ notif.time }}</small>
+                                <transition name="fade">
+                                <ul v-show="notificationDropdownOpen" class="dropdown-menu dropdown-menu-end shadow border-0 show notification-dropdown-list" style="display: block; position: absolute; right: 0; top: 110%; min-width: 340px; max-width: 400px; max-height: 420px; overflow-y: auto;">
+                                    <li class="dropdown-header d-flex justify-content-between align-items-center fw-bold text-success py-2 px-3">
+                                        <span>Notifications</span>
+                                        <div class="d-flex gap-1">
+                                            <button 
+                                                v-if="notifications.length > 0" 
+                                                class="btn btn-sm btn-outline-success" 
+                                                @click="markAllAsRead"
+                                                title="Mark all as read"
+                                            >
+                                                <i class="fa-solid fa-check-double"></i>
+                                            </button>
+                                            <button 
+                                                v-if="notifications.length > 0" 
+                                                class="btn btn-sm btn-outline-danger" 
+                                                @click="clearAllNotifications"
+                                                title="Clear all"
+                                            >
+                                                <i class="fa-solid fa-trash"></i>
+                                            </button>
+                                        </div>
                                     </li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><button class="dropdown-item text-center text-primary" style="background: none; border: none;" @click="dummyNotifications = []">Clear All</button></li>
+                                    <li><hr class="dropdown-divider my-1"></li>
+                                    <li v-if="loading" class="dropdown-item text-center py-4">
+                                        <div class="spinner-border spinner-border-sm text-success" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                        <span class="ms-2">Loading notifications...</span>
+                                    </li>
+                                    <li v-else-if="notifications.length === 0" class="dropdown-item text-muted text-center py-5">
+                                        <div class="mb-2">
+                                            <i class="fa-solid fa-bell-slash fa-2x text-secondary"></i>
+                                        </div>
+                                        <div>No notifications</div>
+                                    </li>
+                                    <li v-else v-for="notification in notifications" :key="notification.id" class="dropdown-item p-0">
+                                        <div class="notification-item p-3 d-flex gap-3 align-items-start"
+                                             :class="{ 'unread': !notification.is_read, 'animate__animated animate__fadeInDown': !notification.is_read }"
+                                             style="cursor:pointer"
+                                             @click="openNotification(notification)">
+                                            <div class="notification-icon flex-shrink-0 d-flex align-items-center justify-content-center" :class="notification.color_class || 'text-muted'">
+                                                <i :class="['fa-solid', notification.icon || 'fa-bell']"></i>
+                                            </div>
+                                            <div class="flex-grow-1">
+                                                <div class="d-flex align-items-center gap-2 mb-1">
+                                                    <strong class="notification-title">{{ notification.title }}</strong>
+                                                    <span v-if="!notification.is_read" class="badge bg-primary animate__animated animate__pulse animate__infinite">New</span>
+                                                </div>
+                                                <p class="notification-message mb-1">{{ notification.message }}</p>
+                                                <small class="text-muted"><i class="fa-regular fa-clock me-1"></i>{{ notification.time_ago }}</small>
+                                            </div>
+                                            <div class="notification-actions d-flex flex-column gap-1 ms-2 align-items-end">
+                                                <button 
+                                                    v-if="!notification.is_read"
+                                                    class="btn btn-sm btn-outline-primary mb-1" 
+                                                    @click="markAsRead(notification.id)"
+                                                    title="Mark as read"
+                                                >
+                                                    <i class="fa-solid fa-check"></i>
+                                                </button>
+                                                <button 
+                                                    class="btn btn-sm btn-outline-danger" 
+                                                    @click="deleteNotification(notification.id)"
+                                                    title="Delete"
+                                                >
+                                                    <i class="fa-solid fa-times"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </li>
                                 </ul>
+                                </transition>
                             </div>
                             <!-- Profile Dropdown -->
                             <div class="profile-dropdown-wrapper" style="position: relative;">
@@ -250,10 +527,42 @@ onBeforeUnmount(() => {
                 </div>
             </main>
         </div>
+        <audio ref="audioRef" src="/assets/notification.mp3" preload="auto" style="display:none"></audio>
+        <Toast v-model="showToast" :duration="3500">
+            <template #default>
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fa fa-bell text-success"></i>
+                    <div>
+                        <div class="fw-bold">{{ toastTitle }}</div>
+                        <div>{{ toastMessage }}</div>
+                    </div>
+                </div>
+            </template>
+        </Toast>
+        <!-- Notification Modal -->
+        <div v-if="showNotificationModal" class="modal-backdrop" @click.self="showNotificationModal = false" style="z-index: 2000; position: fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.3); display:flex; align-items:center; justify-content:center;">
+          <div class="modal-dialog" style="background: #fff; border-radius: 8px; max-width: 400px; width: 100%; box-shadow: 0 8px 32px rgba(0,0,0,0.18);">
+            <div class="modal-content p-3">
+              <div class="modal-header d-flex align-items-center justify-content-between">
+                <h5 class="modal-title d-flex align-items-center gap-2">
+                  <i :class="['fa-solid', selectedNotification?.icon || 'fa-bell', selectedNotification?.color_class]" style="font-size: 1.3em;"></i>
+                  {{ selectedNotification?.title }}
+                </h5>
+                <button type="button" class="btn-close" @click="showNotificationModal = false"></button>
+              </div>
+              <div class="modal-body">
+                <p>{{ selectedNotification?.message }}</p>
+                <small class="text-muted"><i class="fa-regular fa-clock me-1"></i>{{ selectedNotification?.time_ago }}</small>
+              </div>
+            </div>
+          </div>
+        </div>
     </div>
 </template>
 
 <style scoped>
+@import 'https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css';
+
 /* Sidebar Styles */
 .sidebar {
     background: linear-gradient(135deg, #198754 0%, #146c43 100%);
@@ -389,6 +698,81 @@ onBeforeUnmount(() => {
     transform: translateX(3px);
 }
 
+/* Notification Styles */
+.notification-item {
+    border-bottom: 1px solid #f0f0f0;
+    transition: background 0.2s, box-shadow 0.2s;
+    border-radius: 10px;
+    margin-bottom: 2px;
+    background: #fff;
+    position: relative;
+    cursor: pointer;
+    overflow-x: hidden;
+    word-break: break-word;
+    max-width: 100%;
+}
+
+.notification-item:last-child {
+    border-bottom: none;
+}
+
+.notification-item.unread {
+    background: #e8f5e8;
+    border-left: 4px solid #198754;
+    box-shadow: 0 2px 8px rgba(25,135,84,0.07);
+}
+
+.notification-item:hover {
+    background: #f8f9fa;
+    box-shadow: 0 2px 8px rgba(25,135,84,0.10);
+}
+
+.notification-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: #f3f7f3;
+    font-size: 1.3rem;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+}
+
+.text-primary { color: #0d6efd !important; }
+.text-success { color: #198754 !important; }
+.text-info { color: #0dcaf0 !important; }
+.text-warning { color: #ffc107 !important; }
+.text-secondary { color: #6c757d !important; }
+.text-muted { color: #adb5bd !important; }
+
+.notification-title {
+    font-size: 1rem;
+    color: #222;
+    font-weight: 600;
+    word-break: break-word;
+    white-space: normal;
+    max-width: 100%;
+}
+
+.notification-message {
+    font-size: 0.95rem;
+    color: #555;
+    line-height: 1.4;
+    margin-bottom: 0.2rem;
+    word-break: break-word;
+    white-space: normal;
+    max-width: 100%;
+}
+
+.notification-actions {
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.notification-item:hover .notification-actions {
+    opacity: 1;
+}
+
 /* Main Content */
 main {
     background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
@@ -462,5 +846,23 @@ main {
     .main-content-with-header {
         margin-top: 72px;
     }
+}
+
+.notification-dropdown-list {
+    box-shadow: 0 8px 32px rgba(25, 135, 84, 0.08), 0 1.5px 4px rgba(0,0,0,0.04);
+    border-radius: 16px;
+    padding-bottom: 0.5rem;
+    padding-top: 0.5rem;
+    overflow-y: auto;
+    overflow-x: hidden;
+    max-width: 400px;
+    width: 100%;
+}
+
+.fade-enter-active, .fade-leave-active {
+    transition: opacity 0.3s;
+}
+.fade-enter-from, .fade-leave-to {
+    opacity: 0;
 }
 </style>

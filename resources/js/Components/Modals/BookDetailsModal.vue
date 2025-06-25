@@ -7,7 +7,7 @@ const props = defineProps({
     book: Object,
 });
 
-const emit = defineEmits(["close", "read", "edit", "delete"]);
+const emit = defineEmits(["close", "read", "edit", "delete", "report-review"]);
 
 const modalInstance = ref(null);
 
@@ -183,6 +183,25 @@ const onDelete = (event) => {
                                     </div>
                                 </div>
                             </div>
+                        </div>
+
+                        <!-- Book Reviews -->
+                        <div class="book-reviews-section mt-4">
+                            <h6 class="section-title mb-3">
+                                <i class="fas fa-star me-2"></i>
+                                Book Reviews
+                            </h6>
+                            <div v-if="book.reviews && book.reviews.length">
+                                <div v-for="review in book.reviews" :key="review.id" class="review-item mb-3 p-2 border rounded">
+                                    <div class="d-flex align-items-center mb-1">
+                                        <span class="fw-bold me-2">{{ review.user?.name || 'User' }}</span>
+                                        <span class="badge bg-secondary ms-auto">{{ review.rating }}★</span>
+                                    </div>
+                                    <div class="review-text mb-1">{{ review.review }}</div>
+                                    <button class="btn btn-sm btn-outline-danger" @click="$emit('report-review', review)">Report</button>
+                                </div>
+                            </div>
+                            <div v-else class="text-muted">No reviews yet.</div>
                         </div>
 
                         <!-- Action Buttons -->

@@ -17,6 +17,9 @@ return new class extends Migration
             $table->foreignId('book_id')->constrained()->onDelete('cascade');
             $table->tinyInteger('rating')->unsigned()->default(0); // Rating from 0 to 5
             $table->text('review')->nullable(); // Optional review text
+            $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending'); // Moderation status
+            $table->boolean('reported')->default(false); // If review is reported
+            $table->string('report_reason')->nullable(); // Reason for report
             $table->timestamps();
         });
     }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin\Books;
 
 use App\Http\Controllers\Controller;
 use App\Models\Book;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -49,7 +50,10 @@ class AgricultureandLivelihoodBookController extends Controller
         }
 
         // Create the book
-        Book::create($data);
+        $book = Book::create($data);
+
+        // Create notification for new book
+        NotificationService::bookAdded($book);
 
         return redirect()->back()->with('success', 'Book added successfully!');
     }

@@ -192,6 +192,29 @@ const bookmarkBook = (bookId) => {
     );
 };
 
+const handleReportReview = (review) => {
+    Swal.fire({
+        title: 'Report Review',
+        input: 'text',
+        inputLabel: 'Reason for reporting (optional)',
+        showCancelButton: true,
+        confirmButtonText: 'Report',
+        inputPlaceholder: 'Enter reason (optional)',
+    }).then(result => {
+        if (result.isConfirmed) {
+            router.post(`/books/storybooks/reviews/${review.id}/report`, { reason: result.value }, {
+                preserveScroll: true,
+                onSuccess: () => {
+                    Swal.fire({ icon: 'success', title: 'Reported', text: 'Review has been reported.' });
+                },
+                onError: () => {
+                    Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to report review.' });
+                }
+            });
+        }
+    });
+};
+
 defineProps({
     books: {
         type: Array,
@@ -295,6 +318,7 @@ defineProps({
             @read="handleReadBook"
             @edit="handleEditBook"
             @delete="handleDeleteBook"
+            @report-review="handleReportReview"
         />
 
         <BookReader

@@ -7,7 +7,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
-use Inertia\Inertia;
 
 class ProfileController extends Controller
 {
@@ -68,5 +67,26 @@ class ProfileController extends Controller
             return redirect()->back()->with('success', 'Verification email sent!');
         }
         return redirect()->back()->with('error', 'Unable to send verification email.');
+    }
+
+    /**
+     * Get activity log for profile activity tab
+     */
+    public function activityLog()
+    {
+        $activities = \App\Models\Notification::orderBy('created_at', 'desc')
+            ->limit(15)
+            ->get()
+            ->map(function ($notification) {
+                return [
+                    'id' => $notification->id,
+                    'icon' => $notification->icon,
+                    'color_class' => $notification->color_class,
+                    'title' => $notification->title,
+                    'message' => $notification->message,
+                    'time_ago' => $notification->time_ago,
+                ];
+            });
+        return response()->json(['activities' => $activities]);
     }
 }

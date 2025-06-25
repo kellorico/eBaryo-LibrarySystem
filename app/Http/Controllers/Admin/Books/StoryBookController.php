@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Book;
+use App\Services\NotificationService;
+use App\Models\Rating;
 
 class StoryBookController extends Controller
 {
@@ -50,7 +52,10 @@ class StoryBookController extends Controller
         }
 
         // Create the book
-        Book::create($data);
+        $book = Book::create($data);
+
+        // Create notification for new book
+        NotificationService::bookAdded($book);
 
         return redirect()->back()->with('success', 'Book added successfully!');
     }
@@ -131,5 +136,22 @@ class StoryBookController extends Controller
         $book->delete();
 
         return redirect()->back()->with('success', 'Book deleted successfully!');
+    }
+
+    public function show($id)
+    {
+        $book = Book::with(['category', 'reviews.user'])->findOrFail($id);
+        return response()->json(['book' => $book]);
+    }
+
+    public function reportReview(Request $request, $reviewId)
+    {
+        $review = Rating::findOrFail($reviewId);
+        $review->reported = true;
+        $review->report_reason = $request->input('reason', 'Reported by user');
+        $review->save();
+        // Notify admins
+        \App\Services\NotificationService::reviewReported($review);
+        return response()->json(['message' => 'Review reported.']);
     }
 }
