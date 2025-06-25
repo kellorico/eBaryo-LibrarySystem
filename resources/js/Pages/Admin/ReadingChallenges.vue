@@ -1,6 +1,5 @@
 <script setup>
 import AdminLayout from '@/Layouts/AdminLayout.vue';
-import { ref } from 'vue';
 import { router, useForm } from '@inertiajs/vue3';
 import Swal from "sweetalert2";
 
@@ -20,7 +19,7 @@ const form = useForm({
 });
 
 function submit() {
-  form.post(route('admin.challenges.store'), {
+  form.post(route('challenges'), {
     onSuccess: () => {
       form.reset();
       Swal.fire({
@@ -50,13 +49,14 @@ function deleteChallenge(id) {
     confirmButtonText: 'Yes, delete it!'
   }).then((result) => {
     if (result.isConfirmed) {
-      router.delete(route('admin.challenges.destroy', id));
+      router.delete(route('challenges', id));
     }
   });
 }
 </script>
 <template>
   <AdminLayout>
+    <Head title="Manage Reading Challenges" />
     <div class="container">
       <h2 class="fw-bold mb-4"><i class="fa fa-trophy text-warning me-2"></i>Manage Reading Challenges</h2>
       <form @submit.prevent="submit" class="card p-4 mb-4 shadow-sm">

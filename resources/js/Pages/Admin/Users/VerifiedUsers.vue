@@ -47,6 +47,7 @@ const filteredUsers = computed(() => {
 
 <template>
     <AdminLayout>
+        <Head title="Verified Users" />
         <div class="container-fluid">
             <!-- Header Section -->
             <div class="row mb-4">

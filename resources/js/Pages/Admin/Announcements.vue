@@ -1,6 +1,5 @@
 <script setup>
 import AdminLayout from "@/Layouts/AdminLayout.vue";
-import { ref } from "vue";
 import { router, useForm } from "@inertiajs/vue3";
 import Swal from "sweetalert2";
 
@@ -19,7 +18,7 @@ const form = useForm({
 });
 
 function submit() {
-    form.post(route("admin.announcements.store"), {
+    form.post(route("announcements"), {
         onSuccess: () => {
             form.reset();
             Swal.fire({
@@ -40,12 +39,13 @@ function submit() {
 
 function deleteAnnouncement(id) {
     if (confirm("Delete this announcement?")) {
-        router.delete(route("admin.announcements.destroy", id));
+        router.delete(route("announcements", id));
     }
 }
 </script>
 <template>
     <AdminLayout>
+        <Head title="Manage Announcements" />
         <div class="container">
             <h2 class="fw-bold mb-4">
                 <i class="fa fa-bullhorn text-success me-2"></i>Manage

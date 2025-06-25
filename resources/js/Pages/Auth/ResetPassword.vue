@@ -2,7 +2,7 @@
 import GuestLayout from '@/Layouts/GuestLayout.vue';
 import InputField from '@/Components/InputField.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
-import { useForm, Link, usePage } from '@inertiajs/vue3';
+import { useForm, usePage } from '@inertiajs/vue3';
 
 const page = usePage();
 
@@ -27,6 +27,7 @@ const submit = () => {
 
 <template>
     <GuestLayout>
+        <Head title="Reset Password" />
         <div class="container py-4">
         <div class="card shadow-lg border-0 rounded-4 bg-white-green reset-card-animate position-relative small-card">
             <div class="accent-bar-green"></div>

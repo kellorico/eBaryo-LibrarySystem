@@ -48,6 +48,7 @@ function openLeaderboard(challenge) {
 
 <template>
   <AuthenticatedLayout>
+    <Head title="Home" />
     <div class="container py-4">
       <h2 class="fw-bold mb-4"><i class="fa fa-trophy text-warning me-2"></i>Reading Challenges</h2>
       <div v-if="loading" class="text-center my-4"><span class="spinner-border"></span></div>

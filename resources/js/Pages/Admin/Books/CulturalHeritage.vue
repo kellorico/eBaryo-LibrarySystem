@@ -1,6 +1,5 @@
 <script setup>
 import AdminLayout from "@/Layouts/AdminLayout.vue";
-import BookCard from "@/Components/BookCard.vue";
 import BookReader from "@/Components/BookReader.vue";
 import PdfReader from "@/Components/PdfReader.vue";
 import { router } from "@inertiajs/vue3";
@@ -122,6 +121,7 @@ defineProps({
 
 <template>
     <AdminLayout>
+        <Head title="Cultural Heritage Books" />
         <div class="container-fluid">
             <!-- Header Section -->
             <div class="row mb-4">

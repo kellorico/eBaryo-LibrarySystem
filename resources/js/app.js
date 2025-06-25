@@ -14,6 +14,7 @@ import { createApp, h } from 'vue';
 import { ZiggyVue } from '../../vendor/tightenco/ziggy';
 import FloatingVue from 'floating-vue';
 import 'floating-vue/dist/style.css';
+import {Link, Head} from '@inertiajs/vue3';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
@@ -28,6 +29,8 @@ createInertiaApp({
         const app = createApp({ render: () => h(App, props) })
             .use(plugin)
             .use(ZiggyVue)
+            .component("Link", Link)
+            .component("Head", Head)
             .use(FloatingVue);
         return app.mount(el);
     },

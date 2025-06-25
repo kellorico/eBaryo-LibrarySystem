@@ -1,5 +1,4 @@
 <script setup>
-import { Link, router } from '@inertiajs/vue3';
 import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
 import Toast from '../Components/Toast.vue';
 
@@ -15,6 +14,8 @@ const audioRef = ref(null);
 let lastUnreadCount = 0;
 const selectedNotification = ref(null);
 const showNotificationModal = ref(false);
+const sidebarOpen = ref(false);
+const isMobile = ref(false);
 
 // Fetch notifications from the backend
 async function fetchNotifications() {
@@ -132,41 +133,49 @@ async function deleteNotification(notificationId) {
 }
 
 function toggleProfileDropdown() {
-  profileDropdownOpen.value = !profileDropdownOpen.value;
+    profileDropdownOpen.value = !profileDropdownOpen.value;
 }
 
 function toggleNotificationDropdown() {
-  notificationDropdownOpen.value = !notificationDropdownOpen.value;
+    notificationDropdownOpen.value = !notificationDropdownOpen.value;
     if (notificationDropdownOpen.value) {
         fetchNotifications();
     }
 }
 
 function closeDropdowns(e) {
-  if (!e.target.closest('.profile-dropdown-wrapper')) {
-    profileDropdownOpen.value = false;
-  }
-  if (!e.target.closest('.notification-dropdown-wrapper')) {
-    notificationDropdownOpen.value = false;
-  }
+    if (!e.target.closest('.profile-dropdown-wrapper')) {
+        profileDropdownOpen.value = false;
+    }
+    if (!e.target.closest('.notification-dropdown-wrapper')) {
+        notificationDropdownOpen.value = false;
+    }
 }
 
 // Auto-refresh unread count every 30 seconds
 let unreadCountInterval;
 
 onMounted(() => {
-  document.addEventListener('click', closeDropdowns);
+    document.addEventListener('click', closeDropdowns);
     fetchUnreadCount();
-    
+
     // Set up auto-refresh for unread count
     unreadCountInterval = setInterval(fetchUnreadCount, 30000);
+    handleResize();
+    window.addEventListener('resize', handleResize);
+
+    if (showNotificationModal.value) {
+        document.body.classList.add('modal-open');
+    }
 });
 
 onBeforeUnmount(() => {
-  document.removeEventListener('click', closeDropdowns);
+    document.removeEventListener('click', closeDropdowns);
     if (unreadCountInterval) {
         clearInterval(unreadCountInterval);
     }
+    window.removeEventListener('resize', handleResize);
+    document.body.classList.remove('modal-open');
 });
 
 // Watch for new notifications
@@ -192,12 +201,32 @@ function openNotification(notification) {
         markAsRead(notification.id);
     }
 }
+
+function handleResize() {
+    isMobile.value = window.innerWidth < 768;
+    if (!isMobile.value) sidebarOpen.value = false;
+}
+
+// Add/remove 'modal-open' class to body when modal is open
+watch(showNotificationModal, (val) => {
+    if (val) {
+        document.body.classList.add('modal-open');
+    } else {
+        document.body.classList.remove('modal-open');
+    }
+});
 </script>
 
 <template>
     <div class="min-vh-100 d-flex">
+        <!-- Sidebar Toggle Button for Mobile -->
+        <button class="sidebar-toggle d-md-none btn btn-success position-fixed" @click="sidebarOpen = !sidebarOpen"
+            style="top: 16px; left: 16px; z-index: 1201;">
+            <i class="fa fa-bars"></i>
+        </button>
         <!-- Enhanced Sidebar -->
-        <aside class="sidebar bg-gradient-primary border-end" style="width: 280px;">
+        <aside :class="['sidebar', { 'show': sidebarOpen, 'sidebar-mobile': isMobile }]"
+            @click.self="sidebarOpen = false">
             <div class="sidebar-header p-4 border-bottom border-light-subtle">
                 <div class="d-flex align-items-center justify-content-center">
                     <div class="logo-container me-3">
@@ -209,85 +238,66 @@ function openNotification(notification) {
                     </div>
                 </div>
             </div>
-            
             <div class="sidebar-content p-3">
                 <nav class="nav flex-column gap-2">
                     <!-- Dashboard -->
-                    <Link 
-                        href="/dashboard" 
-                        class="nav-item d-flex align-items-center text-white p-3 rounded-3"
-                        :class="{ 'nav-item-active': $page.url === '/dashboard' }"
-                    >
-                        <div class="nav-icon me-3">
-                            <i class="fa-solid fa-house"></i>
-                        </div>
-                        <span class="nav-text fw-medium">Dashboard</span>
+                    <Link href="/dashboard" class="nav-item d-flex align-items-center text-white p-3 rounded-3"
+                        :class="{ 'nav-item-active': $page.url === '/dashboard' }">
+                    <div class="nav-icon me-3">
+                        <i class="fa-solid fa-house"></i>
+                    </div>
+                    <span class="nav-text fw-medium">Dashboard</span>
                     </Link>
 
                     <!-- Books Section -->
                     <div class="nav-section">
                         <button
                             class="nav-item d-flex justify-content-between align-items-center text-white p-3 rounded-3 w-100"
-                            data-bs-toggle="collapse"
-                            data-bs-target="#booksMenu"
-                            aria-expanded="false"
-                            aria-controls="booksMenu"
-                            :class="{ 'nav-item-active': $page.url.startsWith('/books/') }"
-                        >
+                            data-bs-toggle="collapse" data-bs-target="#booksMenu" aria-expanded="false"
+                            aria-controls="booksMenu" :class="{ 'nav-item-active': $page.url.startsWith('/books/') }">
                             <div class="d-flex align-items-center">
                                 <div class="nav-icon me-3">
                                     <i class="fa-solid fa-book"></i>
                                 </div>
                                 <span class="nav-text fw-medium">Books</span>
                             </div>
-                            <i class="fa-solid fa-chevron-down nav-arrow" :class="{ 'rotated': $page.url.startsWith('/books/') }"></i>
+                            <i class="fa-solid fa-chevron-down nav-arrow"
+                                :class="{ 'rotated': $page.url.startsWith('/books/') }"></i>
                         </button>
 
-                        <div 
-                            class="collapse"
-                            :class="{ show: $page.url.startsWith('/books/') }"
-                            id="booksMenu"
-                        >
+                        <div class="collapse" :class="{ show: $page.url.startsWith('/books/') }" id="booksMenu">
                             <div class="submenu">
-                                <Link 
-                                    href="/books/storybooks"
+                                <Link href="/books/storybooks"
                                     class="submenu-item d-flex align-items-center text-white p-2 rounded-2"
-                                    :class="{ 'submenu-item-active': $page.url === '/books/storybooks' }"
-                                >
-                                    <div class="submenu-icon me-2">
-                                        <i class="fa-solid fa-book-open"></i>
-                                    </div>
-                                    <span class="submenu-text">Story Books</span>
+                                    :class="{ 'submenu-item-active': $page.url === '/books/storybooks' }">
+                                <div class="submenu-icon me-2">
+                                    <i class="fa-solid fa-book-open"></i>
+                                </div>
+                                <span class="submenu-text">Story Books</span>
                                 </Link>
-                                <Link 
-                                    href="/books/educational"
+                                <Link href="/books/educational"
                                     class="submenu-item d-flex align-items-center text-white p-2 rounded-2"
-                                    :class="{ 'submenu-item-active': $page.url === '/books/educational' }"
-                                >
-                                    <div class="submenu-icon me-2">
-                                        <i class="fa-solid fa-graduation-cap"></i>
-                                    </div>
-                                    <span class="submenu-text">Educational</span>
+                                    :class="{ 'submenu-item-active': $page.url === '/books/educational' }">
+                                <div class="submenu-icon me-2">
+                                    <i class="fa-solid fa-graduation-cap"></i>
+                                </div>
+                                <span class="submenu-text">Educational</span>
                                 </Link>
-                                <Link 
-                                    href="/books/agricultureandlivelihood"
+                                <Link href="/books/agricultureandlivelihood"
                                     class="submenu-item d-flex align-items-center text-white p-2 rounded-2"
-                                    :class="{ 'submenu-item-active': $page.url === '/books/agricultureandlivelihood' }"
-                                >
-                                    <div class="submenu-icon me-2">
-                                        <i class="fa-solid fa-seedling"></i>
-                                    </div>
-                                    <span class="submenu-text">Agriculture & Livelihood</span>
+                                    :class="{ 'submenu-item-active': $page.url === '/books/agricultureandlivelihood' }">
+                                <div class="submenu-icon me-2">
+                                    <i class="fa-solid fa-seedling"></i>
+                                </div>
+                                <span class="submenu-text">Agriculture & Livelihood</span>
                                 </Link>
-                                <Link 
-                                    href="/books/culturalheritage"
+                                <Link href="/books/culturalheritage"
                                     class="submenu-item d-flex align-items-center text-white p-2 rounded-2"
-                                    :class="{ 'submenu-item-active': $page.url === '/books/culturalheritage' }"
-                                >
-                                    <div class="submenu-icon me-2">
-                                        <i class="fa-solid fa-landmark"></i>
-                                    </div>
-                                    <span class="submenu-text">Cultural Heritage</span>
+                                    :class="{ 'submenu-item-active': $page.url === '/books/culturalheritage' }">
+                                <div class="submenu-icon me-2">
+                                    <i class="fa-solid fa-landmark"></i>
+                                </div>
+                                <span class="submenu-text">Cultural Heritage</span>
                                 </Link>
                             </div>
                         </div>
@@ -295,224 +305,231 @@ function openNotification(notification) {
 
                     <!-- Users Section -->
                     <div class="nav-section">
-                        <button 
+                        <button
                             class="nav-item d-flex justify-content-between align-items-center text-white p-3 rounded-3 w-100"
-                            data-bs-toggle="collapse" 
-                            data-bs-target="#usersMenu" 
-                            aria-expanded="false" 
-                            aria-controls="usersMenu"
-                            :class="{ 'nav-item-active': $page.url.startsWith('/users/') }"
-                        >
+                            data-bs-toggle="collapse" data-bs-target="#usersMenu" aria-expanded="false"
+                            aria-controls="usersMenu" :class="{ 'nav-item-active': $page.url.startsWith('/users/') }">
                             <div class="d-flex align-items-center">
                                 <div class="nav-icon me-3">
                                     <i class="fa-solid fa-users"></i>
                                 </div>
                                 <span class="nav-text fw-medium">Users</span>
                             </div>
-                            <i class="fa-solid fa-chevron-down nav-arrow" :class="{ 'rotated': $page.url.startsWith('/users/') }"></i>
+                            <i class="fa-solid fa-chevron-down nav-arrow"
+                                :class="{ 'rotated': $page.url.startsWith('/users/') }"></i>
                         </button>
-                        
-                        <div class="collapse"
-                            :class="{ show: $page.url.startsWith('/users/') }"
-                            id="usersMenu">
+
+                        <div class="collapse" :class="{ show: $page.url.startsWith('/users/') }" id="usersMenu">
                             <div class="submenu">
-                                <Link 
-                                    href="/users/allusers"
+                                <Link :href="route('allusers')"
                                     class="submenu-item d-flex align-items-center text-white p-2 rounded-2"
-                                    :class="{ 'submenu-item-active': $page.url === '/users/allusers' }"
-                                >
-                                    <div class="submenu-icon me-2">
-                                        <i class="fa-solid fa-users"></i>
-                                    </div>
-                                    <span class="submenu-text">All Users</span>
+                                    :class="{ 'submenu-item-active': $page.url === '/users/allusers' }">
+                                <div class="submenu-icon me-2">
+                                    <i class="fa-solid fa-users"></i>
+                                </div>
+                                <span class="submenu-text">All Users</span>
                                 </Link>
-                                <Link 
-                                    href="/users/verifiedusers"
+                                <Link :href="route('verifiedusers')"
                                     class="submenu-item d-flex align-items-center text-white p-2 rounded-2"
-                                    :class="{ 'submenu-item-active': $page.url === '/users/verifiedusers' }"
-                                >
-                                    <div class="submenu-icon me-2">
-                                        <i class="fa-solid fa-user-check"></i>
-                                    </div>
-                                    <span class="submenu-text">Verified Users</span>
+                                    :class="{ 'submenu-item-active': $page.url === '/users/verifiedusers' }">
+                                <div class="submenu-icon me-2">
+                                    <i class="fa-solid fa-user-check"></i>
+                                </div>
+                                <span class="submenu-text">Verified Users</span>
                                 </Link>
-                                <Link 
-                                    href="/users/unverifiedusers"
+                                <Link :href="route('unverifiedusers')"
                                     class="submenu-item d-flex align-items-center text-white p-2 rounded-2"
-                                    :class="{ 'submenu-item-active': $page.url === '/users/unverifiedusers' }"
-                                >
-                                    <div class="submenu-icon me-2">
-                                        <i class="fa-solid fa-user-clock"></i>
-                                    </div>
-                                    <span class="submenu-text">Unverified Users</span>
+                                    :class="{ 'submenu-item-active': $page.url === '/users/unverifiedusers' }">
+                                <div class="submenu-icon me-2">
+                                    <i class="fa-solid fa-user-clock"></i>
+                                </div>
+                                <span class="submenu-text">Unverified Users</span>
                                 </Link>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Analytics Link -->
-                    <Link 
-                        href="/analytics" 
+                    <!-- Digital Archive -->
+                    <Link :href="route('archive')"
                         class="nav-item d-flex align-items-center text-white p-3 rounded-3 mt-3"
-                        :class="{ 'nav-item-active': $page.url === '/analytics' }"
-                    >
-                        <div class="nav-icon me-3">
-                            <i class="fa-solid fa-chart-bar"></i>
-                        </div>
-                        <span class="nav-text fw-medium">Analytics</span>
+                        :class="{ 'nav-item-active': $page.url === '/archive' }">
+                    <div class="nav-icon me-3">
+                        <i class="fa-solid fa-archive"></i>
+                    </div>
+                    <span class="nav-text fw-medium">Digital Archive</span>
+                    </Link>
+                    <!-- Analytics Link -->
+                    <Link :href="route('analytics')"
+                        class="nav-item d-flex align-items-center text-white p-3 rounded-3 mt-3"
+                        :class="{ 'nav-item-active': $page.url === '/analytics' }">
+                    <div class="nav-icon me-3">
+                        <i class="fa-solid fa-chart-bar"></i>
+                    </div>
+                    <span class="nav-text fw-medium">Analytics</span>
                     </Link>
                     <!-- Announcements Link -->
-                    <Link 
-                        href="/announcements" 
+                    <Link :href="route('announcements')"
                         class="nav-item d-flex align-items-center text-white p-3 rounded-3"
-                        :class="{ 'nav-item-active': $page.url === '/announcements' }"
-                    >
-                        <div class="nav-icon me-3">
-                            <i class="fa-solid fa-bullhorn"></i>
-                        </div>
-                        <span class="nav-text fw-medium">Announcements</span>
+                        :class="{ 'nav-item-active': $page.url === '/announcements' }">
+                    <div class="nav-icon me-3">
+                        <i class="fa-solid fa-bullhorn"></i>
+                    </div>
+                    <span class="nav-text fw-medium">Announcements</span>
                     </Link>
                     <!-- Reading Challenges Link -->
-                    <Link 
-                        href="/challenges" 
+                    <Link :href="route('challenges')"
                         class="nav-item d-flex align-items-center text-white p-3 rounded-3"
-                        :class="{ 'nav-item-active': $page.url === '/challenges' }"
-                    >
-                        <div class="nav-icon me-3">
-                            <i class="fa-solid fa-trophy"></i>
-                        </div>
-                        <span class="nav-text fw-medium">Reading Challenges</span>
+                        :class="{ 'nav-item-active': $page.url === '/challenges' }">
+                    <div class="nav-icon me-3">
+                        <i class="fa-solid fa-trophy"></i>
+                    </div>
+                    <span class="nav-text fw-medium">Reading Challenges</span>
                     </Link>
                     <!-- Suggestions Link -->
-                    <Link 
-                        href="/admin/suggestions" 
+                    <Link :href="route('admin.suggestions')"
                         class="nav-item d-flex align-items-center text-white p-3 rounded-3"
-                        :class="{ 'nav-item-active': $page.url === '/admin/suggestions' }"
-                    >
-                        <div class="nav-icon me-3">
-                            <i class="fa-solid fa-lightbulb"></i>
-                        </div>
-                        <span class="nav-text fw-medium">Suggestions</span>
+                        :class="{ 'nav-item-active': $page.url === '/suggestions' }">
+                    <div class="nav-icon me-3">
+                        <i class="fa-solid fa-lightbulb"></i>
+                    </div>
+                    <span class="nav-text fw-medium">Suggestions</span>
                     </Link>
                     <!-- Review Moderation Link -->
-                    <Link 
-                        href="/reviews/moderation" 
-                        class="nav-item d-flex align-items-center text-white p-3 rounded-3"
-                        :class="{ 'nav-item-active': $page.url === '/reviews/moderation' }"
-                    >
-                        <div class="nav-icon me-3">
-                            <i class="fa-solid fa-gavel"></i>
-                        </div>
-                        <span class="nav-text fw-medium">Review Moderation</span>
+                    <Link :href="route('reviews')" class="nav-item d-flex align-items-center text-white p-3 rounded-3"
+                        :class="{ 'nav-item-active': $page.url === '/reviews' }">
+                    <div class="nav-icon me-3">
+                        <i class="fa-solid fa-gavel"></i>
+                    </div>
+                    <span class="nav-text fw-medium">Review Moderation</span>
                     </Link>
-                </nav> 
+                </nav>
             </div>
         </aside>
 
         <!-- Main Content Area -->
         <div class="flex-grow-1 d-flex flex-column">
             <!-- Enhanced Header -->
-            <header class="bg-white shadow-sm py-3 border-bottom fixed-header">
+            <header class="fixed-header">
                 <div class="container-fluid px-4">
-                    <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                        <!-- Sidebar Toggle for Mobile (inside header for better UX) -->
+                        <button class="sidebar-toggle d-md-none btn btn-outline-success me-2"
+                            @click="sidebarOpen = !sidebarOpen" style="z-index: 1202;">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <!-- Page Title Slot or Fallback -->
+
                         <div class="d-flex align-items-center gap-3 ms-auto">
                             <!-- Notification Bell -->
                             <div class="notification-dropdown-wrapper" style="position: relative;">
-                                <button class="btn btn-outline-secondary position-relative d-flex align-items-center" type="button" @click="toggleNotificationDropdown">
+                                <button class="btn btn-outline-secondary position-relative d-flex align-items-center"
+                                    type="button" @click="toggleNotificationDropdown">
                                     <i class="fa fa-bell"></i>
-                                    <span v-if="unreadCount > 0" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger animate__animated animate__bounceIn" style="font-size: 0.7rem;">{{ unreadCount }}</span>
+                                    <span v-if="unreadCount > 0"
+                                        class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger animate__animated animate__bounceIn"
+                                        style="font-size: 0.7rem;">{{ unreadCount }}</span>
                                 </button>
                                 <transition name="fade">
-                                <ul v-show="notificationDropdownOpen" class="dropdown-menu dropdown-menu-end shadow border-0 show notification-dropdown-list" style="display: block; position: absolute; right: 0; top: 110%; min-width: 340px; max-width: 400px; max-height: 420px; overflow-y: auto;">
-                                    <li class="dropdown-header d-flex justify-content-between align-items-center fw-bold text-success py-2 px-3">
-                                        <span>Notifications</span>
-                                        <div class="d-flex gap-1">
-                                            <button 
-                                                v-if="notifications.length > 0" 
-                                                class="btn btn-sm btn-outline-success" 
-                                                @click="markAllAsRead"
-                                                title="Mark all as read"
-                                            >
-                                                <i class="fa-solid fa-check-double"></i>
-                                            </button>
-                                            <button 
-                                                v-if="notifications.length > 0" 
-                                                class="btn btn-sm btn-outline-danger" 
-                                                @click="clearAllNotifications"
-                                                title="Clear all"
-                                            >
-                                                <i class="fa-solid fa-trash"></i>
-                                            </button>
-                                        </div>
-                                    </li>
-                                    <li><hr class="dropdown-divider my-1"></li>
-                                    <li v-if="loading" class="dropdown-item text-center py-4">
-                                        <div class="spinner-border spinner-border-sm text-success" role="status">
-                                            <span class="visually-hidden">Loading...</span>
-                                        </div>
-                                        <span class="ms-2">Loading notifications...</span>
-                                    </li>
-                                    <li v-else-if="notifications.length === 0" class="dropdown-item text-muted text-center py-5">
-                                        <div class="mb-2">
-                                            <i class="fa-solid fa-bell-slash fa-2x text-secondary"></i>
-                                        </div>
-                                        <div>No notifications</div>
-                                    </li>
-                                    <li v-else v-for="notification in notifications" :key="notification.id" class="dropdown-item p-0">
-                                        <div class="notification-item p-3 d-flex gap-3 align-items-start"
-                                             :class="{ 'unread': !notification.is_read, 'animate__animated animate__fadeInDown': !notification.is_read }"
-                                             style="cursor:pointer"
-                                             @click="openNotification(notification)">
-                                            <div class="notification-icon flex-shrink-0 d-flex align-items-center justify-content-center" :class="notification.color_class || 'text-muted'">
-                                                <i :class="['fa-solid', notification.icon || 'fa-bell']"></i>
+                                    <ul v-show="notificationDropdownOpen"
+                                        class="dropdown-menu dropdown-menu-end shadow border-0 show notification-dropdown-list"
+                                        style="display: block; position: absolute; right: 0; top: 110%; min-width: 340px; max-width: 400px; max-height: 420px; overflow-y: auto;">
+                                        <li
+                                            class="dropdown-header d-flex justify-content-between align-items-center fw-bold text-success py-2 px-3">
+                                            <span>Notifications</span>
+                                            <div class="d-flex gap-1">
+                                                <button v-if="notifications.length > 0"
+                                                    class="btn btn-sm btn-outline-success" @click="markAllAsRead"
+                                                    title="Mark all as read">
+                                                    <i class="fa-solid fa-check-double"></i>
+                                                </button>
+                                                <button v-if="notifications.length > 0"
+                                                    class="btn btn-sm btn-outline-danger" @click="clearAllNotifications"
+                                                    title="Clear all">
+                                                    <i class="fa-solid fa-trash"></i>
+                                                </button>
                                             </div>
-                                            <div class="flex-grow-1">
-                                                <div class="d-flex align-items-center gap-2 mb-1">
-                                                    <strong class="notification-title">{{ notification.title }}</strong>
-                                                    <span v-if="!notification.is_read" class="badge bg-primary animate__animated animate__pulse animate__infinite">New</span>
+                                        </li>
+                                        <li>
+                                            <hr class="dropdown-divider my-1">
+                                        </li>
+                                        <li v-if="loading" class="dropdown-item text-center py-4">
+                                            <div class="spinner-border spinner-border-sm text-success" role="status">
+                                                <span class="visually-hidden">Loading...</span>
+                                            </div>
+                                            <span class="ms-2">Loading notifications...</span>
+                                        </li>
+                                        <li v-else-if="notifications.length === 0"
+                                            class="dropdown-item text-muted text-center py-5">
+                                            <div class="mb-2">
+                                                <i class="fa-solid fa-bell-slash fa-2x text-secondary"></i>
+                                            </div>
+                                            <div>No notifications</div>
+                                        </li>
+                                        <li v-else v-for="notification in notifications" :key="notification.id"
+                                            class="dropdown-item p-0">
+                                            <div class="notification-item p-3 d-flex gap-3 align-items-start"
+                                                :class="{ 'unread': !notification.is_read, 'animate__animated animate__fadeInDown': !notification.is_read }"
+                                                style="cursor:pointer" @click="openNotification(notification)">
+                                                <div class="notification-icon flex-shrink-0 d-flex align-items-center justify-content-center"
+                                                    :class="notification.color_class || 'text-muted'">
+                                                    <i :class="['fa-solid', notification.icon || 'fa-bell']"></i>
                                                 </div>
-                                                <p class="notification-message mb-1">{{ notification.message }}</p>
-                                                <small class="text-muted"><i class="fa-regular fa-clock me-1"></i>{{ notification.time_ago }}</small>
+                                                <div class="flex-grow-1">
+                                                    <div class="d-flex align-items-center gap-2 mb-1">
+                                                        <strong class="notification-title">{{ notification.title
+                                                            }}</strong>
+                                                        <span v-if="!notification.is_read"
+                                                            class="badge bg-primary animate__animated animate__pulse animate__infinite">New</span>
+                                                    </div>
+                                                    <p class="notification-message mb-1">{{ notification.message }}</p>
+                                                    <small class="text-muted"><i class="fa-regular fa-clock me-1"></i>{{
+                                                        notification.time_ago }}</small>
+                                                </div>
+                                                <div
+                                                    class="notification-actions d-flex flex-column gap-1 ms-2 align-items-end">
+                                                    <button v-if="!notification.is_read"
+                                                        class="btn btn-sm btn-outline-primary mb-1"
+                                                        @click="markAsRead(notification.id)" title="Mark as read">
+                                                        <i class="fa-solid fa-check"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-outline-danger"
+                                                        @click="deleteNotification(notification.id)" title="Delete">
+                                                        <i class="fa-solid fa-times"></i>
+                                                    </button>
+                                                </div>
                                             </div>
-                                            <div class="notification-actions d-flex flex-column gap-1 ms-2 align-items-end">
-                                                <button 
-                                                    v-if="!notification.is_read"
-                                                    class="btn btn-sm btn-outline-primary mb-1" 
-                                                    @click="markAsRead(notification.id)"
-                                                    title="Mark as read"
-                                                >
-                                                    <i class="fa-solid fa-check"></i>
-                                                </button>
-                                                <button 
-                                                    class="btn btn-sm btn-outline-danger" 
-                                                    @click="deleteNotification(notification.id)"
-                                                    title="Delete"
-                                                >
-                                                    <i class="fa-solid fa-times"></i>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </li>
-                                </ul>
+                                        </li>
+                                    </ul>
                                 </transition>
                             </div>
                             <!-- Profile Dropdown -->
                             <div class="profile-dropdown-wrapper" style="position: relative;">
-                                <button class="btn btn-outline-success d-flex align-items-center gap-2" type="button" @click="toggleProfileDropdown">
+                                <button class="btn btn-outline-success d-flex align-items-center gap-2" type="button"
+                                    @click="toggleProfileDropdown">
                                     <div class="admin-avatar">
                                         <i class="fas fa-user"></i>
                                     </div>
                                     <span>Admin</span>
                                     <i class="fa fa-caret-down"></i>
                                 </button>
-                                <ul v-show="profileDropdownOpen" class="dropdown-menu dropdown-menu-end shadow border-0 show" style="display: block; position: absolute; right: 0; top: 110%; min-width: 180px;">
-                                    <li><Link class="dropdown-item d-flex align-items-center gap-2" :href="route('admin.profile')">
+                                <ul v-show="profileDropdownOpen"
+                                    class="dropdown-menu dropdown-menu-end shadow border-0 show"
+                                    style="display: block; position: absolute; right: 0; top: 110%; min-width: 180px;">
+                                    <li>
+                                        <Link class="dropdown-item d-flex align-items-center gap-2"
+                                            :href="route('profile')">
                                         <i class="fa-solid fa-user"></i> Profile
-                                    </Link></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><Link class="dropdown-item d-flex align-items-center gap-2 text-danger" :href="route('logout')" method="post">
+                                        </Link>
+                                    </li>
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+                                    <li>
+                                        <Link class="dropdown-item d-flex align-items-center gap-2 text-danger"
+                                            :href="route('logout')" method="post">
                                         <i class="fa-solid fa-sign-out-alt"></i> Logout
-                                    </Link></li>
+                                        </Link>
+                                    </li>
                                 </ul>
                             </div>
                         </div>
@@ -521,13 +538,12 @@ function openNotification(notification) {
             </header>
 
             <!-- Main Content -->
-            <main class="flex-grow-1 p-4 bg-light main-content-with-header">
-                <div class="container-fluid">
-                    <slot />
-                </div>
+            <main class="flex-grow-1 bg-light py-4 px-4">
+
+                <slot />
+
             </main>
         </div>
-        <audio ref="audioRef" src="/assets/notification.mp3" preload="auto" style="display:none"></audio>
         <Toast v-model="showToast" :duration="3500">
             <template #default>
                 <div class="d-flex align-items-center gap-2">
@@ -540,22 +556,27 @@ function openNotification(notification) {
             </template>
         </Toast>
         <!-- Notification Modal -->
-        <div v-if="showNotificationModal" class="modal-backdrop" @click.self="showNotificationModal = false" style="z-index: 2000; position: fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.3); display:flex; align-items:center; justify-content:center;">
-          <div class="modal-dialog" style="background: #fff; border-radius: 8px; max-width: 400px; width: 100%; box-shadow: 0 8px 32px rgba(0,0,0,0.18);">
-            <div class="modal-content p-3">
-              <div class="modal-header d-flex align-items-center justify-content-between">
-                <h5 class="modal-title d-flex align-items-center gap-2">
-                  <i :class="['fa-solid', selectedNotification?.icon || 'fa-bell', selectedNotification?.color_class]" style="font-size: 1.3em;"></i>
-                  {{ selectedNotification?.title }}
-                </h5>
-                <button type="button" class="btn-close" @click="showNotificationModal = false"></button>
-              </div>
-              <div class="modal-body">
-                <p>{{ selectedNotification?.message }}</p>
-                <small class="text-muted"><i class="fa-regular fa-clock me-1"></i>{{ selectedNotification?.time_ago }}</small>
-              </div>
+        <div v-if="showNotificationModal" class="modal-backdrop" @click.self="showNotificationModal = false"
+            style="z-index: 2000; position: fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.3); display:flex; align-items:center; justify-content:center;">
+            <div class="modal-dialog"
+                style="background: #fff; border-radius: 8px; max-width: 400px; width: 100%; box-shadow: 0 8px 32px rgba(0,0,0,0.18);">
+                <div class="modal-content p-3">
+                    <div class="modal-header d-flex align-items-center justify-content-between">
+                        <h5 class="modal-title d-flex align-items-center gap-2">
+                            <i :class="['fa-solid', selectedNotification?.icon || 'fa-bell', selectedNotification?.color_class]"
+                                style="font-size: 1.3em;"></i>
+                            {{ selectedNotification?.title }}
+                        </h5>
+                        <button type="button" class="btn-close" @click="showNotificationModal = false"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>{{ selectedNotification?.message }}</p>
+                        <small class="text-muted"><i class="fa-regular fa-clock me-1"></i>{{
+                            selectedNotification?.time_ago
+                            }}</small>
+                    </div>
+                </div>
             </div>
-          </div>
         </div>
     </div>
 </template>
@@ -567,10 +588,134 @@ function openNotification(notification) {
 .sidebar {
     background: linear-gradient(135deg, #198754 0%, #146c43 100%);
     box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-    position: sticky;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 280px;
+    overflow-y: auto;
+    transition: transform 0.3s ease, left 0.3s;
+    z-index: 1200;
+}
+
+.sidebar-mobile {
+    position: fixed !important;
+    left: 0;
     top: 0;
     height: 100vh;
-    overflow-y: auto;
+    width: 80vw;
+    max-width: 320px;
+    transform: translateX(-100%);
+    box-shadow: 2px 0 16px rgba(0, 0, 0, 0.18);
+    z-index: 1202;
+}
+
+.sidebar.show.sidebar-mobile {
+    transform: translateX(0);
+}
+
+.sidebar-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    font-size: 1.3rem;
+    box-shadow: 0 2px 8px rgba(30, 41, 59, 0.10);
+}
+
+@media (max-width: 991.98px) {
+    .sidebar {
+        width: 220px;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .sidebar {
+        width: 80vw;
+        max-width: 320px;
+        left: 0;
+        position: fixed;
+        transform: translateX(-100%);
+        z-index: 1202;
+    }
+
+    .sidebar.show {
+        transform: translateX(0);
+    }
+}
+
+.flex-grow-1.d-flex.flex-column {
+    margin-left: 280px;
+    transition: margin-left 0.3s;
+}
+
+@media (max-width: 991.98px) {
+    .flex-grow-1.d-flex.flex-column {
+        margin-left: 220px;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .flex-grow-1.d-flex.flex-column {
+        margin-left: 0;
+    }
+}
+
+.fixed-header {
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid #e9ecef;
+    box-shadow: 0 2px 8px rgba(30, 41, 59, 0.06);
+    display: flex;
+    align-items: center;
+    padding: 0 2rem;
+    height: 64px;
+    transition: background 0.2s, box-shadow 0.2s;
+}
+@media (max-width: 991.98px) {
+    .fixed-header {
+        padding: 0 1rem;
+    }
+}
+@media (max-width: 767.98px) {
+    .fixed-header {
+        height: 56px;
+        padding: 0 0.5rem;
+    }
+}
+.header-title h3 {
+    font-size: 1.3rem;
+    color: #198754;
+    font-weight: 700;
+    margin-bottom: 0;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+}
+.header-title i {
+    font-size: 1.2em;
+    margin-right: 0.5rem;
+}
+
+.main-content-with-header {
+    margin-top: 0;
+}
+
+.main-content-inner {
+    width: 100%;
+    margin: 0;
+    padding: 2rem 2rem 0 2rem;
+    box-sizing: border-box;
+}
+
+@media (max-width: 767.98px) {
+
+    .main-content-with-header,
+    .main-content-inner {
+        padding: 1rem 0.5rem 0 0.5rem;
+    }
 }
 
 .sidebar-header {
@@ -719,12 +864,12 @@ function openNotification(notification) {
 .notification-item.unread {
     background: #e8f5e8;
     border-left: 4px solid #198754;
-    box-shadow: 0 2px 8px rgba(25,135,84,0.07);
+    box-shadow: 0 2px 8px rgba(25, 135, 84, 0.07);
 }
 
 .notification-item:hover {
     background: #f8f9fa;
-    box-shadow: 0 2px 8px rgba(25,135,84,0.10);
+    box-shadow: 0 2px 8px rgba(25, 135, 84, 0.10);
 }
 
 .notification-icon {
@@ -738,12 +883,29 @@ function openNotification(notification) {
     display: flex;
 }
 
-.text-primary { color: #0d6efd !important; }
-.text-success { color: #198754 !important; }
-.text-info { color: #0dcaf0 !important; }
-.text-warning { color: #ffc107 !important; }
-.text-secondary { color: #6c757d !important; }
-.text-muted { color: #adb5bd !important; }
+.text-primary {
+    color: #0d6efd !important;
+}
+
+.text-success {
+    color: #198754 !important;
+}
+
+.text-info {
+    color: #0dcaf0 !important;
+}
+
+.text-warning {
+    color: #ffc107 !important;
+}
+
+.text-secondary {
+    color: #6c757d !important;
+}
+
+.text-muted {
+    color: #adb5bd !important;
+}
 
 .notification-title {
     font-size: 1rem;
@@ -787,7 +949,7 @@ main {
         transform: translateX(-100%);
         transition: transform 0.3s ease;
     }
-    
+
     .sidebar.show {
         transform: translateX(0);
     }
@@ -825,44 +987,12 @@ main {
     pointer-events: none;
 }
 
-.fixed-header {
-    position: fixed;
-    top: 0;
-    left: 280px; /* width of sidebar */
-    right: 0;
-    z-index: 1050;
-    width: calc(100% - 280px);
+.modal-backdrop {
+    z-index: 2000 !important;
 }
-
-.main-content-with-header {
-    margin-top: 72px; /* adjust if header height changes */
-}
-
-@media (max-width: 768px) {
-    .fixed-header {
-        left: 0;
-        width: 100%;
-    }
-    .main-content-with-header {
-        margin-top: 72px;
-    }
-}
-
-.notification-dropdown-list {
-    box-shadow: 0 8px 32px rgba(25, 135, 84, 0.08), 0 1.5px 4px rgba(0,0,0,0.04);
-    border-radius: 16px;
-    padding-bottom: 0.5rem;
-    padding-top: 0.5rem;
-    overflow-y: auto;
-    overflow-x: hidden;
-    max-width: 400px;
-    width: 100%;
-}
-
-.fade-enter-active, .fade-leave-active {
-    transition: opacity 0.3s;
-}
-.fade-enter-from, .fade-leave-to {
-    opacity: 0;
+.modal-open .sidebar {
+    pointer-events: none;
+    filter: blur(2px);
+    transition: filter 0.2s;
 }
 </style>

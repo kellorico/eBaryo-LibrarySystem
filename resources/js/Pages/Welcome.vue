@@ -1,6 +1,5 @@
 <script setup>
 import GuestLayout from "@/Layouts/GuestLayout.vue";
-import { Link } from "@inertiajs/vue3";
 import { onMounted } from "vue";
 
 // Animate on scroll
@@ -19,6 +18,7 @@ onMounted(() => {
 
 <template>
   <GuestLayout>
+    <Head title="Welcome to eBaryo Library" />
     <!-- Hero Section -->
     <section class="welcome-hero d-flex align-items-center justify-content-center text-center position-relative overflow-hidden">
       <div class="hero-bg-pattern"></div>

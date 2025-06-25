@@ -1,7 +1,7 @@
 <script setup>
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 import { router } from '@inertiajs/vue3';
-import { ref, computed, watch, onMounted } from 'vue';
+import { ref, watch, onMounted } from 'vue';
 import Swal from 'sweetalert2';
 
 const props = defineProps({
@@ -154,7 +154,7 @@ const handleBulkAction = (action) => {
     inputLabel: action === 'reject' ? 'Reason for rejection (optional)' : undefined,
   }).then(result => {
     if (result.isConfirmed) {
-      router.post('/reviews/bulk-action', {
+      router.post(route('reviews'), {
         ids: selected.value,
         action,
         note: result.value,
@@ -187,7 +187,7 @@ const handleSelect = (id) => {
 };
 
 const applyFilters = () => {
-  router.get('/reviews/moderation', {
+  router.get(route('reviews'), {
     search: search.value,
     search_field: searchField.value,
     status: status.value,
@@ -273,6 +273,7 @@ const blurSearchBar = () => {
 
 <template>
   <AdminLayout title="Review Moderation">
+    <Head title="Review Moderation" />
     <div class="container">
       <h2 class="mb-4">Review Moderation</h2>
       

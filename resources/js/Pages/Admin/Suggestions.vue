@@ -26,7 +26,7 @@ function closeResponseModal() {
 }
 function submitResponse() {
   if (!selectedSuggestion.value) return;
-  responseForm.post(route('admin.suggestions.respond', selectedSuggestion.value.id), {
+  responseForm.post(route('suggestions', selectedSuggestion.value.id), {
     preserveScroll: true,
     onSuccess: () => {
       closeResponseModal();
@@ -38,7 +38,7 @@ function submitResponse() {
   });
 }
 function updateStatus(suggestion, status) {
-  router.post(route('admin.suggestions.status', suggestion.id), { status }, {
+  router.post(route('suggestions', suggestion.id), { status }, {
     preserveScroll: true,
     onSuccess: () => {
       Swal.fire({ icon: 'success', title: `Suggestion ${status}.` });
@@ -51,6 +51,7 @@ function updateStatus(suggestion, status) {
 </script>
 <template>
   <AdminLayout>
+    <Head title="Suggestions" />
     <div class="container">
       <h2 class="fw-bold mb-4"><i class="fa fa-lightbulb text-info me-2"></i>User Suggestions</h2>
       <div class="card shadow-sm">

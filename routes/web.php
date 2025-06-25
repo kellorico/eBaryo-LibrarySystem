@@ -21,24 +21,25 @@ use App\Http\Controllers\Admin\AnnouncementController;
 use App\Http\Controllers\Admin\ReadingChallengeController;
 use App\Http\Controllers\Admin\SuggestionController as AdminSuggestionController;
 use App\Http\Controllers\Admin\ReviewModerationController;
+use App\Http\Controllers\Admin\DigitalArchiveController;
 
 Route::get('/', function () {
     return Inertia::render('Welcome');
 })->middleware('guest')->name('welcome');
 
 Route::middleware(['auth', 'role:user'])->group(function () {
-    Route::get('/home', fn () => Inertia::render('Home'))->name('home');
+    Route::get('/home', fn() => Inertia::render('Home'))->name('home');
 });
 
 
 Route::middleware(['auth', 'role:admin'])->group(function () {
 
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
-    
+
     //Books
     //story books
     Route::get('/books/storybooks', [StoryBookController::class, 'index'])
-    ->name('storybooks');
+        ->name('storybooks');
     Route::post('/books/storybooks', [StoryBookController::class, 'store']);
     Route::put('/books/storybooks/{id}', [StoryBookController::class, 'update']);
     Route::delete('/books/storybooks/{id}', [StoryBookController::class, 'destroy']);
@@ -46,21 +47,21 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
     //educational books
     Route::get('/books/educational', [EducationalBookController::class, 'index'])
-    ->name('educationalbooks');
+        ->name('educationalbooks');
     Route::post('books/educational', [EducationalBookController::class, 'store']);
     Route::put('/books/educational/{id}', [EducationalBookController::class, 'update']);
     Route::delete('/books/educational/{id}', [EducationalBookController::class, 'destroy']);
 
     //agriculture and livelihood books
     Route::get('/books/agricultureandlivelihood', [AgricultureandLivelihoodBookController::class, 'index'])
-    ->name('agricultureandlivelihood');
+        ->name('agricultureandlivelihood');
     Route::post('/books/agricultureandlivelihood', [AgricultureandLivelihoodBookController::class, 'store']);
     Route::put('/books/agricultureandlivelihood/{id}', [AgricultureandLivelihoodBookController::class, 'update']);
     Route::delete('/books/agricultureandlivelihood/{id}', [AgricultureandLivelihoodBookController::class, 'destroy']);
 
     //cultural heritage books
     Route::get('/books/culturalheritage', [CulturalHeritageBookController::class, 'index'])
-    ->name('culturalheritage');
+        ->name('culturalheritage');
     Route::post('/books/culturalheritage', [CulturalHeritageBookController::class, 'store']);
     Route::put('/books/culturalheritage/{id}', [CulturalHeritageBookController::class, 'update']);
     Route::delete('/books/culturalheritage/{id}', [CulturalHeritageBookController::class, 'destroy']);
@@ -81,11 +82,11 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::post('/bookmarks', [BookMarkController::class, 'store']);
 
     //Admin Profile
-    Route::get('/profile',[ProfileController::class, 'index'])->name('admin.profile');
-    Route::put('/profile', [ProfileController::class, 'update'])->name('admin.profile.update');
-    Route::put('/profile/password', [ProfileController::class, 'changePassword'])->name('admin.profile.password');
-    Route::post('/profile/avatar', [ProfileController::class, 'uploadAvatar'])->name('admin.profile.avatar');
-    Route::post('/profile/send-verification', [ProfileController::class, 'sendVerificationEmail'])->name('admin.profile.sendVerification');
+    Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
+    Route::put('/profile', [ProfileController::class, 'update']);
+    Route::put('/profile/password', [ProfileController::class, 'changePassword']);
+    Route::post('/profile/avatar', [ProfileController::class, 'uploadAvatar']);
+    Route::post('/profile/send-verification', [ProfileController::class, 'sendVerificationEmail']);
     // Profile Activity Log for Activity Tab
     Route::get('/profile/activity-log', [ProfileController::class, 'activityLog'])->name('admin.profile.activity-log');
 
@@ -100,29 +101,38 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/recent-activity', [NotificationController::class, 'recentActivity'])->name('notifications.recent-activity');
 
     // Analytics Dashboard
-    Route::get('/analytics', [AnalyticsController::class, 'index'])->name('admin.analytics');
-    Route::get('/analytics/data', [AnalyticsController::class, 'data'])->name('admin.analytics.data');
+    Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics');
+    Route::get('/analytics/data', [AnalyticsController::class, 'data']);
 
-    // Announcements (Admin)
-    Route::get('/announcements', [AnnouncementController::class, 'index'])->name('admin.announcements');
-    Route::post('/announcements', [AnnouncementController::class, 'store'])->name('admin.announcements.store');
-    Route::delete('/announcements/{id}', [AnnouncementController::class, 'destroy'])->name('admin.announcements.destroy');
+    // Announcements
+    Route::get('/announcements', [AnnouncementController::class, 'index'])->name('announcements');
+    Route::post('/announcements', [AnnouncementController::class, 'store']);
+    Route::delete('/announcements/{id}', [AnnouncementController::class, 'destroy']);
 
     // Reading Challenges (Admin)
-    Route::get('/challenges', [ReadingChallengeController::class, 'index'])->name('admin.challenges');
-    Route::post('/challenges', [ReadingChallengeController::class, 'store'])->name('admin.challenges.store');
-    Route::delete('/challenges/{id}', [ReadingChallengeController::class, 'destroy'])->name('admin.challenges.destroy');
+    Route::get('/challenges', [ReadingChallengeController::class, 'index'])->name('challenges');
+    Route::post('/challenges', [ReadingChallengeController::class, 'store']);
+    Route::delete('/challenges/{id}', [ReadingChallengeController::class, 'destroy']);
 
     // User suggestion submission
-    Route::post('/admin/suggestions/{id}/status', [AdminSuggestionController::class, 'updateStatus'])->name('admin.suggestions.status');
-    Route::post('/admin/suggestions/{id}/respond', [AdminSuggestionController::class, 'respond'])->name('admin.suggestions.respond');
+    Route::get('/suggestions', [AdminSuggestionController::class, 'index'])->name('admin.suggestions');
+    Route::post('/suggestions/{id}/status', [AdminSuggestionController::class, 'updateStatus'])->name('suggestions');
+    Route::post('/suggestions/{id}/respond', [AdminSuggestionController::class, 'respond']);
 
     // Admin Review Moderation
-    Route::get('/reviews/moderation', [ReviewModerationController::class, 'index'])->name('admin.reviews.moderation');
-    Route::post('/reviews/{id}/approve', [ReviewModerationController::class, 'approve'])->name('admin.reviews.approve');
-    Route::post('/reviews/{id}/reject', [ReviewModerationController::class, 'reject'])->name('admin.reviews.reject');
-    Route::post('/reviews/{id}/dismiss-report', [ReviewModerationController::class, 'dismissReport'])->name('admin.reviews.dismissReport');
-    Route::post('/reviews/bulk-action', [ReviewModerationController::class, 'bulkAction'])->name('admin.reviews.bulkAction');
+    Route::get('/reviews/moderation', [ReviewModerationController::class, 'index'])->name('reviews');
+    Route::post('/reviews/{id}/approve', [ReviewModerationController::class, 'approve']);
+    Route::post('/reviews/{id}/reject', [ReviewModerationController::class, 'reject']);
+    Route::post('/reviews/{id}/dismiss-report', [ReviewModerationController::class, 'dismissReport']);
+    Route::post('/reviews/bulk-action', [ReviewModerationController::class, 'bulkAction']);
+
+    // Digital Archive
+    Route::get('/archive', [DigitalArchiveController::class, 'index'])->name('archive');
+    Route::post('/archive', [DigitalArchiveController::class, 'store']);
+    Route::delete('/archive/{id}', [DigitalArchiveController::class, 'destroy']);
+    Route::get('/archive/{id}/download', [DigitalArchiveController::class, 'download']);
+
+    Route::get('/dashboard/activity-overview', [AdminDashboardController::class, 'activityOverview']);
 });
 
 // Public/user-facing announcements list (for dashboard/homepage)
@@ -136,7 +146,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/challenges/{id}/leaderboard', [ReadingChallengeController::class, 'leaderboard']);
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
 
 // Add Laravel email verification routes
 Route::middleware('auth')->group(function () {
@@ -155,10 +165,10 @@ Route::middleware('auth')->group(function () {
     })->middleware(['throttle:6,1'])->name('verification.send');
 });
 
-// Admin suggestion management
-Route::middleware(['auth', 'role:admin'])->group(function () {
-    Route::get('/admin/suggestions', [AdminSuggestionController::class, 'index'])->name('admin.suggestions');
-});
 
 // Public: List approved suggestions (Inertia page)
 Route::get('/suggestions/approved', [AdminSuggestionController::class, 'publicList'])->name('suggestions.approved');
+
+// Public Digital Archive
+Route::get('/public-archive', [\App\Http\Controllers\Admin\DigitalArchiveController::class, 'publicIndex'])->name('public.archive.index');
+Route::get('/public-archive/{id}/download', [\App\Http\Controllers\Admin\DigitalArchiveController::class, 'publicDownload'])->name('public.archive.download');

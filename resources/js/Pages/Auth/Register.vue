@@ -2,7 +2,7 @@
 import GuestLayout from "@/Layouts/GuestLayout.vue";
 import InputField from "@/Components/InputField.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
-import { useForm, Link } from "@inertiajs/vue3";
+import { useForm } from "@inertiajs/vue3";
 
 const formData = useForm({
     name: "",
@@ -26,6 +26,7 @@ const submitForm = () => {
 
 <template>
     <GuestLayout>
+        <Head title="Register" />
         <div class="container py-5">
             <div class="card shadow-lg border-0 rounded-4 bg-white-green register-card-animate position-relative small-card">
                 <div class="accent-bar-green"></div>

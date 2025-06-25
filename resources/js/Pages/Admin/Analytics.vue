@@ -127,6 +127,7 @@ const chartOptions = {
 
 <template>
   <AdminLayout>
+<Head title="Library Analytics" />
     <div class="container">
       <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
         <h2 class="fw-bold mb-0 d-flex align-items-center gap-2">

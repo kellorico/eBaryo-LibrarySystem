@@ -2,7 +2,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
 import { useForm, usePage } from '@inertiajs/vue3';
-import { ref, computed, onMounted } from 'vue';
+import {  computed, onMounted } from 'vue';
 import Swal from 'sweetalert2';
 
 const page = usePage();
@@ -35,6 +35,7 @@ function submit() {
 }
 </script>
 <template>
+  <Head title="Submit Suggestion" />
   <component :is="user ? AuthenticatedLayout : GuestLayout">
     <div class="container py-4">
       <div class="row justify-content-center">

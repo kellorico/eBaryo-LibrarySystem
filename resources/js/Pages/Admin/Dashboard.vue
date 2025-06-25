@@ -1,19 +1,47 @@
 <script setup>
 import AdminLayout from '@/Layouts/AdminLayout.vue';
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
+import { router } from '@inertiajs/vue3';
+import { Bar } from 'vue-chartjs';
+import {
+  Chart,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+} from 'chart.js';
+Chart.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-defineProps({
+const props = defineProps({
     totalBooks: Number,
     totalUsers: Number,
     activeUsers: Number,
+    totalArchives: Number,
+    publicArchives: Number,
+    archivesByCategory: Object,
+    recentArchives: Array,
     flash: String
-})
+});
 
-const showWelcome = ref(!!__props.flash);
+const showWelcome = ref(!!props.flash);
+const showUploadModal = ref(false);
+const uploadForm = ref({
+  title: '',
+  description: '',
+  file: null,
+  type: 'document',
+  category: '',
+  is_public: false,
+  errors: {},
+});
 
 // Recent activity state
 const activities = ref([]);
 const loadingActivity = ref(true);
+
+const safeRecentArchives = computed(() => Array.isArray(props.recentArchives) ? props.recentArchives : []);
 
 onMounted(() => {
   if (showWelcome.value) {
@@ -27,14 +55,109 @@ onMounted(() => {
     })
     .finally(() => loadingActivity.value = false);
 });
+
+const resetForm = () => {
+  uploadForm.value = {
+    title: '',
+    description: '',
+    file: null,
+    type: 'document',
+    category: '',
+    is_public: false,
+    errors: {},
+  };
+};
+const openUploadModal = () => {
+  resetForm();
+  showUploadModal.value = true;
+};
+const closeUploadModal = () => {
+  showUploadModal.value = false;
+};
+const handleFileChange = (e) => {
+  uploadForm.value.file = e.target.files[0];
+};
+const handleUpload = () => {
+  uploadForm.value.errors = {};
+  const formData = new FormData();
+  formData.append('title', uploadForm.value.title);
+  formData.append('description', uploadForm.value.description);
+  formData.append('file', uploadForm.value.file);
+  formData.append('type', uploadForm.value.type);
+  formData.append('category', uploadForm.value.category);
+  formData.append('is_public', uploadForm.value.is_public ? 1 : 0);
+  router.post(route('archive'), formData, {
+    forceFormData: true,
+    onSuccess: () => {
+      closeUploadModal();
+    },
+    onError: (errors) => {
+      uploadForm.value.errors = errors;
+    },
+    preserveScroll: true,
+  });
+};
+const handleDownload = (archive) => {
+  window.open(route('archive', archive.id), '_blank');
+};
+
+const activityRange = ref('7d');
+const activityLoading = ref(false);
+const activityLabels = ref([]);
+const activityBookReads = ref([]);
+const activityArchiveUploads = ref([]);
+const activityNewUsers = ref([]);
+
+const fetchActivityOverview = async () => {
+  activityLoading.value = true;
+  const res = await fetch(`/dashboard/activity-overview?range=${activityRange.value}`);
+  const data = await res.json();
+  activityLabels.value = data.labels;
+  activityBookReads.value = data.bookReads;
+  activityArchiveUploads.value = data.archiveUploads;
+  activityNewUsers.value = data.newUsers;
+  activityLoading.value = false;
+};
+onMounted(fetchActivityOverview);
+watch(activityRange, fetchActivityOverview);
+
+const activityChartData = computed(() => ({
+  labels: activityLabels.value,
+  datasets: [
+    {
+      label: 'Book Reads',
+      backgroundColor: '#0d6efd',
+      data: activityBookReads.value,
+    },
+    {
+      label: 'Archive Uploads',
+      backgroundColor: '#28a745',
+      data: activityArchiveUploads.value,
+    },
+    {
+      label: 'New Users',
+      backgroundColor: '#fd7e14',
+      data: activityNewUsers.value,
+    },
+  ],
+}));
+const activityChartOptions = {
+  responsive: true,
+  plugins: {
+    legend: { position: 'top' },
+    title: { display: false },
+  },
+  scales: { y: { beginAtZero: true } },
+};
 </script>
 
 <template>
     <AdminLayout>
+        <Head title="Dashboard" />
         <!-- Floating Welcome Message -->
         <div v-if="showWelcome" class="floating-flash-message alert alert-success alert-dismissible fade show" role="alert">
             <i class="fa-solid fa-smile-beam me-2"></i>
-            {{ flash || 'Welcome back, Admin!' }}
+            {{ props.flash || 'Welcome back, Admin!' }}
             <button type="button" class="btn-close" @click="showWelcome = false" aria-label="Close"></button>
         </div>
         <div class="dashboard-container">
@@ -126,47 +249,74 @@ onMounted(() => {
                         </div>
                     </div>
                 </div>
+
+                <div class="col-xl-3 col-md-6">
+                    <div class="stat-card stat-card-archive">
+                        <div class="stat-card-content">
+                            <div class="stat-card-icon bg-archive">
+                                <i class="fa-solid fa-archive"></i>
+                            </div>
+                            <div class="stat-card-info">
+                                <h3 class="stat-card-number">{{ totalArchives }}</h3>
+                                <p class="stat-card-label">Total Archives</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6">
+                    <div class="stat-card stat-card-public">
+                        <div class="stat-card-content">
+                            <div class="stat-card-icon bg-public">
+                                <i class="fa-solid fa-globe"></i>
+                            </div>
+                            <div class="stat-card-info">
+                                <h3 class="stat-card-number">{{ publicArchives }}</h3>
+                                <p class="stat-card-label">Public Archives</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-6 col-md-12">
+                    <div class="stat-card stat-card-category">
+                        <div class="stat-card-content">
+                            <div class="stat-card-info">
+                                <h5 class="mb-2">Archives by Category</h5>
+                                <div class="d-flex flex-wrap gap-3">
+                                    <div v-for="(count, cat) in archivesByCategory" :key="cat" class="badge bg-secondary px-3 py-2 fs-6">
+                                        <i class="fa fa-folder me-1"></i> {{ cat }}: <b>{{ count }}</b>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Charts and Analytics Row -->
             <div class="row g-4 mb-5">
                 <div class="col-xl-8">
                     <div class="dashboard-card">
-                        <div class="dashboard-card-header">
-                            <h5 class="dashboard-card-title">
+                        <div class="dashboard-card-header d-flex justify-content-between align-items-center">
+                            <h5 class="dashboard-card-title mb-0">
                                 <i class="fa-solid fa-chart-line me-2"></i>
                                 Library Activity Overview
                             </h5>
-                            <div class="dashboard-card-actions">
-                                <select class="form-select form-select-sm">
-                                    <option>Last 7 days</option>
-                                    <option>Last 30 days</option>
-                                    <option>Last 3 months</option>
-                                </select>
-                            </div>
+                            <select v-model="activityRange" class="form-select form-select-sm" style="width: 160px;">
+                                <option value="7d">Last 7 days</option>
+                                <option value="30d">Last 30 days</option>
+                                <option value="90d">Last 90 days</option>
+                            </select>
                         </div>
                         <div class="dashboard-card-body">
-                            <div class="chart-placeholder">
-                                <div class="chart-container">
-                                    <div class="chart-bars">
-                                        <div class="chart-bar" style="height: 60%"></div>
-                                        <div class="chart-bar" style="height: 80%"></div>
-                                        <div class="chart-bar" style="height: 45%"></div>
-                                        <div class="chart-bar" style="height: 90%"></div>
-                                        <div class="chart-bar" style="height: 70%"></div>
-                                        <div class="chart-bar" style="height: 85%"></div>
-                                        <div class="chart-bar" style="height: 55%"></div>
-                                    </div>
-                                    <div class="chart-labels">
-                                        <span>Mon</span>
-                                        <span>Tue</span>
-                                        <span>Wed</span>
-                                        <span>Thu</span>
-                                        <span>Fri</span>
-                                        <span>Sat</span>
-                                        <span>Sun</span>
-                                    </div>
+                            <div v-if="activityLoading" class="text-center py-5">
+                                <div class="spinner-border text-success" role="status">
+                                    <span class="visually-hidden">Loading...</span>
                                 </div>
+                            </div>
+                            <div v-else>
+                                <Bar :data="activityChartData" :options="activityChartOptions" style="min-height:320px;" />
                             </div>
                         </div>
                     </div>
@@ -217,7 +367,7 @@ onMounted(() => {
             </div>
 
             <!-- Recent Activity and Quick Actions -->
-            <div class="row g-4">
+            <div class="row g-4 mb-5">
                 <div class="col-xl-6">
                     <div class="dashboard-card">
                         <div class="dashboard-card-header">
@@ -253,52 +403,110 @@ onMounted(() => {
                         </div>
                     </div>
                 </div>
-
                 <div class="col-xl-6">
                     <div class="dashboard-card">
-                        <div class="dashboard-card-header">
-                            <h5 class="dashboard-card-title">
-                                <i class="fa-solid fa-bolt me-2"></i>
-                                Quick Actions
+                        <div class="dashboard-card-header d-flex justify-content-between align-items-center">
+                            <h5 class="dashboard-card-title mb-0">
+                                <i class="fa-solid fa-clock me-2"></i> Recent Archive Uploads
                             </h5>
+                            <button class="btn btn-success" @click="openUploadModal">
+                                <i class="fa fa-upload me-2"></i> Quick Upload
+                            </button>
                         </div>
-                        <div class="dashboard-card-body">
-                            <div class="quick-actions">
-                                <div class="row g-3">
-                                    <div class="col-6">
-                                        <div class="quick-action-item">
-                                            <div class="quick-action-icon">
-                                                <i class="fa-solid fa-plus"></i>
-                                            </div>
-                                            <span class="quick-action-text">Add Book</span>
-                                        </div>
-                                    </div>
-                                    <div class="col-6">
-                                        <div class="quick-action-item">
-                                            <div class="quick-action-icon">
-                                                <i class="fa-solid fa-users"></i>
-                                            </div>
-                                            <span class="quick-action-text">Manage Users</span>
-                                        </div>
-                                    </div>
-                                    <div class="col-6">
-                                        <div class="quick-action-item">
-                                            <div class="quick-action-icon">
-                                                <i class="fa-solid fa-list"></i>
-                                            </div>
-                                            <span class="quick-action-text">Categories</span>
-                                        </div>
-                                    </div>
-                                    <div class="col-6">
-                                        <div class="quick-action-item">
-                                            <div class="quick-action-icon">
-                                                <i class="fa-solid fa-chart-bar"></i>
-                                            </div>
-                                            <span class="quick-action-text">Reports</span>
-                                        </div>
-                                    </div>
-                                </div>
+                        <div class="dashboard-card-body p-0">
+                            <div v-if="safeRecentArchives.length === 0" class="text-center py-4 text-muted">No recent uploads.</div>
+                            <div v-else class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Title</th>
+                                            <th>Uploader</th>
+                                            <th>Category</th>
+                                            <th>Public</th>
+                                            <th>Date</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="archive in safeRecentArchives" :key="archive.id">
+                                            <td>{{ archive.title }}</td>
+                                            <td>{{ archive.uploader?.name || 'Unknown' }}</td>
+                                            <td>{{ archive.category || '-' }}</td>
+                                            <td>
+                                                <span v-if="archive.is_public" class="badge bg-success">Yes</span>
+                                                <span v-else class="badge bg-secondary">No</span>
+                                            </td>
+                                            <td>{{ new Date(archive.created_at).toLocaleString() }}</td>
+                                            <td>
+                                                <button class="btn btn-outline-success btn-sm me-2" @click="handleDownload(archive)">
+                                                    <i class="fas fa-download"></i>
+                                                </button>
+                                                <a :href="route('archive')" class="btn btn-outline-primary btn-sm">
+                                                    <i class="fas fa-folder-open"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upload Modal (reuse from DigitalArchive.vue) -->
+            <div v-if="showUploadModal" class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.3);">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title"><i class="fas fa-upload me-2 text-success"></i> Upload Archive</h5>
+                            <button type="button" class="btn-close" @click="closeUploadModal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label class="form-label">Title</label>
+                                <input v-model="uploadForm.title" type="text" class="form-control" placeholder="Document title" />
+                                <div v-if="uploadForm.errors.title" class="text-danger small">{{ uploadForm.errors.title }}</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Description</label>
+                                <textarea v-model="uploadForm.description" class="form-control" placeholder="Description (optional)"></textarea>
+                                <div v-if="uploadForm.errors.description" class="text-danger small">{{ uploadForm.errors.description }}</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Type</label>
+                                <select v-model="uploadForm.type" class="form-select">
+                                    <option value="document">Document</option>
+                                    <option value="photo">Photo</option>
+                                    <option value="record">Historical Record</option>
+                                </select>
+                                <div v-if="uploadForm.errors.type" class="text-danger small">{{ uploadForm.errors.type }}</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Category</label>
+                                <select v-model="uploadForm.category" class="form-select">
+                                    <option value="">Select Category</option>
+                                    <option value="Resolution">Resolution</option>
+                                    <option value="Photo">Photo</option>
+                                    <option value="Event">Event</option>
+                                    <option value="History">History</option>
+                                    <option value="Misc">Misc</option>
+                                </select>
+                                <div v-if="uploadForm.errors.category" class="text-danger small">{{ uploadForm.errors.category }}</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">File</label>
+                                <input type="file" class="form-control" @change="handleFileChange" accept=".pdf,.jpg,.jpeg,.png,.docx,.xlsx,.zip" />
+                                <div v-if="uploadForm.errors.file" class="text-danger small">{{ uploadForm.errors.file }}</div>
+                            </div>
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" v-model="uploadForm.is_public" id="isPublicCheck" />
+                                <label class="form-check-label" for="isPublicCheck">Make Public (visible to all users)</label>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-secondary" @click="closeUploadModal">Cancel</button>
+                            <button class="btn btn-success" @click="handleUpload">Upload</button>
                         </div>
                     </div>
                 </div>
@@ -599,52 +807,6 @@ onMounted(() => {
     font-size: 0.8rem;
 }
 
-/* Quick Actions */
-.quick-actions {
-    padding: 0.5rem 0;
-}
-
-.quick-action-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 1.5rem;
-    border-radius: 12px;
-    background: #f8f9fa;
-    transition: all 0.3s ease;
-    cursor: pointer;
-    text-decoration: none;
-    color: inherit;
-}
-
-.quick-action-item:hover {
-    background: #e9ecef;
-    transform: translateY(-3px);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    color: inherit;
-    text-decoration: none;
-}
-
-.quick-action-icon {
-    width: 50px;
-    height: 50px;
-    border-radius: 12px;
-    background: linear-gradient(135deg, #198754, #75b798);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 1.25rem;
-}
-
-.quick-action-text {
-    font-weight: 500;
-    color: #2c3e50;
-    text-align: center;
-    font-size: 0.9rem;
-}
-
 /* Responsive Design */
 @media (max-width: 768px) {
     .page-header {
@@ -700,4 +862,10 @@ onMounted(() => {
         font-size: 0.95rem;
     }
 }
+
+.bg-archive { background: #6c757d; color: #fff; }
+.bg-public { background: #28a745; color: #fff; }
+.stat-card-archive .stat-card-icon { background: #6c757d; color: #fff; }
+.stat-card-public .stat-card-icon { background: #28a745; color: #fff; }
+.stat-card-category .stat-card-content { background: #f8f9fa; border-radius: 12px; }
 </style>

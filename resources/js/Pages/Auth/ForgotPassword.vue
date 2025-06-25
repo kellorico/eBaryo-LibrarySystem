@@ -1,7 +1,7 @@
 <script setup>
 import GuestLayout from "@/Layouts/GuestLayout.vue";
 import InputField from "@/Components/InputField.vue";
-import { useForm,Link } from "@inertiajs/vue3";
+import { useForm } from "@inertiajs/vue3";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import Toast from '@/Components/Toast.vue';
 import { ref, watch } from 'vue';
@@ -45,6 +45,7 @@ const submit = () => {
 
 <template>
     <GuestLayout>
+        <Head title="Forgot Password" />
         <Toast v-model="showToast" v-if="props.status" class="toast-green">{{ props.status }}</Toast>
         <div class="container py-4">
         <div class="card shadow-lg border-0 rounded-4 bg-white-green forgot-card-animate position-relative small-card">
