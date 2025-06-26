@@ -27,7 +27,7 @@ class LoginController extends Controller
 
 
             return redirect()->intended(
-                $user->role === 'admin' ? route('dashboard') : route('home')
+                $user->role === 'admin' ? route('admin.dashboard') : route('home')
             )->with('success', 'Login successful!');
         }
 

@@ -170,7 +170,7 @@ const handleBulkAction = (action) => {
     }).then((result) => {
         if (result.isConfirmed) {
             router.post(
-                route("reviews"),
+                route("admin.reviews"),
                 {
                     ids: selected.value,
                     action,
@@ -181,7 +181,7 @@ const handleBulkAction = (action) => {
                     onSuccess: () => {
                         selected.value = [];
                         selectAll.value = false;
-                        router.reload({ only: ["reviews"] });
+                        router.reload({ only: ["admin.reviews"] });
                     },
                 }
             );

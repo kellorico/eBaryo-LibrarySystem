@@ -5,8 +5,15 @@ use App\Http\Controllers\Auth\RegisterController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\ResetPasswordController;
+use Inertia\Inertia;
 
 Route::middleware('guest')->group(function () {
+
+
+    Route::get('/', function () {
+        return Inertia::render('Welcome');
+    })->name('welcome');
+
     //login and register routes
     Route::get('/login', [LoginController::class, 'show'])->name('login');
     Route::post('/login', [LoginController::class, 'login']);

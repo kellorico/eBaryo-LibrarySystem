@@ -88,7 +88,7 @@ const handleUpload = () => {
     formData.append("type", uploadForm.value.type);
     formData.append("category", uploadForm.value.category);
     formData.append("is_public", uploadForm.value.is_public ? 1 : 0);
-    router.post(route("archive"), formData, {
+    router.post(route("admin.archive"), formData, {
         forceFormData: true,
         onSuccess: () => {
             closeUploadModal();
@@ -100,7 +100,7 @@ const handleUpload = () => {
     });
 };
 const handleDownload = (archive) => {
-    window.open(route("archive", archive.id), "_blank");
+    window.open(route("admin.archive", archive.id), "_blank");
 };
 
 const activityRange = ref("7d");
@@ -608,7 +608,7 @@ const activityChartOptions = {
                                                     ></i>
                                                 </button>
                                                 <a
-                                                    :href="route('archive')"
+                                                    :href="route('admin.archive')"
                                                     class="btn btn-outline-primary btn-sm"
                                                 >
                                                     <i

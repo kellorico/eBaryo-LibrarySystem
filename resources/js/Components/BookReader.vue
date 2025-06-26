@@ -13,15 +13,18 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from "vue";
+import { onMounted, ref, watch } from "vue";
 import ePub from "epubjs";
 
 const props = defineProps({
     file: String, // EPUB file path (relative to /storage/)
+    bookId: Number,
 });
 
 const readerContainer = ref(null);
 let rendition = null;
+let book = null;
+const currentPage = ref(0);
 
 const nextPage = () => {
     rendition?.next();
@@ -31,13 +34,43 @@ const prevPage = () => {
     rendition?.prev();
 };
 
+function saveProgress(page) {
+    if (!props.bookId) return;
+    fetch(`/books/${props.bookId}/progress`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ progress: page })
+    });
+}
+
 onMounted(() => {
-    const book = ePub(`/storage/${props.file}`);
+    book = ePub(`/storage/${props.file}`);
     rendition = book.renderTo("epub-reader", {
         width: "100%",
         height: "100%",
     });
-    rendition.display();
+    // Fetch last progress
+    if (props.bookId) {
+        fetch('/books/progress')
+            .then(res => res.json())
+            .then(data => {
+                const prog = (data.progress || []).find(p => p.book_id === props.bookId);
+                if (prog && prog.progress) {
+                    book.ready.then(() => {
+                        rendition.display(prog.progress);
+                    });
+                } else {
+                    rendition.display();
+                }
+            });
+    } else {
+        rendition.display();
+    }
+    // Save progress on page change
+    rendition.on('relocated', (location) => {
+        const cfi = location.start.cfi;
+        saveProgress(cfi);
+    });
 });
 </script>
 

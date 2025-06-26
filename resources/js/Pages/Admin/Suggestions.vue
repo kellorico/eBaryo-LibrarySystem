@@ -26,7 +26,7 @@ function closeResponseModal() {
 }
 function submitResponse() {
     if (!selectedSuggestion.value) return;
-    responseForm.post(route("suggestions", selectedSuggestion.value.id), {
+    responseForm.post(route("admin.suggestions", selectedSuggestion.value.id), {
         preserveScroll: true,
         onSuccess: () => {
             closeResponseModal();
@@ -39,7 +39,7 @@ function submitResponse() {
 }
 function updateStatus(suggestion, status) {
     router.post(
-        route("suggestions", suggestion.id),
+        route("admin.suggestions", suggestion.id),
         { status },
         {
             preserveScroll: true,

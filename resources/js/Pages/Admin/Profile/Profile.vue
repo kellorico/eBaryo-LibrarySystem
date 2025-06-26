@@ -72,7 +72,7 @@ function closeEditModal() {
 }
 
 function submitEditProfile() {
-    router.put(route("profile"), form.value, {
+    router.put(route("admin.profile"), form.value, {
         preserveScroll: true,
         onSuccess: () => {
             toast.value = {
@@ -107,7 +107,7 @@ function submitChangePassword() {
         return setTimeout(() => (toast.value.show = false), 3000);
     }
     router.put(
-        route("profile"),
+        route("admin.profile"),
         {
             current: passwordForm.value.current,
             new: passwordForm.value.new,
@@ -148,7 +148,7 @@ function handleAvatarChange(e) {
     if (file) {
         const formData = new FormData();
         formData.append("avatar", file);
-        router.post(route("profile"), formData, {
+        router.post(route("admin.profile"), formData, {
             forceFormData: true,
             onSuccess: (page) => {
                 if (page.props.avatar_url) {
@@ -178,7 +178,7 @@ function handleAvatarChange(e) {
 
 function sendVerificationEmail() {
     router.post(
-        route("profile"),
+        route("admin.profile"),
         {},
         {
             preserveScroll: true,

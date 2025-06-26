@@ -262,7 +262,7 @@ watch(showNotificationModal, (val) => {
                 <nav class="nav flex-column gap-2">
                     <!-- Dashboard -->
                     <Link
-                        href="/dashboard"
+                        :href="route('admin.dashboard')"
                         class="nav-item d-flex align-items-center text-white p-3 rounded-3"
                         :class="{
                             'nav-item-active': $page.url === '/dashboard',
@@ -308,7 +308,7 @@ watch(showNotificationModal, (val) => {
                         >
                             <div class="submenu">
                                 <Link
-                                    href="/books/storybooks"
+                                    :href="route('admin.storybooks')"
                                     class="submenu-item d-flex align-items-center text-white p-2 rounded-2"
                                     :class="{
                                         'submenu-item-active':
@@ -323,7 +323,7 @@ watch(showNotificationModal, (val) => {
                                     >
                                 </Link>
                                 <Link
-                                    href="/books/educational"
+                                    :href="route('admin.educationalbooks')"
                                     class="submenu-item d-flex align-items-center text-white p-2 rounded-2"
                                     :class="{
                                         'submenu-item-active':
@@ -340,7 +340,7 @@ watch(showNotificationModal, (val) => {
                                     >
                                 </Link>
                                 <Link
-                                    href="/books/agricultureandlivelihood"
+                                    :href="route('admin.agricultureandlivelihood')"
                                     class="submenu-item d-flex align-items-center text-white p-2 rounded-2"
                                     :class="{
                                         'submenu-item-active':
@@ -356,7 +356,7 @@ watch(showNotificationModal, (val) => {
                                     >
                                 </Link>
                                 <Link
-                                    href="/books/culturalheritage"
+                                    :href="route('admin.culturalheritage')"
                                     class="submenu-item d-flex align-items-center text-white p-2 rounded-2"
                                     :class="{
                                         'submenu-item-active':
@@ -409,7 +409,7 @@ watch(showNotificationModal, (val) => {
                         >
                             <div class="submenu">
                                 <Link
-                                    :href="route('allusers')"
+                                    :href="route('admin.allusers')"
                                     class="submenu-item d-flex align-items-center text-white p-2 rounded-2"
                                     :class="{
                                         'submenu-item-active':
@@ -422,7 +422,7 @@ watch(showNotificationModal, (val) => {
                                     <span class="submenu-text">All Users</span>
                                 </Link>
                                 <Link
-                                    :href="route('verifiedusers')"
+                                    :href="route('admin.verifiedusers')"
                                     class="submenu-item d-flex align-items-center text-white p-2 rounded-2"
                                     :class="{
                                         'submenu-item-active':
@@ -438,7 +438,7 @@ watch(showNotificationModal, (val) => {
                                     >
                                 </Link>
                                 <Link
-                                    :href="route('unverifiedusers')"
+                                    :href="route('admin.unverifiedusers')"
                                     class="submenu-item d-flex align-items-center text-white p-2 rounded-2"
                                     :class="{
                                         'submenu-item-active':
@@ -459,7 +459,7 @@ watch(showNotificationModal, (val) => {
 
                     <!-- Digital Archive -->
                     <Link
-                        :href="route('archive')"
+                        :href="route('admin.archive')"
                         class="nav-item d-flex align-items-center text-white p-3 rounded-3 mt-3"
                         :class="{ 'nav-item-active': $page.url === '/archive' }"
                     >
@@ -470,7 +470,7 @@ watch(showNotificationModal, (val) => {
                     </Link>
                     <!-- Analytics Link -->
                     <Link
-                        :href="route('analytics')"
+                        :href="route('admin.analytics')"
                         class="nav-item d-flex align-items-center text-white p-3 rounded-3 mt-3"
                         :class="{
                             'nav-item-active': $page.url === '/analytics',
@@ -483,7 +483,7 @@ watch(showNotificationModal, (val) => {
                     </Link>
                     <!-- Announcements Link -->
                     <Link
-                        :href="route('announcements')"
+                        :href="route('admin.announcements')"
                         class="nav-item d-flex align-items-center text-white p-3 rounded-3"
                         :class="{
                             'nav-item-active': $page.url === '/announcements',
@@ -496,7 +496,7 @@ watch(showNotificationModal, (val) => {
                     </Link>
                     <!-- Reading Challenges Link -->
                     <Link
-                        :href="route('challenges')"
+                        :href="route('admin.challenges')"
                         class="nav-item d-flex align-items-center text-white p-3 rounded-3"
                         :class="{
                             'nav-item-active': $page.url === '/challenges',
@@ -524,7 +524,7 @@ watch(showNotificationModal, (val) => {
                     </Link>
                     <!-- Review Moderation Link -->
                     <Link
-                        :href="route('reviews')"
+                        :href="route('admin.reviews')"
                         class="nav-item d-flex align-items-center text-white p-3 rounded-3"
                         :class="{ 'nav-item-active': $page.url === '/reviews' }"
                     >
@@ -582,9 +582,10 @@ watch(showNotificationModal, (val) => {
                                         class="dropdown-menu dropdown-menu-end shadow border-0 show notification-dropdown-list"
                                         style="
                                             display: block;
-                                            position: absolute;
-                                            right: 0;
-                                            top: 110%;
+                                            position: fixed;
+                                            z-index: 9999;
+                                            right: 32px;
+                                            top: 72px;
                                             min-width: 340px;
                                             max-width: 400px;
                                             max-height: 420px;
@@ -793,7 +794,7 @@ watch(showNotificationModal, (val) => {
                                     <li>
                                         <Link
                                             class="dropdown-item d-flex align-items-center gap-2"
-                                            :href="route('profile')"
+                                            :href="route('admin.profile')"
                                         >
                                             <i class="fa-solid fa-user"></i>
                                             Profile
@@ -991,6 +992,7 @@ watch(showNotificationModal, (val) => {
     padding: 0 2rem;
     height: 64px;
     transition: background 0.2s, box-shadow 0.2s;
+    z-index: 1000 !important;
 }
 @media (max-width: 991.98px) {
     .fixed-header {
@@ -1311,5 +1313,12 @@ main {
     pointer-events: none;
     filter: blur(2px);
     transition: filter 0.2s;
+}
+
+.notification-dropdown-list {
+    position: fixed !important;
+    z-index: 9999 !important;
+    right: 32px;
+    top: 72px;
 }
 </style>

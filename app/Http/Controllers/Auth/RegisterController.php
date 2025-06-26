@@ -36,6 +36,6 @@ class RegisterController extends Controller
         NotificationService::userRegistered($user);
 
         Auth::login($user);
-        return redirect()->route('home')->with('success', 'Registration successful!');
+        return redirect()->route('user.profile.complete');
     }
 }

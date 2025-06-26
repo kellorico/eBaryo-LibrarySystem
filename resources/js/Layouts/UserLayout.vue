@@ -1,0 +1,208 @@
+<script setup>
+import { usePage, Link } from "@inertiajs/vue3";
+import { computed, ref, provide } from "vue";
+import GlobalToast from "@/Components/GlobalToast.vue";
+const page = usePage();
+const user = computed(() => page.props.auth?.user);
+
+const toast = ref({ show: false, message: "", type: "success" });
+function showToast(message, type = "success") {
+    toast.value = { show: true, message, type };
+}
+provide("showToast", showToast);
+</script>
+<template>
+    <div>
+        <!-- Navigation Bar -->
+        <nav
+            class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top"
+        >
+            <div class="container-fluid">
+                <Link href="/home" class="navbar-brand fw-bold text-success">
+                    <i class="fa fa-book me-2"></i>eBaryo Library
+                </Link>
+                <button
+                    class="navbar-toggler"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#navbarNav"
+                    aria-controls="navbarNav"
+                    aria-expanded="false"
+                    aria-label="Toggle navigation"
+                >
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <Link class="nav-link" :href="route('home')">Home</Link>
+                        </li>
+                        <li class="nav-item">
+                            <Link class="nav-link" href="/books/browse">Browse Books</Link>
+                        </li>
+                        <li class="nav-item">
+                            <Link
+                                class="nav-link"
+                                :href="route('user.challenges')"
+                                >Reading Challenges</Link
+                            >
+                        </li>
+                        <li class="nav-item">
+                            <Link class="nav-link" href="/suggestions"
+                                >Suggestions</Link
+                            >
+                        </li>
+                        <li class="nav-item">
+                            <Link class="nav-link" href="/announcements"
+                                >Announcements</Link
+                            >
+                        </li>
+                    </ul>
+                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                        <li class="nav-item dropdown">
+                            <button
+                                class="nav-link dropdown-toggle d-flex align-items-center btn btn-link border-0"
+                                id="userDropdown"
+                                type="button"
+                                data-bs-toggle="dropdown"
+                                aria-expanded="false"
+                            >
+                                <img
+                                    :src="
+                                        user?.avatar ||
+                                        '/assets/images/image.png'
+                                    "
+                                    alt="Avatar"
+                                    class="rounded-circle me-2"
+                                    style="
+                                        width: 32px;
+                                        height: 32px;
+                                        object-fit: cover;
+                                    "
+                                />
+                                <span>{{ user?.name || "User" }}</span>
+                            </button>
+                            <ul
+                                class="dropdown-menu dropdown-menu-end"
+                                aria-labelledby="userDropdown"
+                            >
+                                <li>
+                                    <Link class="dropdown-item" :href="route('user.savedbooks')">
+                                        <i class="fa fa-bookmark me-2 text-success"></i>My Saved Books
+                                    </Link>
+                                </li>
+                                <li>
+                                    <Link class="dropdown-item" :href="route('user.bookmarks')">
+                                        <i class="fa fa-star me-2 text-warning"></i>My Bookmarks
+                                    </Link>
+                                </li>
+                                <li>
+                                    <Link class="dropdown-item" :href="route('user.challenges')">
+                                        <i class="fa fa-trophy me-2 text-primary"></i>My Joined Challenges
+                                    </Link>
+                                </li>
+                                <li><hr class="dropdown-divider" /></li>
+                                <li>
+                                    <Link class="dropdown-item" :href="route('user.profile')">
+                                        <i class="fa fa-user me-2"></i>Profile
+                                    </Link>
+                                </li>
+                                <li><hr class="dropdown-divider" /></li>
+                                <li>
+                                    <Link
+                                        class="dropdown-item text-danger"
+                                        method="post"
+                                        :href="route('logout')"
+                                        as="button"
+                                    >
+                                        <i class="fa fa-sign-out-alt me-2"></i>Logout
+                                    </Link>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <!-- Main Content -->
+        <main class="py-4">
+            <slot />
+        </main>
+        <GlobalToast
+            :show="toast.show"
+            :type="toast.type"
+            @update:show="toast.show = $event"
+        >
+            {{ toast.message }}
+        </GlobalToast>
+    </div>
+</template>
+
+<style scoped>
+/* Green gradient navbar like AdminLayout */
+.navbar {
+    background: linear-gradient(135deg, #198754 0%, #146c43 100%) !important;
+    box-shadow: 0 2px 8px rgba(30, 41, 59, 0.08);
+    border-bottom: 1px solid #e9ecef;
+}
+
+.navbar-brand {
+    font-size: 1.5rem;
+    color: #fff !important;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+}
+
+.navbar .nav-link {
+    color: #fff !important;
+    font-weight: 500;
+    transition: color 0.2s, background 0.2s;
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+}
+
+.navbar .nav-link:hover,
+.navbar .nav-link.active {
+    background: rgba(255, 255, 255, 0.12);
+    color: #ffc107 !important;
+}
+
+.navbar .dropdown-menu {
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(30, 41, 59, 0.1);
+    background: #fff;
+    min-width: 180px;
+    padding: 0.5rem 0;
+}
+
+.navbar .dropdown-item {
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    transition: background 0.2s, color 0.2s;
+}
+
+.navbar .dropdown-item:hover {
+    background: #e8f5e8;
+    color: #198754;
+}
+
+.rounded-circle {
+    border: 2px solid #198754;
+    box-shadow: 0 2px 8px rgba(25, 135, 84, 0.08);
+}
+
+main {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    min-height: 90vh;
+    border-radius: 0 0 16px 16px;
+    box-shadow: 0 2px 8px rgba(30, 41, 59, 0.04);
+}
+
+/* Responsive tweaks */
+@media (max-width: 991.98px) {
+    .navbar .nav-link {
+        padding: 0.5rem 0.75rem;
+    }
+}
+</style>

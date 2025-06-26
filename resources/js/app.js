@@ -32,6 +32,8 @@ createInertiaApp({
             .component("Link", Link)
             .component("Head", Head)
             .use(FloatingVue);
+        // Provide a global showToast fallback
+        app.provide('showToast', (msg, type) => alert(msg));
         return app.mount(el);
     },
     progress: {

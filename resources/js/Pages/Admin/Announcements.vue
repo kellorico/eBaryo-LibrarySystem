@@ -18,7 +18,7 @@ const form = useForm({
 });
 
 function submit() {
-    form.post(route("announcements"), {
+    form.post(route("admin.announcements"), {
         onSuccess: () => {
             form.reset();
             Swal.fire({
@@ -39,7 +39,7 @@ function submit() {
 
 function deleteAnnouncement(id) {
     if (confirm("Delete this announcement?")) {
-        router.delete(route("announcements", id));
+        router.delete(route("admin.announcements", id));
     }
 }
 </script>

@@ -58,7 +58,7 @@ const handleUpload = () => {
     formData.append("type", uploadForm.value.type);
     formData.append("category", uploadForm.value.category);
     formData.append("is_public", uploadForm.value.is_public ? 1 : 0);
-    router.post(route("archive"), formData, {
+    router.post(route("admin.archive"), formData, {
         forceFormData: true,
         onSuccess: () => {
             closeUploadModal();
@@ -82,7 +82,7 @@ const handleDelete = (archive) => {
         confirmButtonText: "Yes, delete it!",
     }).then((result) => {
         if (result.isConfirmed) {
-            router.delete(route("archive", archive.id), {
+            router.delete(route("admin.archive", archive.id), {
                 onSuccess: () => {
                     Swal.fire(
                         "Deleted!",
@@ -97,7 +97,7 @@ const handleDelete = (archive) => {
 };
 
 const handleDownload = (archive) => {
-    window.open(route("archive", archive.id), "_blank");
+    window.open(route("admin.archive", archive.id), "_blank");
 };
 
 const fileTypeIcon = (type) => {

@@ -19,7 +19,7 @@ const form = useForm({
 });
 
 function submit() {
-    form.post(route("challenges"), {
+    form.post(route("admin.challenges"), {
         onSuccess: () => {
             form.reset();
             Swal.fire({
@@ -49,7 +49,7 @@ function deleteChallenge(id) {
         confirmButtonText: "Yes, delete it!",
     }).then((result) => {
         if (result.isConfirmed) {
-            router.delete(route("challenges", id));
+            router.delete(route("admin.challenges", id));
         }
     });
 }

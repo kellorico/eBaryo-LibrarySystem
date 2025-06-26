@@ -1,15 +1,22 @@
 <script setup>
-import { onMounted, watch, ref } from "vue";
+import { onMounted, watch, ref, inject, computed } from "vue";
 import * as bootstrap from "bootstrap";
 
 const props = defineProps({
     show: Boolean,
     book: Object,
+    bookmarking: Boolean,
 });
 
-const emit = defineEmits(["close", "read", "edit", "delete", "report-review"]);
+const emit = defineEmits(["close", "read", "edit", "delete", "report-review", "bookmark"]);
 
 const modalInstance = ref(null);
+const showToast = inject('showToast');
+const reviews = ref([]);
+const averageRating = ref(null);
+const reviewForm = ref({ rating: 0, review: '' });
+const reviewSubmitting = ref(false);
+const canReview = computed(() => window.Laravel?.user); // or usePage().props.auth.user if available
 
 onMounted(() => {
     const modalEl = document.getElementById("bookDetailsModal");
@@ -17,6 +24,7 @@ onMounted(() => {
     modalEl.addEventListener("hidden.bs.modal", () => {
         emit("close");
     });
+    if (props.book) fetchReviews();
 });
 
 watch(
@@ -46,6 +54,48 @@ const onDelete = (event) => {
     }
     emit("delete", props.book);
 };
+
+const fileUrl = props.book && props.book.file_path
+  ? (props.book.file_path.startsWith('http') || props.book.file_path.startsWith('/storage/')
+      ? props.book.file_path
+      : `/storage/${props.book.file_path}`)
+  : '#';
+
+function fetchReviews() {
+  fetch(`/books/${props.book.id}/reviews`)
+    .then(res => res.json())
+    .then(data => {
+      reviews.value = data.reviews || [];
+      averageRating.value = data.average || null;
+    });
+}
+
+function submitReview() {
+  if (!reviewForm.value.rating) {
+    showToast('Please select a rating.', 'error');
+    return;
+  }
+  reviewSubmitting.value = true;
+  fetch(`/books/${props.book.id}/reviews`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(reviewForm.value)
+  })
+    .then(async res => {
+      if (res.ok) {
+        showToast('Review submitted and pending approval.', 'success');
+        reviewForm.value = { rating: 0, review: '' };
+        fetchReviews();
+      } else {
+        const data = await res.json();
+        showToast(data.message || 'Review failed.', 'error');
+      }
+    })
+    .catch(() => showToast('Review failed.', 'error'))
+    .finally(() => {
+      reviewSubmitting.value = false;
+    });
+}
 </script>
 
 <template>
@@ -279,6 +329,44 @@ const onDelete = (event) => {
                             <div v-else class="text-muted">No reviews yet.</div>
                         </div>
 
+                        <!-- Reviews Section -->
+                        <div class="mt-4">
+                            <div class="d-flex align-items-center mb-2">
+                                <span class="fw-bold me-2">Reviews</span>
+                                <span v-if="averageRating" class="text-warning">
+                                    <i v-for="n in 5" :key="n" class="fa" :class="n <= Math.round(averageRating) ? 'fa-star' : 'fa-star-o'"></i>
+                                    <span class="ms-1">({{ averageRating }})</span>
+                                </span>
+                            </div>
+                            <div v-if="reviews.length === 0" class="text-muted small mb-2">No reviews yet.</div>
+                            <div v-else style="max-height:120px;overflow:auto;">
+                                <div v-for="r in reviews" :key="r.id" class="border-bottom pb-2 mb-2">
+                                    <div class="d-flex align-items-center mb-1">
+                                        <span class="fw-bold me-2">{{ r.user }}</span>
+                                        <span class="text-warning">
+                                            <i v-for="n in 5" :key="n" class="fa" :class="n <= r.rating ? 'fa-star' : 'fa-star-o'"></i>
+                                        </span>
+                                        <span class="ms-2 text-muted small">{{ r.created_at.split('T')[0] }}</span>
+                                    </div>
+                                    <div v-if="r.review" class="small">{{ r.review }}</div>
+                                </div>
+                            </div>
+                            <!-- Review Form -->
+                            <form v-if="canReview" class="mt-2" @submit.prevent="submitReview">
+                                <div class="d-flex align-items-center mb-2">
+                                    <span class="me-2">Your Rating:</span>
+                                    <span>
+                                        <i v-for="n in 5" :key="n" class="fa" :class="n <= reviewForm.rating ? 'fa-star text-warning' : 'fa-star-o text-secondary'" style="cursor:pointer;" @click="reviewForm.rating = n"></i>
+                                    </span>
+                                </div>
+                                <textarea v-model="reviewForm.review" class="form-control mb-2" rows="2" placeholder="Write a review (optional)"></textarea>
+                                <button class="btn btn-sm btn-success w-100" :disabled="reviewSubmitting">
+                                    <span v-if="reviewSubmitting" class="spinner-border spinner-border-sm"></span>
+                                    <span v-else>Submit Review</span>
+                                </button>
+                            </form>
+                        </div>
+
                         <!-- Action Buttons -->
                         <div class="action-buttons mt-4">
                             <div class="d-flex flex-wrap gap-2">
@@ -307,6 +395,15 @@ const onDelete = (event) => {
                                 >
                                     <i class="fas fa-trash me-2"></i>
                                     Delete Book
+                                </button>
+                                <button
+                                    class="btn btn-outline-primary action-btn"
+                                    :disabled="bookmarking"
+                                    @click="$emit('bookmark', book)"
+                                >
+                                    <span v-if="bookmarking" class="spinner-border spinner-border-sm"></span>
+                                    <i v-else class="fas fa-bookmark me-2"></i>
+                                    Bookmark
                                 </button>
                             </div>
                         </div>
