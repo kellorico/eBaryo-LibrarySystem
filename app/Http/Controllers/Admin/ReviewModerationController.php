@@ -23,12 +23,12 @@ class ReviewModerationController extends Controller
         if ($request->filled('reported')) {
             $query->where('reported', $request->boolean('reported'));
         }
-        
+
         // Advanced search by specific fields
         if ($request->filled('search')) {
             $searchTerm = $request->input('search');
             $searchField = $request->input('search_field', 'all');
-            
+
             if ($searchField === 'user') {
                 $query->whereHas('user', function ($q) use ($searchTerm) {
                     $q->where('name', 'like', '%' . $searchTerm . '%');
@@ -45,17 +45,17 @@ class ReviewModerationController extends Controller
                 // Search in all fields
                 $query->where(function ($q) use ($searchTerm) {
                     $q->where('review', 'like', '%' . $searchTerm . '%')
-                      ->orWhere('report_reason', 'like', '%' . $searchTerm . '%')
-                      ->orWhereHas('user', function ($userQuery) use ($searchTerm) {
-                          $userQuery->where('name', 'like', '%' . $searchTerm . '%');
-                      })
-                      ->orWhereHas('book', function ($bookQuery) use ($searchTerm) {
-                          $bookQuery->where('title', 'like', '%' . $searchTerm . '%');
-                      });
+                        ->orWhere('report_reason', 'like', '%' . $searchTerm . '%')
+                        ->orWhereHas('user', function ($userQuery) use ($searchTerm) {
+                            $userQuery->where('name', 'like', '%' . $searchTerm . '%');
+                        })
+                        ->orWhereHas('book', function ($bookQuery) use ($searchTerm) {
+                            $bookQuery->where('title', 'like', '%' . $searchTerm . '%');
+                        });
                 });
             }
         }
-        
+
         // Date range filtering
         if ($request->filled('date_from')) {
             $query->whereDate('created_at', '>=', $request->input('date_from'));
@@ -154,4 +154,4 @@ class ReviewModerationController extends Controller
         // Optionally notify user or admin here if needed
         return back()->with('success', 'Report dismissed.');
     }
-} 
+}

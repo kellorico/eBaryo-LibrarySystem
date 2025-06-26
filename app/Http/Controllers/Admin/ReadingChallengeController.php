@@ -99,4 +99,4 @@ class ReadingChallengeController extends Controller
             ->get(['users.id', 'users.name', 'pivot_progress', 'pivot_completed_at']);
         return response()->json(['leaderboard' => $users]);
     }
-} 
+}

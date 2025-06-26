@@ -13,7 +13,8 @@ use Carbon\Carbon;
 
 class AdminDashboardController extends Controller
 {
-    public function index () {
+    public function index()
+    {
         return Inertia::render('Admin/Dashboard', [
             'totalBooks' => Book::count(),
             'totalUsers' => User::count(),

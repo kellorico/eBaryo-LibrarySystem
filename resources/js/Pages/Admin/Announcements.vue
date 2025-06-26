@@ -33,7 +33,7 @@ function submit() {
                 title: "Error!",
                 text: "Failed to post announcement.",
             });
-        }
+        },
     });
 }
 
@@ -60,7 +60,12 @@ function deleteAnnouncement(id) {
                             class="form-control"
                             maxlength="255"
                         />
-                        <div v-if="form.errors.title" class="text-danger small mt-1">{{ form.errors.title }}</div>
+                        <div
+                            v-if="form.errors.title"
+                            class="text-danger small mt-1"
+                        >
+                            {{ form.errors.title }}
+                        </div>
                     </div>
                     <div class="col-md-3">
                         <label class="form-label">Type</label>
@@ -69,7 +74,12 @@ function deleteAnnouncement(id) {
                             <option value="event">Event</option>
                             <option value="update">Update</option>
                         </select>
-                        <div v-if="form.errors.type" class="text-danger small mt-1">{{ form.errors.type }}</div>
+                        <div
+                            v-if="form.errors.type"
+                            class="text-danger small mt-1"
+                        >
+                            {{ form.errors.type }}
+                        </div>
                     </div>
                     <div class="col-md-3 d-flex align-items-center gap-3">
                         <div class="form-check">
@@ -102,17 +112,52 @@ function deleteAnnouncement(id) {
                             class="form-control"
                             rows="3"
                         ></textarea>
-                        <div v-if="form.errors.content" class="text-danger small mt-1">{{ form.errors.content }}</div>
+                        <div
+                            v-if="form.errors.content"
+                            class="text-danger small mt-1"
+                        >
+                            {{ form.errors.content }}
+                        </div>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label">Custom Email Subject <span class="text-muted small">(optional)</span></label>
-                        <input v-model="form.custom_subject" class="form-control" maxlength="255" placeholder="Override default subject..." />
-                        <div v-if="form.errors.custom_subject" class="text-danger small mt-1">{{ form.errors.custom_subject }}</div>
+                        <label class="form-label"
+                            >Custom Email Subject
+                            <span class="text-muted small"
+                                >(optional)</span
+                            ></label
+                        >
+                        <input
+                            v-model="form.custom_subject"
+                            class="form-control"
+                            maxlength="255"
+                            placeholder="Override default subject..."
+                        />
+                        <div
+                            v-if="form.errors.custom_subject"
+                            class="text-danger small mt-1"
+                        >
+                            {{ form.errors.custom_subject }}
+                        </div>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label">Custom Email Intro <span class="text-muted small">(optional)</span></label>
-                        <input v-model="form.custom_intro" class="form-control" maxlength="255" placeholder="Add a custom intro to the email..." />
-                        <div v-if="form.errors.custom_intro" class="text-danger small mt-1">{{ form.errors.custom_intro }}</div>
+                        <label class="form-label"
+                            >Custom Email Intro
+                            <span class="text-muted small"
+                                >(optional)</span
+                            ></label
+                        >
+                        <input
+                            v-model="form.custom_intro"
+                            class="form-control"
+                            maxlength="255"
+                            placeholder="Add a custom intro to the email..."
+                        />
+                        <div
+                            v-if="form.errors.custom_intro"
+                            class="text-danger small mt-1"
+                        >
+                            {{ form.errors.custom_intro }}
+                        </div>
                     </div>
                 </div>
                 <div class="mt-3">

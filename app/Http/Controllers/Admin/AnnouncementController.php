@@ -72,4 +72,4 @@ class AnnouncementController extends Controller
             ->get();
         return response()->json(['announcements' => $announcements]);
     }
-} 
+}

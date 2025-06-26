@@ -44,13 +44,13 @@ const closeDetailsModal = () => {
 };
 
 const handleBookAdded = () => {
-    router.reload({ only: ['books'] });
+    router.reload({ only: ["books"] });
 };
 const handleBookUpdated = () => {
-    router.reload({ only: ['books'] });
+    router.reload({ only: ["books"] });
 };
 const handleBookDeleted = () => {
-    router.reload({ only: ['books'] });
+    router.reload({ only: ["books"] });
     closeDetailsModal();
 };
 
@@ -193,23 +193,35 @@ const bookmarkBook = (bookId) => {
 
 const handleReportReview = (review) => {
     Swal.fire({
-        title: 'Report Review',
-        input: 'text',
-        inputLabel: 'Reason for reporting (optional)',
+        title: "Report Review",
+        input: "text",
+        inputLabel: "Reason for reporting (optional)",
         showCancelButton: true,
-        confirmButtonText: 'Report',
-        inputPlaceholder: 'Enter reason (optional)',
-    }).then(result => {
+        confirmButtonText: "Report",
+        inputPlaceholder: "Enter reason (optional)",
+    }).then((result) => {
         if (result.isConfirmed) {
-            router.post(`/books/storybooks/reviews/${review.id}/report`, { reason: result.value }, {
-                preserveScroll: true,
-                onSuccess: () => {
-                    Swal.fire({ icon: 'success', title: 'Reported', text: 'Review has been reported.' });
-                },
-                onError: () => {
-                    Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to report review.' });
+            router.post(
+                `/books/storybooks/reviews/${review.id}/report`,
+                { reason: result.value },
+                {
+                    preserveScroll: true,
+                    onSuccess: () => {
+                        Swal.fire({
+                            icon: "success",
+                            title: "Reported",
+                            text: "Review has been reported.",
+                        });
+                    },
+                    onError: () => {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Error",
+                            text: "Failed to report review.",
+                        });
+                    },
                 }
-            });
+            );
         }
     });
 };
@@ -220,8 +232,6 @@ defineProps({
         default: () => [],
     },
 });
-
-
 </script>
 
 <template>
@@ -231,21 +241,30 @@ defineProps({
             <!-- Header Section -->
             <div class="row mb-4">
                 <div class="col-12">
-                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
+                    <div
+                        class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center"
+                    >
                         <div class="mb-3 mb-md-0">
                             <div class="d-flex align-items-center mb-2">
-                                <div class="bg-success bg-opacity-10 rounded-3 p-2 me-3">
+                                <div
+                                    class="bg-success bg-opacity-10 rounded-3 p-2 me-3"
+                                >
                                     <img
                                         src="/book_icons/story_books.png"
                                         alt="Story Books"
                                         style="width: 32px; height: 32px"
                                     />
                                 </div>
-                                <h1 class="h2 fw-bold text-dark mb-0">Story Books</h1>
+                                <h1 class="h2 fw-bold text-dark mb-0">
+                                    Story Books
+                                </h1>
                             </div>
-                            <p class="text-muted mb-0">Discover and manage your collection of story books</p>
+                            <p class="text-muted mb-0">
+                                Discover and manage your collection of story
+                                books
+                            </p>
                         </div>
-                        <button 
+                        <button
                             class="btn btn-success btn-lg shadow-sm"
                             @click="openAddModal"
                         >
@@ -258,21 +277,38 @@ defineProps({
 
             <!-- Books Grid -->
             <div class="row g-4">
-                <div v-for="book in books" :key="book.id" class="col-12 col-sm-6 col-lg-4 col-xl-3">
-                    <div class="card h-100 border-0 shadow-sm hover-shadow transition-all" @click="() => showBookDetails(book)" style="cursor: pointer;">
+                <div
+                    v-for="book in books"
+                    :key="book.id"
+                    class="col-12 col-sm-6 col-lg-4 col-xl-3"
+                >
+                    <div
+                        class="card h-100 border-0 shadow-sm hover-shadow transition-all"
+                        @click="() => showBookDetails(book)"
+                        style="cursor: pointer"
+                    >
                         <div class="card-body p-4">
                             <div class="position-relative mb-3">
-                                <img 
-                                    :src="book.cover_image || '/default-cover.jpg'" 
+                                <img
+                                    :src="
+                                        book.cover_image || '/default-cover.jpg'
+                                    "
                                     :alt="book.title"
                                     class="img-fluid rounded-3 w-100"
-                                    style="height: 200px; object-fit: cover;"
+                                    style="height: 200px; object-fit: cover"
                                 />
                                 <div class="position-absolute top-0 end-0 m-2">
-                                    <span class="badge bg-success bg-opacity-75">{{ book.published_year }}</span>
+                                    <span
+                                        class="badge bg-success bg-opacity-75"
+                                        >{{ book.published_year }}</span
+                                    >
                                 </div>
                             </div>
-                            <h5 class="card-title fw-semibold text-dark mb-2 line-clamp-2">{{ book.title }}</h5>
+                            <h5
+                                class="card-title fw-semibold text-dark mb-2 line-clamp-2"
+                            >
+                                {{ book.title }}
+                            </h5>
                             <p class="text-muted small mb-0">
                                 <i class="fas fa-user me-1"></i>
                                 {{ book.author }}
@@ -284,15 +320,20 @@ defineProps({
 
             <!-- Empty State -->
             <div v-if="books.length === 0" class="text-center py-5">
-                <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
+                <div
+                    class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-4"
+                    style="width: 80px; height: 80px"
+                >
                     <i class="fas fa-book fa-2x text-muted"></i>
                 </div>
-                <h3 class="h5 fw-semibold text-dark mb-2">No story books yet</h3>
-                <p class="text-muted mb-4">Get started by adding your first story book to the collection.</p>
-                <button 
-                    class="btn btn-success"
-                    @click="openAddModal"
-                >
+                <h3 class="h5 fw-semibold text-dark mb-2">
+                    No story books yet
+                </h3>
+                <p class="text-muted mb-4">
+                    Get started by adding your first story book to the
+                    collection.
+                </p>
+                <button class="btn btn-success" @click="openAddModal">
                     <i class="fas fa-plus me-2"></i>
                     Add First Book
                 </button>

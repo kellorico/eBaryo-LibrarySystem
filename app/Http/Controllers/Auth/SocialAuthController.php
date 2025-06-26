@@ -30,11 +30,9 @@ class SocialAuthController extends Controller
 
             Auth::login($user);
 
-            return redirect()->route('home')->with('success', 'Logged in with Google!'); 
+            return redirect()->route('home')->with('success', 'Logged in with Google!');
         } catch (\Exception $e) {
             return redirect()->route('login')->with('google_error', $e->getMessage());
         }
-
-        
     }
 }

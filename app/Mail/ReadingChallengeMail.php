@@ -60,4 +60,4 @@ class ReadingChallengeMail extends Mailable
     {
         return [];
     }
-} 
+}

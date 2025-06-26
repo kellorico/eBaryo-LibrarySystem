@@ -10,7 +10,8 @@ use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
 {
-    public function index () {
+    public function index()
+    {
         return inertia('Admin/Profile/Profile');
     }
 

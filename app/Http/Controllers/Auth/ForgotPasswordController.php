@@ -9,11 +9,13 @@ use Mockery\Generator\StringManipulation\Pass\Pass;
 
 class ForgotPasswordController extends Controller
 {
-    public function create() {
+    public function create()
+    {
         return inertia('Auth/ForgotPassword');
     }
 
-    public function store(Request $request) {
+    public function store(Request $request)
+    {
         $request->validate([
             'email' => 'required|string|email',
         ]);

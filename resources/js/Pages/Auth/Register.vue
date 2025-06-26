@@ -28,11 +28,17 @@ const submitForm = () => {
     <GuestLayout>
         <Head title="Register" />
         <div class="container py-5">
-            <div class="card shadow-lg border-0 rounded-4 bg-white-green register-card-animate position-relative small-card">
+            <div
+                class="card shadow-lg border-0 rounded-4 bg-white-green register-card-animate position-relative small-card"
+            >
                 <div class="accent-bar-green"></div>
                 <div class="card-body p-4">
-                    <h2 class="text-center mb-3 fw-bold text-success" style="font-size:1.5rem;">
-                        <i class="fa-solid fa-user-plus me-2"></i>Create an Account
+                    <h2
+                        class="text-center mb-3 fw-bold text-success"
+                        style="font-size: 1.5rem"
+                    >
+                        <i class="fa-solid fa-user-plus me-2"></i>Create an
+                        Account
                     </h2>
                     <form @submit.prevent="submitForm">
                         <InputField
@@ -88,13 +94,22 @@ const submitForm = () => {
                             Register
                         </PrimaryButton>
 
-                        <div class="text-center mt-3" style="font-size:0.97rem;">
+                        <div
+                            class="text-center mt-3"
+                            style="font-size: 0.97rem"
+                        >
                             <p>
                                 Already have an account?
-                                <Link href="/login" class="link-green">Login</Link>
+                                <Link href="/login" class="link-green"
+                                    >Login</Link
+                                >
                             </p>
                             <p>
-                                <Link :href="route('password.request')" class="link-green">Forgot Password?</Link>
+                                <Link
+                                    :href="route('password.request')"
+                                    class="link-green"
+                                    >Forgot Password?</Link
+                                >
                             </p>
                         </div>
                     </form>
@@ -112,9 +127,11 @@ const submitForm = () => {
     opacity: 0;
     transform: translateY(40px);
     animation: cardFadeIn 0.8s 0.1s forwards;
-    transition: box-shadow 0.22s cubic-bezier(.4,2,.3,1), transform 0.22s cubic-bezier(.4,2,.3,1);
+    transition: box-shadow 0.22s cubic-bezier(0.4, 2, 0.3, 1),
+        transform 0.22s cubic-bezier(0.4, 2, 0.3, 1);
 }
-.register-card-animate:hover, .register-card-animate:focus-within {
+.register-card-animate:hover,
+.register-card-animate:focus-within {
     box-shadow: 0 8px 32px #19875433, 0 2px 8px #43c59e22;
     transform: translateY(-2px) scale(1.01);
 }
@@ -126,7 +143,9 @@ const submitForm = () => {
 }
 .accent-bar-green {
     position: absolute;
-    top: 0; left: 0; right: 0;
+    top: 0;
+    left: 0;
+    right: 0;
     height: 6px;
     background: linear-gradient(90deg, #198754 60%, #43c59e 100%);
     border-top-left-radius: 1rem;

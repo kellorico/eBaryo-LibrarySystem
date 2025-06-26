@@ -1,13 +1,13 @@
 <script setup>
-import { ref, watch, nextTick, onMounted, onUnmounted } from 'vue';
-import { Modal } from 'bootstrap';
+import { ref, watch, nextTick, onMounted, onUnmounted } from "vue";
+import { Modal } from "bootstrap";
 
 const props = defineProps({
     user: Object,
     show: Boolean,
 });
 
-const emit = defineEmits(['close']);
+const emit = defineEmits(["close"]);
 
 let modalInstance = null;
 const modalRef = ref(null);
@@ -15,9 +15,9 @@ const modalRef = ref(null);
 const initializeModal = () => {
     if (modalRef.value && !modalInstance) {
         modalInstance = new Modal(modalRef.value);
-        
-        modalRef.value.addEventListener('hidden.bs.modal', () => {
-            emit('close');
+
+        modalRef.value.addEventListener("hidden.bs.modal", () => {
+            emit("close");
         });
     }
 };
@@ -34,15 +34,18 @@ const hideModal = () => {
     }
 };
 
-watch(() => props.show, async (visible) => {
-    if (visible && props.user) {
-        await nextTick();
-        initializeModal();
-        showModal();
-    } else {
-        hideModal();
+watch(
+    () => props.show,
+    async (visible) => {
+        if (visible && props.user) {
+            await nextTick();
+            initializeModal();
+            showModal();
+        } else {
+            hideModal();
+        }
     }
-});
+);
 
 onMounted(() => {
     if (props.show && props.user) {
@@ -69,42 +72,102 @@ const openUserModal = (user) => {
     <div class="modal fade" tabindex="-1" ref="modalRef">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content border-0 shadow-lg">
-                <div class="modal-header bg-gradient-primary text-white border-0">
+                <div
+                    class="modal-header bg-gradient-primary text-white border-0"
+                >
                     <div class="d-flex align-items-center">
                         <div class="user-avatar me-3">
                             <div class="avatar-circle">
-                                <img v-if="user && user.avatar_url" :src="user.avatar_url" alt="Avatar" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;" />
+                                <img
+                                    v-if="user && user.avatar_url"
+                                    :src="user.avatar_url"
+                                    alt="Avatar"
+                                    style="
+                                        width: 36px;
+                                        height: 36px;
+                                        border-radius: 50%;
+                                        object-fit: cover;
+                                    "
+                                />
                                 <i v-else class="fas fa-user"></i>
                             </div>
                         </div>
                         <div>
-                            <h5 class="modal-title mb-0 fw-bold">{{ user?.name || 'User Details' }}</h5>
-                            <small class="text-white-50">{{ user?.email || 'No email available' }}</small>
+                            <h5 class="modal-title mb-0 fw-bold">
+                                {{ user?.name || "User Details" }}
+                            </h5>
+                            <small class="text-white-50">{{
+                                user?.email || "No email available"
+                            }}</small>
                         </div>
                     </div>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button
+                        type="button"
+                        class="btn-close btn-close-white"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"
+                    ></button>
                 </div>
                 <div class="modal-body p-4">
                     <div v-if="!user" class="text-center py-5">
                         <div class="empty-state">
-                            <i class="fas fa-user-slash text-muted mb-3" style="font-size: 3rem;"></i>
+                            <i
+                                class="fas fa-user-slash text-muted mb-3"
+                                style="font-size: 3rem"
+                            ></i>
                             <p class="text-muted">No user selected</p>
                         </div>
                     </div>
                     <div v-else class="user-details">
                         <!-- User Status Badges Section (add after modal-title or in user-details) -->
                         <div class="mb-3 d-flex flex-wrap gap-2">
-                            <span :class="user.verified == 1 ? 'badge bg-success' : 'badge bg-warning text-dark'">
+                            <span
+                                :class="
+                                    user.verified == 1
+                                        ? 'badge bg-success'
+                                        : 'badge bg-warning text-dark'
+                                "
+                            >
                                 <i class="fas fa-check-circle me-1"></i>
-                                {{ user.verified == 1 ? 'Verified' : 'Not Verified' }}
+                                {{
+                                    user.verified == 1
+                                        ? "Verified"
+                                        : "Not Verified"
+                                }}
                             </span>
-                            <span :class="user.is_student ? 'badge bg-info' : 'badge bg-secondary'">
-                                <i :class="user.is_student ? 'fas fa-user-graduate me-1' : 'fas fa-user-tie me-1'" />
-                                {{ user.is_student ? 'Student' : 'Not a Student' }}
+                            <span
+                                :class="
+                                    user.is_student
+                                        ? 'badge bg-info'
+                                        : 'badge bg-secondary'
+                                "
+                            >
+                                <i
+                                    :class="
+                                        user.is_student
+                                            ? 'fas fa-user-graduate me-1'
+                                            : 'fas fa-user-tie me-1'
+                                    "
+                                />
+                                {{
+                                    user.is_student
+                                        ? "Student"
+                                        : "Not a Student"
+                                }}
                             </span>
-                            <span :class="user.email_verified_at ? 'badge bg-success' : 'badge bg-danger'">
+                            <span
+                                :class="
+                                    user.email_verified_at
+                                        ? 'badge bg-success'
+                                        : 'badge bg-danger'
+                                "
+                            >
                                 <i class="fas fa-envelope me-1"></i>
-                                {{ user.email_verified_at ? 'Email Verified' : 'Email Not Verified' }}
+                                {{
+                                    user.email_verified_at
+                                        ? "Email Verified"
+                                        : "Email Not Verified"
+                                }}
                             </span>
                         </div>
 
@@ -127,14 +190,18 @@ const openUserModal = (user) => {
                                         <i class="fas fa-user me-2"></i>
                                         Full Name
                                     </div>
-                                    <div class="info-value">{{ user.name }}</div>
+                                    <div class="info-value">
+                                        {{ user.name }}
+                                    </div>
                                 </div>
                                 <div class="info-item">
                                     <div class="info-label">
                                         <i class="fas fa-envelope me-2"></i>
                                         Email Address
                                     </div>
-                                    <div class="info-value">{{ user.email }}</div>
+                                    <div class="info-value">
+                                        {{ user.email }}
+                                    </div>
                                 </div>
                                 <div class="info-item">
                                     <div class="info-label">
@@ -142,29 +209,43 @@ const openUserModal = (user) => {
                                         Role
                                     </div>
                                     <div class="info-value">
-                                        <span class="role-badge">{{ user.role }}</span>
+                                        <span class="role-badge">{{
+                                            user.role
+                                        }}</span>
                                     </div>
                                 </div>
                                 <div class="info-item">
                                     <div class="info-label">
-                                        <i class="fas fa-map-marker-alt me-2"></i>
+                                        <i
+                                            class="fas fa-map-marker-alt me-2"
+                                        ></i>
                                         Barangay
                                     </div>
-                                    <div class="info-value">{{ user.barangay || 'Not specified' }}</div>
+                                    <div class="info-value">
+                                        {{ user.barangay || "Not specified" }}
+                                    </div>
                                 </div>
                                 <div class="info-item">
                                     <div class="info-label">
                                         <i class="fas fa-school me-2"></i>
                                         School Name
                                     </div>
-                                    <div class="info-value">{{ user.school_name || 'Not specified' }}</div>
+                                    <div class="info-value">
+                                        {{
+                                            user.school_name || "Not specified"
+                                        }}
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer border-0 bg-light">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal"
+                    >
                         <i class="fas fa-times me-2"></i>
                         Close
                     </button>

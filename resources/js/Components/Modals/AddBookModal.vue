@@ -24,9 +24,12 @@ const form = useForm({
     category_id: props.category_id,
 });
 
-watch(() => props.category_id, (newVal) => {
-    form.category_id = newVal;
-});
+watch(
+    () => props.category_id,
+    (newVal) => {
+        form.category_id = newVal;
+    }
+);
 
 const modalInstance = ref(null);
 
@@ -64,21 +67,24 @@ const addBook = () => {
 
 onMounted(() => {
     const modalEl = document.getElementById("addBookModal");
-    modalInstance.value = new bootstrap.Modal(modalEl, { backdrop: 'static' });
+    modalInstance.value = new bootstrap.Modal(modalEl, { backdrop: "static" });
     modalEl.addEventListener("hidden.bs.modal", () => {
         emit("close");
     });
 });
 
-watch(() => props.show, (val) => {
-    if (modalInstance.value) {
-        if (val) {
-            modalInstance.value.show();
-        } else {
-            modalInstance.value.hide();
+watch(
+    () => props.show,
+    (val) => {
+        if (modalInstance.value) {
+            if (val) {
+                modalInstance.value.show();
+            } else {
+                modalInstance.value.hide();
+            }
         }
     }
-});
+);
 </script>
 
 <template>
@@ -92,7 +98,9 @@ watch(() => props.show, (val) => {
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg">
                 <form @submit.prevent="addBook">
-                    <div class="modal-header bg-gradient-success text-white border-0">
+                    <div
+                        class="modal-header bg-gradient-success text-white border-0"
+                    >
                         <div class="d-flex align-items-center">
                             <div class="book-avatar me-3">
                                 <div class="avatar-circle">
@@ -100,8 +108,12 @@ watch(() => props.show, (val) => {
                                 </div>
                             </div>
                             <div>
-                                <h5 class="modal-title mb-0 fw-bold">Add New Book</h5>
-                                <small class="text-white-50">Fill in the book details below</small>
+                                <h5 class="modal-title mb-0 fw-bold">
+                                    Add New Book
+                                </h5>
+                                <small class="text-white-50"
+                                    >Fill in the book details below</small
+                                >
                             </div>
                         </div>
                         <button
@@ -132,8 +144,13 @@ watch(() => props.show, (val) => {
                                                 class="form-control custom-input"
                                                 placeholder="Enter book title"
                                             />
-                                            <div class="error-message" v-if="form.errors.title">
-                                                <i class="fas fa-exclamation-circle me-1"></i>
+                                            <div
+                                                class="error-message"
+                                                v-if="form.errors.title"
+                                            >
+                                                <i
+                                                    class="fas fa-exclamation-circle me-1"
+                                                ></i>
                                                 {{ form.errors.title }}
                                             </div>
                                         </div>
@@ -150,8 +167,13 @@ watch(() => props.show, (val) => {
                                                 class="form-control custom-input"
                                                 placeholder="Enter author name"
                                             />
-                                            <div class="error-message" v-if="form.errors.author">
-                                                <i class="fas fa-exclamation-circle me-1"></i>
+                                            <div
+                                                class="error-message"
+                                                v-if="form.errors.author"
+                                            >
+                                                <i
+                                                    class="fas fa-exclamation-circle me-1"
+                                                ></i>
                                                 {{ form.errors.author }}
                                             </div>
                                         </div>
@@ -161,7 +183,9 @@ watch(() => props.show, (val) => {
                                     <div class="col-md-6 mb-3">
                                         <div class="form-group">
                                             <label class="form-label">
-                                                <i class="fas fa-calendar me-2"></i>
+                                                <i
+                                                    class="fas fa-calendar me-2"
+                                                ></i>
                                                 Published Year
                                             </label>
                                             <input
@@ -172,8 +196,15 @@ watch(() => props.show, (val) => {
                                                 min="1900"
                                                 :max="new Date().getFullYear()"
                                             />
-                                            <div class="error-message" v-if="form.errors.published_year">
-                                                <i class="fas fa-exclamation-circle me-1"></i>
+                                            <div
+                                                class="error-message"
+                                                v-if="
+                                                    form.errors.published_year
+                                                "
+                                            >
+                                                <i
+                                                    class="fas fa-exclamation-circle me-1"
+                                                ></i>
                                                 {{ form.errors.published_year }}
                                             </div>
                                         </div>
@@ -186,11 +217,16 @@ watch(() => props.show, (val) => {
                                             </label>
                                             <div class="category-display">
                                                 <span class="category-badge">
-                                                    {{ 
-                                                        category_id === 1 ? 'Story Books' :
-                                                        category_id === 2 ? 'Educational Books' :
-                                                        category_id === 3 ? 'Agriculture & Livelihood' :
-                                                        category_id === 4 ? 'Cultural Heritage' : 'Unknown'
+                                                    {{
+                                                        category_id === 1
+                                                            ? "Story Books"
+                                                            : category_id === 2
+                                                            ? "Educational Books"
+                                                            : category_id === 3
+                                                            ? "Agriculture & Livelihood"
+                                                            : category_id === 4
+                                                            ? "Cultural Heritage"
+                                                            : "Unknown"
                                                     }}
                                                 </span>
                                             </div>
@@ -208,8 +244,13 @@ watch(() => props.show, (val) => {
                                         placeholder="Enter book description..."
                                         rows="4"
                                     ></textarea>
-                                    <div class="error-message" v-if="form.errors.description">
-                                        <i class="fas fa-exclamation-circle me-1"></i>
+                                    <div
+                                        class="error-message"
+                                        v-if="form.errors.description"
+                                    >
+                                        <i
+                                            class="fas fa-exclamation-circle me-1"
+                                        ></i>
                                         {{ form.errors.description }}
                                     </div>
                                 </div>
@@ -225,25 +266,52 @@ watch(() => props.show, (val) => {
                                     <div class="col-md-6 mb-3">
                                         <div class="upload-group">
                                             <label class="upload-label">
-                                                <i class="fas fa-file-pdf me-2"></i>
+                                                <i
+                                                    class="fas fa-file-pdf me-2"
+                                                ></i>
                                                 Book File (PDF/EPUB)
                                             </label>
-                                            <div class="file-upload-area" :class="{ 'has-file': form.file_path }">
+                                            <div
+                                                class="file-upload-area"
+                                                :class="{
+                                                    'has-file': form.file_path,
+                                                }"
+                                            >
                                                 <input
                                                     type="file"
                                                     class="file-input"
-                                                    @change="form.file_path = $event.target.files[0]"
+                                                    @change="
+                                                        form.file_path =
+                                                            $event.target.files[0]
+                                                    "
                                                     accept=".pdf,.epub"
                                                 />
                                                 <div class="upload-content">
-                                                    <i class="fas fa-cloud-upload-alt"></i>
-                                                    <p v-if="!form.file_path">Click to upload book file</p>
-                                                    <p v-else class="file-name">{{ form.file_path?.name }}</p>
-                                                    <small>PDF or EPUB files only</small>
+                                                    <i
+                                                        class="fas fa-cloud-upload-alt"
+                                                    ></i>
+                                                    <p v-if="!form.file_path">
+                                                        Click to upload book
+                                                        file
+                                                    </p>
+                                                    <p v-else class="file-name">
+                                                        {{
+                                                            form.file_path?.name
+                                                        }}
+                                                    </p>
+                                                    <small
+                                                        >PDF or EPUB files
+                                                        only</small
+                                                    >
                                                 </div>
                                             </div>
-                                            <div class="error-message" v-if="form.errors.file_path">
-                                                <i class="fas fa-exclamation-circle me-1"></i>
+                                            <div
+                                                class="error-message"
+                                                v-if="form.errors.file_path"
+                                            >
+                                                <i
+                                                    class="fas fa-exclamation-circle me-1"
+                                                ></i>
                                                 {{ form.errors.file_path }}
                                             </div>
                                         </div>
@@ -251,25 +319,54 @@ watch(() => props.show, (val) => {
                                     <div class="col-md-6 mb-3">
                                         <div class="upload-group">
                                             <label class="upload-label">
-                                                <i class="fas fa-image me-2"></i>
+                                                <i
+                                                    class="fas fa-image me-2"
+                                                ></i>
                                                 Cover Image
                                             </label>
-                                            <div class="file-upload-area" :class="{ 'has-file': form.cover_image }">
+                                            <div
+                                                class="file-upload-area"
+                                                :class="{
+                                                    'has-file':
+                                                        form.cover_image,
+                                                }"
+                                            >
                                                 <input
                                                     type="file"
                                                     class="file-input"
-                                                    @change="form.cover_image = $event.target.files[0]"
+                                                    @change="
+                                                        form.cover_image =
+                                                            $event.target.files[0]
+                                                    "
                                                     accept="image/*"
                                                 />
                                                 <div class="upload-content">
-                                                    <i class="fas fa-cloud-upload-alt"></i>
-                                                    <p v-if="!form.cover_image">Click to upload cover image</p>
-                                                    <p v-else class="file-name">{{ form.cover_image?.name }}</p>
-                                                    <small>JPG, PNG, JPEG files only</small>
+                                                    <i
+                                                        class="fas fa-cloud-upload-alt"
+                                                    ></i>
+                                                    <p v-if="!form.cover_image">
+                                                        Click to upload cover
+                                                        image
+                                                    </p>
+                                                    <p v-else class="file-name">
+                                                        {{
+                                                            form.cover_image
+                                                                ?.name
+                                                        }}
+                                                    </p>
+                                                    <small
+                                                        >JPG, PNG, JPEG files
+                                                        only</small
+                                                    >
                                                 </div>
                                             </div>
-                                            <div class="error-message" v-if="form.errors.cover_image">
-                                                <i class="fas fa-exclamation-circle me-1"></i>
+                                            <div
+                                                class="error-message"
+                                                v-if="form.errors.cover_image"
+                                            >
+                                                <i
+                                                    class="fas fa-exclamation-circle me-1"
+                                                ></i>
                                                 {{ form.errors.cover_image }}
                                             </div>
                                         </div>
@@ -541,4 +638,4 @@ watch(() => props.show, (val) => {
         font-size: 1rem;
     }
 }
-</style> 
+</style>

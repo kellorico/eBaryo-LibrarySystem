@@ -103,7 +103,9 @@ class AnalyticsController extends Controller
             ->leftJoinSub($ratings, 'ratings', function ($join) {
                 $join->on('users.id', '=', 'ratings.user_id');
             })
-            ->select('users.id', 'users.name',
+            ->select(
+                'users.id',
+                'users.name',
                 DB::raw('COALESCE(downloads.downloads,0) as downloads'),
                 DB::raw('COALESCE(bookmarks.bookmarks,0) as bookmarks'),
                 DB::raw('COALESCE(ratings.ratings,0) as ratings'),
@@ -209,7 +211,9 @@ class AnalyticsController extends Controller
             ->leftJoinSub($ratings, 'ratings', function ($join) {
                 $join->on('users.id', '=', 'ratings.user_id');
             })
-            ->select('users.id', 'users.name',
+            ->select(
+                'users.id',
+                'users.name',
                 DB::raw('COALESCE(downloads.downloads,0) as downloads'),
                 DB::raw('COALESCE(bookmarks.bookmarks,0) as bookmarks'),
                 DB::raw('COALESCE(ratings.ratings,0) as ratings'),
@@ -227,4 +231,4 @@ class AnalyticsController extends Controller
             'mostActiveUsers' => $mostActiveUsers,
         ]);
     }
-} 
+}

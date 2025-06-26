@@ -9,8 +9,8 @@ const props = defineProps({
     book: Object,
     id: {
         type: String,
-        default: "editBookModal"
-    }
+        default: "editBookModal",
+    },
 });
 
 const emit = defineEmits(["close", "book-updated"]);
@@ -25,21 +25,25 @@ const form = useForm({
     category_id: 1,
 });
 
-watch(() => props.book, (newBook) => {
-    if (newBook) {
-        form.reset({
-            ...newBook,
-            file_path: null,
-            cover_image: null,
-        });
-        form.clearErrors();
+watch(
+    () => props.book,
+    (newBook) => {
+        if (newBook) {
+            form.reset({
+                ...newBook,
+                file_path: null,
+                cover_image: null,
+            });
+            form.clearErrors();
+        }
     }
-});
+);
 
 const modalInstance = ref(null);
 
 const updateBook = () => {
-    const hasChanges = form.isDirty || form.file_path !== null || form.cover_image !== null;
+    const hasChanges =
+        form.isDirty || form.file_path !== null || form.cover_image !== null;
 
     if (!hasChanges) {
         Swal.fire({
@@ -50,9 +54,9 @@ const updateBook = () => {
         return;
     }
 
-    form.transform(data => ({
+    form.transform((data) => ({
         ...data,
-        _method: 'put'
+        _method: "put",
     })).post(`/books/storybooks/${props.book.id}`, {
         preserveScroll: true,
         onSuccess: () => {
@@ -71,11 +75,11 @@ const updateBook = () => {
             emit("close");
 
             setTimeout(() => {
-                router.reload({ only: ['books'] });
+                router.reload({ only: ["books"] });
             }, 500);
         },
         onError: (errors) => {
-            console.error('Update errors:', errors);
+            console.error("Update errors:", errors);
             Swal.fire({
                 icon: "error",
                 title: "Update Failed",
@@ -88,7 +92,7 @@ const updateBook = () => {
 onMounted(() => {
     const modalEl = document.getElementById(props.id);
     // console.log('[EditBookModal] Mounted. ModalEl:', modalEl);
-    modalInstance.value = new bootstrap.Modal(modalEl, { backdrop: 'static' });
+    modalInstance.value = new bootstrap.Modal(modalEl, { backdrop: "static" });
     // console.log('[EditBookModal] Modal instance created:', modalInstance.value);
     modalEl.addEventListener("hidden.bs.modal", () => {
         form.clearErrors();
@@ -96,16 +100,19 @@ onMounted(() => {
     });
 });
 
-watch(() => props.show, (val) => {
-    // console.log('[EditBookModal] show prop changed:', val);
-    if (modalInstance.value) {
-        if (val) {
-            modalInstance.value.show();
-        } else {
-            modalInstance.value.hide();
+watch(
+    () => props.show,
+    (val) => {
+        // console.log('[EditBookModal] show prop changed:', val);
+        if (modalInstance.value) {
+            if (val) {
+                modalInstance.value.show();
+            } else {
+                modalInstance.value.hide();
+            }
         }
     }
-});
+);
 </script>
 
 <template>
@@ -119,7 +126,9 @@ watch(() => props.show, (val) => {
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg">
                 <form @submit.prevent="updateBook">
-                    <div class="modal-header bg-gradient-success text-white border-0">
+                    <div
+                        class="modal-header bg-gradient-success text-white border-0"
+                    >
                         <div class="d-flex align-items-center">
                             <div class="book-avatar me-3">
                                 <div class="avatar-circle">
@@ -127,8 +136,12 @@ watch(() => props.show, (val) => {
                                 </div>
                             </div>
                             <div>
-                                <h5 class="modal-title mb-0 fw-bold">Edit Book</h5>
-                                <small class="text-white-50">Update the book details below</small>
+                                <h5 class="modal-title mb-0 fw-bold">
+                                    Edit Book
+                                </h5>
+                                <small class="text-white-50"
+                                    >Update the book details below</small
+                                >
                             </div>
                         </div>
                         <button
@@ -141,62 +154,161 @@ watch(() => props.show, (val) => {
                     <div class="modal-body p-4">
                         <div class="form-section mb-4">
                             <h6 class="section-title mb-3">
-                                <i class="fas fa-info-circle me-2"></i> Basic Information
+                                <i class="fas fa-info-circle me-2"></i> Basic
+                                Information
                             </h6>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Book Title</label>
-                                    <input v-model="form.title" type="text" class="form-control custom-input" placeholder="Enter book title" />
-                                    <div class="error-message" v-if="form.errors.title">{{ form.errors.title }}</div>
+                                    <input
+                                        v-model="form.title"
+                                        type="text"
+                                        class="form-control custom-input"
+                                        placeholder="Enter book title"
+                                    />
+                                    <div
+                                        class="error-message"
+                                        v-if="form.errors.title"
+                                    >
+                                        {{ form.errors.title }}
+                                    </div>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Author</label>
-                                    <input v-model="form.author" type="text" class="form-control custom-input" placeholder="Enter author name" />
-                                    <div class="error-message" v-if="form.errors.author">{{ form.errors.author }}</div>
+                                    <input
+                                        v-model="form.author"
+                                        type="text"
+                                        class="form-control custom-input"
+                                        placeholder="Enter author name"
+                                    />
+                                    <div
+                                        class="error-message"
+                                        v-if="form.errors.author"
+                                    >
+                                        {{ form.errors.author }}
+                                    </div>
                                 </div>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Description</label>
-                                <textarea v-model="form.description" class="form-control custom-input" placeholder="Enter description..." rows="3"></textarea>
-                                <div class="error-message" v-if="form.errors.description">{{ form.errors.description }}</div>
+                                <textarea
+                                    v-model="form.description"
+                                    class="form-control custom-input"
+                                    placeholder="Enter description..."
+                                    rows="3"
+                                ></textarea>
+                                <div
+                                    class="error-message"
+                                    v-if="form.errors.description"
+                                >
+                                    {{ form.errors.description }}
+                                </div>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Published Year</label>
-                                <input v-model="form.published_year" type="number" class="form-control custom-input" min="1900" :max="new Date().getFullYear()" placeholder="e.g., 2024" />
-                                <div class="error-message" v-if="form.errors.published_year">{{ form.errors.published_year }}</div>
+                                <input
+                                    v-model="form.published_year"
+                                    type="number"
+                                    class="form-control custom-input"
+                                    min="1900"
+                                    :max="new Date().getFullYear()"
+                                    placeholder="e.g., 2024"
+                                />
+                                <div
+                                    class="error-message"
+                                    v-if="form.errors.published_year"
+                                >
+                                    {{ form.errors.published_year }}
+                                </div>
                             </div>
                         </div>
 
                         <div class="form-section">
                             <h6 class="section-title mb-3">
-                                <i class="fas fa-upload me-2"></i> Replace Files (Optional)
+                                <i class="fas fa-upload me-2"></i> Replace Files
+                                (Optional)
                             </h6>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    <label class="upload-label">Book File</label>
-                                    <div class="file-upload-area" :class="{ 'has-file': form.file_path }">
-                                        <input type="file" class="file-input" @change="form.file_path = $event.target.files[0]" accept=".pdf,.epub" />
+                                    <label class="upload-label"
+                                        >Book File</label
+                                    >
+                                    <div
+                                        class="file-upload-area"
+                                        :class="{ 'has-file': form.file_path }"
+                                    >
+                                        <input
+                                            type="file"
+                                            class="file-input"
+                                            @change="
+                                                form.file_path =
+                                                    $event.target.files[0]
+                                            "
+                                            accept=".pdf,.epub"
+                                        />
                                         <div class="upload-content">
-                                            <i class="fas fa-cloud-upload-alt"></i>
-                                            <p v-if="!form.file_path">Click to upload file</p>
-                                            <p v-else class="file-name">{{ form.file_path.name }}</p>
-                                            <small>PDF or EPUB files only</small>
+                                            <i
+                                                class="fas fa-cloud-upload-alt"
+                                            ></i>
+                                            <p v-if="!form.file_path">
+                                                Click to upload file
+                                            </p>
+                                            <p v-else class="file-name">
+                                                {{ form.file_path.name }}
+                                            </p>
+                                            <small
+                                                >PDF or EPUB files only</small
+                                            >
                                         </div>
                                     </div>
-                                    <div class="error-message" v-if="form.errors.file_path">{{ form.errors.file_path }}</div>
+                                    <div
+                                        class="error-message"
+                                        v-if="form.errors.file_path"
+                                    >
+                                        {{ form.errors.file_path }}
+                                    </div>
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label class="upload-label">Cover Image</label>
-                                    <div class="file-upload-area" :class="{ 'has-file': form.cover_image }">
-                                        <input type="file" class="file-input" @change="form.cover_image = $event.target.files[0]" accept="image/*" />
+                                    <label class="upload-label"
+                                        >Cover Image</label
+                                    >
+                                    <div
+                                        class="file-upload-area"
+                                        :class="{
+                                            'has-file': form.cover_image,
+                                        }"
+                                    >
+                                        <input
+                                            type="file"
+                                            class="file-input"
+                                            @change="
+                                                form.cover_image =
+                                                    $event.target.files[0]
+                                            "
+                                            accept="image/*"
+                                        />
                                         <div class="upload-content">
-                                            <i class="fas fa-cloud-upload-alt"></i>
-                                            <p v-if="!form.cover_image">Click to upload image</p>
-                                            <p v-else class="file-name">{{ form.cover_image.name }}</p>
-                                            <small>JPG, PNG, JPEG files only</small>
+                                            <i
+                                                class="fas fa-cloud-upload-alt"
+                                            ></i>
+                                            <p v-if="!form.cover_image">
+                                                Click to upload image
+                                            </p>
+                                            <p v-else class="file-name">
+                                                {{ form.cover_image.name }}
+                                            </p>
+                                            <small
+                                                >JPG, PNG, JPEG files
+                                                only</small
+                                            >
                                         </div>
                                     </div>
-                                    <div class="error-message" v-if="form.errors.cover_image">{{ form.errors.cover_image }}</div>
+                                    <div
+                                        class="error-message"
+                                        v-if="form.errors.cover_image"
+                                    >
+                                        {{ form.errors.cover_image }}
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -204,12 +316,21 @@ watch(() => props.show, (val) => {
                     </div>
 
                     <div class="modal-footer border-0 bg-light">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <button
+                            type="button"
+                            class="btn btn-secondary"
+                            data-bs-dismiss="modal"
+                        >
                             <i class="fas fa-times me-2"></i> Cancel
                         </button>
-                        <button type="submit" class="btn btn-success action-btn" :disabled="form.processing">
+                        <button
+                            type="submit"
+                            class="btn btn-success action-btn"
+                            :disabled="form.processing"
+                        >
                             <span v-if="form.processing">
-                                <i class="fas fa-spinner fa-spin me-2"></i> Updating...
+                                <i class="fas fa-spinner fa-spin me-2"></i>
+                                Updating...
                             </span>
                             <span v-else>
                                 <i class="fas fa-save me-2"></i> Update Book

@@ -64,7 +64,7 @@ const openUserModal = (user) => {
 
 const filteredUsers = computed(() => {
     if (!search.value) return page.props.users;
-    return page.props.users.filter(user => {
+    return page.props.users.filter((user) => {
         const term = search.value.toLowerCase();
         return (
             user.name.toLowerCase().includes(term) ||
@@ -114,7 +114,10 @@ const filteredUsers = computed(() => {
                     </div>
                 </div>
             </div>
-            <SearchBar v-model="search" placeholder="Search by name or email..." />
+            <SearchBar
+                v-model="search"
+                placeholder="Search by name or email..."
+            />
             <table
                 class="table align-middle table-hover bg-white rounded shadow-sm"
             >
@@ -129,7 +132,9 @@ const filteredUsers = computed(() => {
                 </thead>
                 <tbody>
                     <tr v-if="filteredUsers.length === 0">
-                        <td colspan="5" class="text-center text-muted">No users found.</td>
+                        <td colspan="5" class="text-center text-muted">
+                            No users found.
+                        </td>
                     </tr>
                     <tr v-for="user in filteredUsers" :key="user.id">
                         <td>{{ user.id }}</td>

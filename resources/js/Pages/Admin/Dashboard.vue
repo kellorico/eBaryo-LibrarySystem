@@ -1,17 +1,17 @@
 <script setup>
-import AdminLayout from '@/Layouts/AdminLayout.vue';
-import { ref, onMounted, computed, watch } from 'vue';
-import { router } from '@inertiajs/vue3';
-import { Bar } from 'vue-chartjs';
+import AdminLayout from "@/Layouts/AdminLayout.vue";
+import { ref, onMounted, computed, watch } from "vue";
+import { router } from "@inertiajs/vue3";
+import { Bar } from "vue-chartjs";
 import {
-  Chart,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend
-} from 'chart.js';
+    Chart,
+    CategoryScale,
+    LinearScale,
+    BarElement,
+    Title,
+    Tooltip,
+    Legend,
+} from "chart.js";
 Chart.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 const props = defineProps({
@@ -22,86 +22,88 @@ const props = defineProps({
     publicArchives: Number,
     archivesByCategory: Object,
     recentArchives: Array,
-    flash: String
+    flash: String,
 });
 
 const showWelcome = ref(!!props.flash);
 const showUploadModal = ref(false);
 const uploadForm = ref({
-  title: '',
-  description: '',
-  file: null,
-  type: 'document',
-  category: '',
-  is_public: false,
-  errors: {},
+    title: "",
+    description: "",
+    file: null,
+    type: "document",
+    category: "",
+    is_public: false,
+    errors: {},
 });
 
 // Recent activity state
 const activities = ref([]);
 const loadingActivity = ref(true);
 
-const safeRecentArchives = computed(() => Array.isArray(props.recentArchives) ? props.recentArchives : []);
+const safeRecentArchives = computed(() =>
+    Array.isArray(props.recentArchives) ? props.recentArchives : []
+);
 
 onMounted(() => {
-  if (showWelcome.value) {
-    setTimeout(() => showWelcome.value = false, 5000);
-  }
-  // Fetch recent activity
-  fetch('/recent-activity')
-    .then(res => res.json())
-    .then(data => {
-      activities.value = data.activities || [];
-    })
-    .finally(() => loadingActivity.value = false);
+    if (showWelcome.value) {
+        setTimeout(() => (showWelcome.value = false), 5000);
+    }
+    // Fetch recent activity
+    fetch("/recent-activity")
+        .then((res) => res.json())
+        .then((data) => {
+            activities.value = data.activities || [];
+        })
+        .finally(() => (loadingActivity.value = false));
 });
 
 const resetForm = () => {
-  uploadForm.value = {
-    title: '',
-    description: '',
-    file: null,
-    type: 'document',
-    category: '',
-    is_public: false,
-    errors: {},
-  };
+    uploadForm.value = {
+        title: "",
+        description: "",
+        file: null,
+        type: "document",
+        category: "",
+        is_public: false,
+        errors: {},
+    };
 };
 const openUploadModal = () => {
-  resetForm();
-  showUploadModal.value = true;
+    resetForm();
+    showUploadModal.value = true;
 };
 const closeUploadModal = () => {
-  showUploadModal.value = false;
+    showUploadModal.value = false;
 };
 const handleFileChange = (e) => {
-  uploadForm.value.file = e.target.files[0];
+    uploadForm.value.file = e.target.files[0];
 };
 const handleUpload = () => {
-  uploadForm.value.errors = {};
-  const formData = new FormData();
-  formData.append('title', uploadForm.value.title);
-  formData.append('description', uploadForm.value.description);
-  formData.append('file', uploadForm.value.file);
-  formData.append('type', uploadForm.value.type);
-  formData.append('category', uploadForm.value.category);
-  formData.append('is_public', uploadForm.value.is_public ? 1 : 0);
-  router.post(route('archive'), formData, {
-    forceFormData: true,
-    onSuccess: () => {
-      closeUploadModal();
-    },
-    onError: (errors) => {
-      uploadForm.value.errors = errors;
-    },
-    preserveScroll: true,
-  });
+    uploadForm.value.errors = {};
+    const formData = new FormData();
+    formData.append("title", uploadForm.value.title);
+    formData.append("description", uploadForm.value.description);
+    formData.append("file", uploadForm.value.file);
+    formData.append("type", uploadForm.value.type);
+    formData.append("category", uploadForm.value.category);
+    formData.append("is_public", uploadForm.value.is_public ? 1 : 0);
+    router.post(route("archive"), formData, {
+        forceFormData: true,
+        onSuccess: () => {
+            closeUploadModal();
+        },
+        onError: (errors) => {
+            uploadForm.value.errors = errors;
+        },
+        preserveScroll: true,
+    });
 };
 const handleDownload = (archive) => {
-  window.open(route('archive', archive.id), '_blank');
+    window.open(route("archive", archive.id), "_blank");
 };
 
-const activityRange = ref('7d');
+const activityRange = ref("7d");
 const activityLoading = ref(false);
 const activityLabels = ref([]);
 const activityBookReads = ref([]);
@@ -109,45 +111,47 @@ const activityArchiveUploads = ref([]);
 const activityNewUsers = ref([]);
 
 const fetchActivityOverview = async () => {
-  activityLoading.value = true;
-  const res = await fetch(`/dashboard/activity-overview?range=${activityRange.value}`);
-  const data = await res.json();
-  activityLabels.value = data.labels;
-  activityBookReads.value = data.bookReads;
-  activityArchiveUploads.value = data.archiveUploads;
-  activityNewUsers.value = data.newUsers;
-  activityLoading.value = false;
+    activityLoading.value = true;
+    const res = await fetch(
+        `/dashboard/activity-overview?range=${activityRange.value}`
+    );
+    const data = await res.json();
+    activityLabels.value = data.labels;
+    activityBookReads.value = data.bookReads;
+    activityArchiveUploads.value = data.archiveUploads;
+    activityNewUsers.value = data.newUsers;
+    activityLoading.value = false;
 };
 onMounted(fetchActivityOverview);
 watch(activityRange, fetchActivityOverview);
 
 const activityChartData = computed(() => ({
-  labels: activityLabels.value,
-  datasets: [
-    {
-      label: 'Book Reads',
-      backgroundColor: '#0d6efd',
-      data: activityBookReads.value,
-    },
-    {
-      label: 'Archive Uploads',
-      backgroundColor: '#28a745',
-      data: activityArchiveUploads.value,
-    },
-    {
-      label: 'New Users',
-      backgroundColor: '#fd7e14',
-      data: activityNewUsers.value,
-    },
-  ],
+    labels: activityLabels.value,
+    datasets: [
+        {
+            label: "Book Reads",
+            backgroundColor: "#0d6efd",
+            data: activityBookReads.value,
+        },
+        {
+            label: "Archive Uploads",
+            backgroundColor: "#28a745",
+            data: activityArchiveUploads.value,
+        },
+        {
+            label: "New Users",
+            backgroundColor: "#fd7e14",
+            data: activityNewUsers.value,
+        },
+    ],
 }));
 const activityChartOptions = {
-  responsive: true,
-  plugins: {
-    legend: { position: 'top' },
-    title: { display: false },
-  },
-  scales: { y: { beginAtZero: true } },
+    responsive: true,
+    plugins: {
+        legend: { position: "top" },
+        title: { display: false },
+    },
+    scales: { y: { beginAtZero: true } },
 };
 </script>
 
@@ -155,10 +159,19 @@ const activityChartOptions = {
     <AdminLayout>
         <Head title="Dashboard" />
         <!-- Floating Welcome Message -->
-        <div v-if="showWelcome" class="floating-flash-message alert alert-success alert-dismissible fade show" role="alert">
+        <div
+            v-if="showWelcome"
+            class="floating-flash-message alert alert-success alert-dismissible fade show"
+            role="alert"
+        >
             <i class="fa-solid fa-smile-beam me-2"></i>
-            {{ props.flash || 'Welcome back, Admin!' }}
-            <button type="button" class="btn-close" @click="showWelcome = false" aria-label="Close"></button>
+            {{ props.flash || "Welcome back, Admin!" }}
+            <button
+                type="button"
+                class="btn-close"
+                @click="showWelcome = false"
+                aria-label="Close"
+            ></button>
         </div>
         <div class="dashboard-container">
             <!-- Page Header -->
@@ -166,9 +179,10 @@ const activityChartOptions = {
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <h2 class="page-title mb-1">Dashboard Overview</h2>
-                        <p class="text-muted mb-0">Welcome to your eBaryo Library management dashboard</p>
+                        <p class="text-muted mb-0">
+                            Welcome to your eBaryo Library management dashboard
+                        </p>
                     </div>
-                    
                 </div>
             </div>
 
@@ -181,12 +195,18 @@ const activityChartOptions = {
                                 <i class="fa-solid fa-book-open"></i>
                             </div>
                             <div class="stat-card-info">
-                                <h3 class="stat-card-number">{{ totalBooks }}</h3>
+                                <h3 class="stat-card-number">
+                                    {{ totalBooks }}
+                                </h3>
                                 <p class="stat-card-label">Total Books</p>
                                 <div class="stat-card-trend">
-                                    <i class="fa-solid fa-arrow-up text-success"></i>
+                                    <i
+                                        class="fa-solid fa-arrow-up text-success"
+                                    ></i>
                                     <span class="text-success">+12%</span>
-                                    <span class="text-muted">from last month</span>
+                                    <span class="text-muted"
+                                        >from last month</span
+                                    >
                                 </div>
                             </div>
                         </div>
@@ -200,12 +220,18 @@ const activityChartOptions = {
                                 <i class="fa-solid fa-users"></i>
                             </div>
                             <div class="stat-card-info">
-                                <h3 class="stat-card-number">{{ totalUsers }}</h3>
+                                <h3 class="stat-card-number">
+                                    {{ totalUsers }}
+                                </h3>
                                 <p class="stat-card-label">Total Users</p>
                                 <div class="stat-card-trend">
-                                    <i class="fa-solid fa-arrow-up text-success"></i>
+                                    <i
+                                        class="fa-solid fa-arrow-up text-success"
+                                    ></i>
                                     <span class="text-success">+8%</span>
-                                    <span class="text-muted">from last month</span>
+                                    <span class="text-muted"
+                                        >from last month</span
+                                    >
                                 </div>
                             </div>
                         </div>
@@ -219,12 +245,18 @@ const activityChartOptions = {
                                 <i class="fa-solid fa-user-check"></i>
                             </div>
                             <div class="stat-card-info">
-                                <h3 class="stat-card-number">{{ activeUsers }}</h3>
+                                <h3 class="stat-card-number">
+                                    {{ activeUsers }}
+                                </h3>
                                 <p class="stat-card-label">Active Users</p>
                                 <div class="stat-card-trend">
-                                    <i class="fa-solid fa-arrow-up text-success"></i>
+                                    <i
+                                        class="fa-solid fa-arrow-up text-success"
+                                    ></i>
                                     <span class="text-success">+15%</span>
-                                    <span class="text-muted">from last month</span>
+                                    <span class="text-muted"
+                                        >from last month</span
+                                    >
                                 </div>
                             </div>
                         </div>
@@ -241,9 +273,13 @@ const activityChartOptions = {
                                 <h3 class="stat-card-number">1,247</h3>
                                 <p class="stat-card-label">Downloads</p>
                                 <div class="stat-card-trend">
-                                    <i class="fa-solid fa-arrow-up text-success"></i>
+                                    <i
+                                        class="fa-solid fa-arrow-up text-success"
+                                    ></i>
                                     <span class="text-success">+23%</span>
-                                    <span class="text-muted">from last month</span>
+                                    <span class="text-muted"
+                                        >from last month</span
+                                    >
                                 </div>
                             </div>
                         </div>
@@ -257,7 +293,9 @@ const activityChartOptions = {
                                 <i class="fa-solid fa-archive"></i>
                             </div>
                             <div class="stat-card-info">
-                                <h3 class="stat-card-number">{{ totalArchives }}</h3>
+                                <h3 class="stat-card-number">
+                                    {{ totalArchives }}
+                                </h3>
                                 <p class="stat-card-label">Total Archives</p>
                             </div>
                         </div>
@@ -271,7 +309,9 @@ const activityChartOptions = {
                                 <i class="fa-solid fa-globe"></i>
                             </div>
                             <div class="stat-card-info">
-                                <h3 class="stat-card-number">{{ publicArchives }}</h3>
+                                <h3 class="stat-card-number">
+                                    {{ publicArchives }}
+                                </h3>
                                 <p class="stat-card-label">Public Archives</p>
                             </div>
                         </div>
@@ -284,8 +324,15 @@ const activityChartOptions = {
                             <div class="stat-card-info">
                                 <h5 class="mb-2">Archives by Category</h5>
                                 <div class="d-flex flex-wrap gap-3">
-                                    <div v-for="(count, cat) in archivesByCategory" :key="cat" class="badge bg-secondary px-3 py-2 fs-6">
-                                        <i class="fa fa-folder me-1"></i> {{ cat }}: <b>{{ count }}</b>
+                                    <div
+                                        v-for="(
+                                            count, cat
+                                        ) in archivesByCategory"
+                                        :key="cat"
+                                        class="badge bg-secondary px-3 py-2 fs-6"
+                                    >
+                                        <i class="fa fa-folder me-1"></i>
+                                        {{ cat }}: <b>{{ count }}</b>
                                     </div>
                                 </div>
                             </div>
@@ -298,25 +345,43 @@ const activityChartOptions = {
             <div class="row g-4 mb-5">
                 <div class="col-xl-8">
                     <div class="dashboard-card">
-                        <div class="dashboard-card-header d-flex justify-content-between align-items-center">
+                        <div
+                            class="dashboard-card-header d-flex justify-content-between align-items-center"
+                        >
                             <h5 class="dashboard-card-title mb-0">
                                 <i class="fa-solid fa-chart-line me-2"></i>
                                 Library Activity Overview
                             </h5>
-                            <select v-model="activityRange" class="form-select form-select-sm" style="width: 160px;">
+                            <select
+                                v-model="activityRange"
+                                class="form-select form-select-sm"
+                                style="width: 160px"
+                            >
                                 <option value="7d">Last 7 days</option>
                                 <option value="30d">Last 30 days</option>
                                 <option value="90d">Last 90 days</option>
                             </select>
                         </div>
                         <div class="dashboard-card-body">
-                            <div v-if="activityLoading" class="text-center py-5">
-                                <div class="spinner-border text-success" role="status">
-                                    <span class="visually-hidden">Loading...</span>
+                            <div
+                                v-if="activityLoading"
+                                class="text-center py-5"
+                            >
+                                <div
+                                    class="spinner-border text-success"
+                                    role="status"
+                                >
+                                    <span class="visually-hidden"
+                                        >Loading...</span
+                                    >
                                 </div>
                             </div>
                             <div v-else>
-                                <Bar :data="activityChartData" :options="activityChartOptions" style="min-height:320px;" />
+                                <Bar
+                                    :data="activityChartData"
+                                    :options="activityChartOptions"
+                                    style="min-height: 320px"
+                                />
                             </div>
                         </div>
                     </div>
@@ -334,29 +399,49 @@ const activityChartOptions = {
                             <div class="category-stats">
                                 <div class="category-item">
                                     <div class="category-info">
-                                        <div class="category-color" style="background: #198754"></div>
-                                        <span class="category-name">Story Books</span>
+                                        <div
+                                            class="category-color"
+                                            style="background: #198754"
+                                        ></div>
+                                        <span class="category-name"
+                                            >Story Books</span
+                                        >
                                     </div>
                                     <span class="category-percentage">35%</span>
                                 </div>
                                 <div class="category-item">
                                     <div class="category-info">
-                                        <div class="category-color" style="background: #0d6efd"></div>
-                                        <span class="category-name">Educational</span>
+                                        <div
+                                            class="category-color"
+                                            style="background: #0d6efd"
+                                        ></div>
+                                        <span class="category-name"
+                                            >Educational</span
+                                        >
                                     </div>
                                     <span class="category-percentage">28%</span>
                                 </div>
                                 <div class="category-item">
                                     <div class="category-info">
-                                        <div class="category-color" style="background: #fd7e14"></div>
-                                        <span class="category-name">Agriculture</span>
+                                        <div
+                                            class="category-color"
+                                            style="background: #fd7e14"
+                                        ></div>
+                                        <span class="category-name"
+                                            >Agriculture</span
+                                        >
                                     </div>
                                     <span class="category-percentage">22%</span>
                                 </div>
                                 <div class="category-item">
                                     <div class="category-info">
-                                        <div class="category-color" style="background: #6f42c1"></div>
-                                        <span class="category-name">Cultural Heritage</span>
+                                        <div
+                                            class="category-color"
+                                            style="background: #6f42c1"
+                                        ></div>
+                                        <span class="category-name"
+                                            >Cultural Heritage</span
+                                        >
                                     </div>
                                     <span class="category-percentage">15%</span>
                                 </div>
@@ -375,27 +460,64 @@ const activityChartOptions = {
                                 <i class="fa-solid fa-clock me-2"></i>
                                 Recent Activity
                             </h5>
-                            <a href="#" class="btn btn-sm btn-outline-primary">View All</a>
+                            <a href="#" class="btn btn-sm btn-outline-primary"
+                                >View All</a
+                            >
                         </div>
                         <div class="dashboard-card-body">
                             <div class="activity-list">
-                                <div v-if="loadingActivity" class="text-center py-4">
-                                    <div class="spinner-border text-success" role="status">
-                                        <span class="visually-hidden">Loading...</span>
+                                <div
+                                    v-if="loadingActivity"
+                                    class="text-center py-4"
+                                >
+                                    <div
+                                        class="spinner-border text-success"
+                                        role="status"
+                                    >
+                                        <span class="visually-hidden"
+                                            >Loading...</span
+                                        >
                                     </div>
                                 </div>
                                 <template v-else>
-                                    <div v-if="activities.length === 0" class="text-muted text-center py-4">
-                                        <i class="fa-regular fa-bell-slash fa-2x mb-2"></i>
+                                    <div
+                                        v-if="activities.length === 0"
+                                        class="text-muted text-center py-4"
+                                    >
+                                        <i
+                                            class="fa-regular fa-bell-slash fa-2x mb-2"
+                                        ></i>
                                         <div>No recent activity</div>
                                     </div>
-                                    <div v-else v-for="activity in activities" :key="activity.id" class="activity-item">
-                                        <div class="activity-icon" :class="activity.color_class">
-                                            <i :class="['fa-solid', activity.icon || 'fa-bell']"></i>
+                                    <div
+                                        v-else
+                                        v-for="activity in activities"
+                                        :key="activity.id"
+                                        class="activity-item"
+                                    >
+                                        <div
+                                            class="activity-icon"
+                                            :class="activity.color_class"
+                                        >
+                                            <i
+                                                :class="[
+                                                    'fa-solid',
+                                                    activity.icon || 'fa-bell',
+                                                ]"
+                                            ></i>
                                         </div>
                                         <div class="activity-content">
-                                            <p class="activity-text"><strong>{{ activity.title }}:</strong> {{ activity.message }}</p>
-                                            <small class="activity-time">{{ activity.time_ago }}</small>
+                                            <p class="activity-text">
+                                                <strong
+                                                    >{{
+                                                        activity.title
+                                                    }}:</strong
+                                                >
+                                                {{ activity.message }}
+                                            </p>
+                                            <small class="activity-time">{{
+                                                activity.time_ago
+                                            }}</small>
                                         </div>
                                     </div>
                                 </template>
@@ -405,18 +527,31 @@ const activityChartOptions = {
                 </div>
                 <div class="col-xl-6">
                     <div class="dashboard-card">
-                        <div class="dashboard-card-header d-flex justify-content-between align-items-center">
+                        <div
+                            class="dashboard-card-header d-flex justify-content-between align-items-center"
+                        >
                             <h5 class="dashboard-card-title mb-0">
-                                <i class="fa-solid fa-clock me-2"></i> Recent Archive Uploads
+                                <i class="fa-solid fa-clock me-2"></i> Recent
+                                Archive Uploads
                             </h5>
-                            <button class="btn btn-success" @click="openUploadModal">
+                            <button
+                                class="btn btn-success"
+                                @click="openUploadModal"
+                            >
                                 <i class="fa fa-upload me-2"></i> Quick Upload
                             </button>
                         </div>
                         <div class="dashboard-card-body p-0">
-                            <div v-if="safeRecentArchives.length === 0" class="text-center py-4 text-muted">No recent uploads.</div>
+                            <div
+                                v-if="safeRecentArchives.length === 0"
+                                class="text-center py-4 text-muted"
+                            >
+                                No recent uploads.
+                            </div>
                             <div v-else class="table-responsive">
-                                <table class="table table-hover align-middle mb-0">
+                                <table
+                                    class="table table-hover align-middle mb-0"
+                                >
                                     <thead class="table-light">
                                         <tr>
                                             <th>Title</th>
@@ -428,21 +563,57 @@ const activityChartOptions = {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr v-for="archive in safeRecentArchives" :key="archive.id">
+                                        <tr
+                                            v-for="archive in safeRecentArchives"
+                                            :key="archive.id"
+                                        >
                                             <td>{{ archive.title }}</td>
-                                            <td>{{ archive.uploader?.name || 'Unknown' }}</td>
-                                            <td>{{ archive.category || '-' }}</td>
                                             <td>
-                                                <span v-if="archive.is_public" class="badge bg-success">Yes</span>
-                                                <span v-else class="badge bg-secondary">No</span>
+                                                {{
+                                                    archive.uploader?.name ||
+                                                    "Unknown"
+                                                }}
                                             </td>
-                                            <td>{{ new Date(archive.created_at).toLocaleString() }}</td>
                                             <td>
-                                                <button class="btn btn-outline-success btn-sm me-2" @click="handleDownload(archive)">
-                                                    <i class="fas fa-download"></i>
+                                                {{ archive.category || "-" }}
+                                            </td>
+                                            <td>
+                                                <span
+                                                    v-if="archive.is_public"
+                                                    class="badge bg-success"
+                                                    >Yes</span
+                                                >
+                                                <span
+                                                    v-else
+                                                    class="badge bg-secondary"
+                                                    >No</span
+                                                >
+                                            </td>
+                                            <td>
+                                                {{
+                                                    new Date(
+                                                        archive.created_at
+                                                    ).toLocaleString()
+                                                }}
+                                            </td>
+                                            <td>
+                                                <button
+                                                    class="btn btn-outline-success btn-sm me-2"
+                                                    @click="
+                                                        handleDownload(archive)
+                                                    "
+                                                >
+                                                    <i
+                                                        class="fas fa-download"
+                                                    ></i>
                                                 </button>
-                                                <a :href="route('archive')" class="btn btn-outline-primary btn-sm">
-                                                    <i class="fas fa-folder-open"></i>
+                                                <a
+                                                    :href="route('archive')"
+                                                    class="btn btn-outline-primary btn-sm"
+                                                >
+                                                    <i
+                                                        class="fas fa-folder-open"
+                                                    ></i>
                                                 </a>
                                             </td>
                                         </tr>
@@ -455,58 +626,138 @@ const activityChartOptions = {
             </div>
 
             <!-- Upload Modal (reuse from DigitalArchive.vue) -->
-            <div v-if="showUploadModal" class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.3);">
+            <div
+                v-if="showUploadModal"
+                class="modal fade show d-block"
+                tabindex="-1"
+                style="background: rgba(0, 0, 0, 0.3)"
+            >
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title"><i class="fas fa-upload me-2 text-success"></i> Upload Archive</h5>
-                            <button type="button" class="btn-close" @click="closeUploadModal"></button>
+                            <h5 class="modal-title">
+                                <i class="fas fa-upload me-2 text-success"></i>
+                                Upload Archive
+                            </h5>
+                            <button
+                                type="button"
+                                class="btn-close"
+                                @click="closeUploadModal"
+                            ></button>
                         </div>
                         <div class="modal-body">
                             <div class="mb-3">
                                 <label class="form-label">Title</label>
-                                <input v-model="uploadForm.title" type="text" class="form-control" placeholder="Document title" />
-                                <div v-if="uploadForm.errors.title" class="text-danger small">{{ uploadForm.errors.title }}</div>
+                                <input
+                                    v-model="uploadForm.title"
+                                    type="text"
+                                    class="form-control"
+                                    placeholder="Document title"
+                                />
+                                <div
+                                    v-if="uploadForm.errors.title"
+                                    class="text-danger small"
+                                >
+                                    {{ uploadForm.errors.title }}
+                                </div>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Description</label>
-                                <textarea v-model="uploadForm.description" class="form-control" placeholder="Description (optional)"></textarea>
-                                <div v-if="uploadForm.errors.description" class="text-danger small">{{ uploadForm.errors.description }}</div>
+                                <textarea
+                                    v-model="uploadForm.description"
+                                    class="form-control"
+                                    placeholder="Description (optional)"
+                                ></textarea>
+                                <div
+                                    v-if="uploadForm.errors.description"
+                                    class="text-danger small"
+                                >
+                                    {{ uploadForm.errors.description }}
+                                </div>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Type</label>
-                                <select v-model="uploadForm.type" class="form-select">
+                                <select
+                                    v-model="uploadForm.type"
+                                    class="form-select"
+                                >
                                     <option value="document">Document</option>
                                     <option value="photo">Photo</option>
-                                    <option value="record">Historical Record</option>
+                                    <option value="record">
+                                        Historical Record
+                                    </option>
                                 </select>
-                                <div v-if="uploadForm.errors.type" class="text-danger small">{{ uploadForm.errors.type }}</div>
+                                <div
+                                    v-if="uploadForm.errors.type"
+                                    class="text-danger small"
+                                >
+                                    {{ uploadForm.errors.type }}
+                                </div>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Category</label>
-                                <select v-model="uploadForm.category" class="form-select">
+                                <select
+                                    v-model="uploadForm.category"
+                                    class="form-select"
+                                >
                                     <option value="">Select Category</option>
-                                    <option value="Resolution">Resolution</option>
+                                    <option value="Resolution">
+                                        Resolution
+                                    </option>
                                     <option value="Photo">Photo</option>
                                     <option value="Event">Event</option>
                                     <option value="History">History</option>
                                     <option value="Misc">Misc</option>
                                 </select>
-                                <div v-if="uploadForm.errors.category" class="text-danger small">{{ uploadForm.errors.category }}</div>
+                                <div
+                                    v-if="uploadForm.errors.category"
+                                    class="text-danger small"
+                                >
+                                    {{ uploadForm.errors.category }}
+                                </div>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">File</label>
-                                <input type="file" class="form-control" @change="handleFileChange" accept=".pdf,.jpg,.jpeg,.png,.docx,.xlsx,.zip" />
-                                <div v-if="uploadForm.errors.file" class="text-danger small">{{ uploadForm.errors.file }}</div>
+                                <input
+                                    type="file"
+                                    class="form-control"
+                                    @change="handleFileChange"
+                                    accept=".pdf,.jpg,.jpeg,.png,.docx,.xlsx,.zip"
+                                />
+                                <div
+                                    v-if="uploadForm.errors.file"
+                                    class="text-danger small"
+                                >
+                                    {{ uploadForm.errors.file }}
+                                </div>
                             </div>
                             <div class="form-check mb-3">
-                                <input class="form-check-input" type="checkbox" v-model="uploadForm.is_public" id="isPublicCheck" />
-                                <label class="form-check-label" for="isPublicCheck">Make Public (visible to all users)</label>
+                                <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    v-model="uploadForm.is_public"
+                                    id="isPublicCheck"
+                                />
+                                <label
+                                    class="form-check-label"
+                                    for="isPublicCheck"
+                                    >Make Public (visible to all users)</label
+                                >
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button class="btn btn-secondary" @click="closeUploadModal">Cancel</button>
-                            <button class="btn btn-success" @click="handleUpload">Upload</button>
+                            <button
+                                class="btn btn-secondary"
+                                @click="closeUploadModal"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                class="btn btn-success"
+                                @click="handleUpload"
+                            >
+                                Upload
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -548,13 +799,17 @@ const activityChartOptions = {
 }
 
 .stat-card::before {
-    content: '';
+    content: "";
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     height: 4px;
-    background: linear-gradient(90deg, var(--card-color), var(--card-color-light));
+    background: linear-gradient(
+        90deg,
+        var(--card-color),
+        var(--card-color-light)
+    );
 }
 
 .stat-card:hover {
@@ -597,7 +852,11 @@ const activityChartOptions = {
     justify-content: center;
     font-size: 1.5rem;
     color: white;
-    background: linear-gradient(135deg, var(--card-color), var(--card-color-light));
+    background: linear-gradient(
+        135deg,
+        var(--card-color),
+        var(--card-color-light)
+    );
 }
 
 .stat-card-info {
@@ -812,26 +1071,26 @@ const activityChartOptions = {
     .page-header {
         padding: 1rem;
     }
-    
+
     .page-title {
         font-size: 1.5rem;
     }
-    
+
     .stat-card {
         padding: 1rem;
     }
-    
+
     .stat-card-number {
         font-size: 1.5rem;
     }
-    
+
     .dashboard-card-header {
         padding: 1rem;
         flex-direction: column;
         gap: 1rem;
         align-items: flex-start;
     }
-    
+
     .dashboard-card-body {
         padding: 1rem;
     }
@@ -844,15 +1103,22 @@ const activityChartOptions = {
     z-index: 1055;
     min-width: 320px;
     max-width: 90vw;
-    box-shadow: 0 8px 32px rgba(40, 167, 69, 0.15), 0 1.5px 6px rgba(0,0,0,0.08);
+    box-shadow: 0 8px 32px rgba(40, 167, 69, 0.15),
+        0 1.5px 6px rgba(0, 0, 0, 0.08);
     border-radius: 12px;
     font-size: 1.05rem;
     pointer-events: auto;
-    animation: floatIn 0.5s cubic-bezier(.4,2,.6,1) both;
+    animation: floatIn 0.5s cubic-bezier(0.4, 2, 0.6, 1) both;
 }
 @keyframes floatIn {
-    from { opacity: 0; transform: translateY(-30px) scale(0.98); }
-    to { opacity: 1; transform: translateY(0) scale(1); }
+    from {
+        opacity: 0;
+        transform: translateY(-30px) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
 }
 @media (max-width: 768px) {
     .floating-flash-message {
@@ -863,9 +1129,24 @@ const activityChartOptions = {
     }
 }
 
-.bg-archive { background: #6c757d; color: #fff; }
-.bg-public { background: #28a745; color: #fff; }
-.stat-card-archive .stat-card-icon { background: #6c757d; color: #fff; }
-.stat-card-public .stat-card-icon { background: #28a745; color: #fff; }
-.stat-card-category .stat-card-content { background: #f8f9fa; border-radius: 12px; }
+.bg-archive {
+    background: #6c757d;
+    color: #fff;
+}
+.bg-public {
+    background: #28a745;
+    color: #fff;
+}
+.stat-card-archive .stat-card-icon {
+    background: #6c757d;
+    color: #fff;
+}
+.stat-card-public .stat-card-icon {
+    background: #28a745;
+    color: #fff;
+}
+.stat-card-category .stat-card-content {
+    background: #f8f9fa;
+    border-radius: 12px;
+}
 </style>

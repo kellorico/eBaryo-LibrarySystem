@@ -3,8 +3,8 @@ import GuestLayout from "@/Layouts/GuestLayout.vue";
 import InputField from "@/Components/InputField.vue";
 import { useForm } from "@inertiajs/vue3";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
-import Toast from '@/Components/Toast.vue';
-import { ref, watch } from 'vue';
+import Toast from "@/Components/Toast.vue";
+import { ref, watch } from "vue";
 
 const form = useForm({
     email: "",
@@ -19,20 +19,23 @@ const props = defineProps({
 
 const showToast = ref(false);
 
-watch(() => props.status, (val) => {
-  if (val) showToast.value = true;
-});
+watch(
+    () => props.status,
+    (val) => {
+        if (val) showToast.value = true;
+    }
+);
 
 watch(showToast, (val) => {
-  if (val) {
-    setTimeout(() => {
-      showToast.value = false;
-    }, 3000);
-  }
+    if (val) {
+        setTimeout(() => {
+            showToast.value = false;
+        }, 3000);
+    }
 });
 
 const submit = () => {
-    form.post(route('password.email'), {
+    form.post(route("password.email"), {
         onSuccess: () => form.reset(),
         preserveScroll: true,
         onError: () => {
@@ -46,36 +49,57 @@ const submit = () => {
 <template>
     <GuestLayout>
         <Head title="Forgot Password" />
-        <Toast v-model="showToast" v-if="props.status" class="toast-green">{{ props.status }}</Toast>
+        <Toast v-model="showToast" v-if="props.status" class="toast-green">{{
+            props.status
+        }}</Toast>
         <div class="container py-4">
-        <div class="card shadow-lg border-0 rounded-4 bg-white-green forgot-card-animate position-relative small-card">
-            <div class="accent-bar-green"></div>
-            <div class="card-body p-4">
-            <h2 class="text-center mb-3 fw-bold text-success" style="font-size:1.5rem;"><i class="fa-solid fa-unlock-keyhole me-2"></i>Forgot Password</h2>
-            <p class="text-center mb-3">Enter your email to reset your password.</p>
-            <form @submit.prevent="submit">
-                <div class="mb-3">
-                <InputField
-                    id="email"
-                    label="Email"
-                    type="email"
-                    v-model="form.email"
-                    :error="form.errors.email"
-                >
-                    <template #icon>
-                        <i class="fa-solid fa-envelope"></i>
-                    </template>
-                </InputField>
+            <div
+                class="card shadow-lg border-0 rounded-4 bg-white-green forgot-card-animate position-relative small-card"
+            >
+                <div class="accent-bar-green"></div>
+                <div class="card-body p-4">
+                    <h2
+                        class="text-center mb-3 fw-bold text-success"
+                        style="font-size: 1.5rem"
+                    >
+                        <i class="fa-solid fa-unlock-keyhole me-2"></i>Forgot
+                        Password
+                    </h2>
+                    <p class="text-center mb-3">
+                        Enter your email to reset your password.
+                    </p>
+                    <form @submit.prevent="submit">
+                        <div class="mb-3">
+                            <InputField
+                                id="email"
+                                label="Email"
+                                type="email"
+                                v-model="form.email"
+                                :error="form.errors.email"
+                            >
+                                <template #icon>
+                                    <i class="fa-solid fa-envelope"></i>
+                                </template>
+                            </InputField>
+                        </div>
+                        <PrimaryButton
+                            class="w-100 mt-2 btn-success-green btn-ripple small-btn"
+                            :disabled="form.processing"
+                            :isLoading="form.processing"
+                        >
+                            Send Password Reset Link
+                        </PrimaryButton>
+                    </form>
+                    <div class="text-center mt-3" style="font-size: 0.97rem">
+                        <p>
+                            Remembered your password?
+                            <Link :href="route('login')" class="link-green"
+                                >Login</Link
+                            >
+                        </p>
+                    </div>
                 </div>
-                <PrimaryButton class="w-100 mt-2 btn-success-green btn-ripple small-btn" :disabled="form.processing" :isLoading="form.processing">
-                    Send Password Reset Link
-                </PrimaryButton>
-            </form>
-            <div class="text-center mt-3" style="font-size:0.97rem;">
-                <p>Remembered your password? <Link :href="route('login')" class="link-green">Login</Link></p>
             </div>
-            </div>
-        </div>
         </div>
     </GuestLayout>
 </template>
@@ -95,9 +119,11 @@ const submit = () => {
     opacity: 0;
     transform: translateY(40px);
     animation: cardFadeIn 0.8s 0.1s forwards;
-    transition: box-shadow 0.22s cubic-bezier(.4,2,.3,1), transform 0.22s cubic-bezier(.4,2,.3,1);
+    transition: box-shadow 0.22s cubic-bezier(0.4, 2, 0.3, 1),
+        transform 0.22s cubic-bezier(0.4, 2, 0.3, 1);
 }
-.forgot-card-animate:hover, .forgot-card-animate:focus-within {
+.forgot-card-animate:hover,
+.forgot-card-animate:focus-within {
     box-shadow: 0 8px 32px #19875433, 0 2px 8px #43c59e22;
     transform: translateY(-2px) scale(1.01);
 }
@@ -109,7 +135,9 @@ const submit = () => {
 }
 .accent-bar-green {
     position: absolute;
-    top: 0; left: 0; right: 0;
+    top: 0;
+    left: 0;
+    right: 0;
     height: 6px;
     background: linear-gradient(90deg, #198754 60%, #43c59e 100%);
     border-top-left-radius: 1rem;

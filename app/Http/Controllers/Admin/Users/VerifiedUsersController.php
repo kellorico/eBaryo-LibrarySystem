@@ -8,28 +8,14 @@ use Illuminate\Http\Request;
 
 class VerifiedUsersController extends Controller
 {
-    public function index () {
+    public function index()
+    {
         $verifiedUsers = User::where('verified', 1)
             ->orderBy('created_at', 'desc')
-            ->get()
-            ->map(function($user) {
-                $userArray = $user->toArray();
-                $userArray['avatar_url'] = $user->avatar_url;
-                return $userArray;
-            });
+            ->get();
 
-            return inertia('Admin/Users/VerifiedUsers', [
-                'verifiedUsers' => $verifiedUsers
-            ]);
-    }
-
-    public function verify (Request $request, $id)
-    {
-        $user = User::findOrFail($id);
-        
-        $user->verified = true;
-        $user->save();
-
-        return redirect()->back()->with('message', 'User verified successfully.');
+        return inertia('Admin/Users/VerifiedUsers', [
+            'verifiedUsers' => $verifiedUsers
+        ]);
     }
 }

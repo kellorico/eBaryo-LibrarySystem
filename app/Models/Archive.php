@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -22,4 +23,4 @@ class Archive extends Model
     {
         return $this->belongsTo(User::class, 'uploaded_by');
     }
-} 
+}

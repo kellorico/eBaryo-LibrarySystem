@@ -1,6 +1,6 @@
 <script setup>
-import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
-import Toast from '../Components/Toast.vue';
+import { ref, onMounted, onBeforeUnmount, watch } from "vue";
+import Toast from "../Components/Toast.vue";
 
 const profileDropdownOpen = ref(false);
 const notificationDropdownOpen = ref(false);
@@ -8,8 +8,8 @@ const notifications = ref([]);
 const unreadCount = ref(0);
 const loading = ref(false);
 const showToast = ref(false);
-const toastMessage = ref('');
-const toastTitle = ref('');
+const toastMessage = ref("");
+const toastTitle = ref("");
 const audioRef = ref(null);
 let lastUnreadCount = 0;
 const selectedNotification = ref(null);
@@ -21,12 +21,12 @@ const isMobile = ref(false);
 async function fetchNotifications() {
     try {
         loading.value = true;
-        const response = await fetch('/notifications');
+        const response = await fetch("/notifications");
         const data = await response.json();
         notifications.value = data.notifications.data || [];
         unreadCount.value = data.unread_count || 0;
     } catch (error) {
-        console.error('Error fetching notifications:', error);
+        console.error("Error fetching notifications:", error);
     } finally {
         loading.value = false;
     }
@@ -35,11 +35,11 @@ async function fetchNotifications() {
 // Fetch unread count
 async function fetchUnreadCount() {
     try {
-        const response = await fetch('/notifications/unread-count');
+        const response = await fetch("/notifications/unread-count");
         const data = await response.json();
         unreadCount.value = data.count || 0;
     } catch (error) {
-        console.error('Error fetching unread count:', error);
+        console.error("Error fetching unread count:", error);
     }
 }
 
@@ -47,59 +47,67 @@ async function fetchUnreadCount() {
 async function markAsRead(notificationId) {
     try {
         const response = await fetch(`/notifications/${notificationId}/read`, {
-            method: 'PUT',
+            method: "PUT",
             headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            }
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": document
+                    .querySelector('meta[name="csrf-token"]')
+                    .getAttribute("content"),
+            },
         });
         const data = await response.json();
         if (data.success) {
             unreadCount.value = data.unread_count;
             // Update the notification in the list
-            const notification = notifications.value.find(n => n.id === notificationId);
+            const notification = notifications.value.find(
+                (n) => n.id === notificationId
+            );
             if (notification) {
                 notification.is_read = true;
                 notification.read_at = new Date().toISOString();
             }
         }
     } catch (error) {
-        console.error('Error marking notification as read:', error);
+        console.error("Error marking notification as read:", error);
     }
 }
 
 // Mark all notifications as read
 async function markAllAsRead() {
     try {
-        const response = await fetch('/notifications/mark-all-read', {
-            method: 'PUT',
+        const response = await fetch("/notifications/mark-all-read", {
+            method: "PUT",
             headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            }
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": document
+                    .querySelector('meta[name="csrf-token"]')
+                    .getAttribute("content"),
+            },
         });
         const data = await response.json();
         if (data.success) {
             unreadCount.value = 0;
-            notifications.value.forEach(notification => {
+            notifications.value.forEach((notification) => {
                 notification.is_read = true;
                 notification.read_at = new Date().toISOString();
             });
         }
     } catch (error) {
-        console.error('Error marking all notifications as read:', error);
+        console.error("Error marking all notifications as read:", error);
     }
 }
 
 // Clear all notifications
 async function clearAllNotifications() {
     try {
-        const response = await fetch('/notifications', {
-            method: 'DELETE',
+        const response = await fetch("/notifications", {
+            method: "DELETE",
             headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            }
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": document
+                    .querySelector('meta[name="csrf-token"]')
+                    .getAttribute("content"),
+            },
         });
         const data = await response.json();
         if (data.success) {
@@ -108,7 +116,7 @@ async function clearAllNotifications() {
             notificationDropdownOpen.value = false;
         }
     } catch (error) {
-        console.error('Error clearing notifications:', error);
+        console.error("Error clearing notifications:", error);
     }
 }
 
@@ -116,19 +124,23 @@ async function clearAllNotifications() {
 async function deleteNotification(notificationId) {
     try {
         const response = await fetch(`/notifications/${notificationId}`, {
-            method: 'DELETE',
+            method: "DELETE",
             headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-            }
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": document
+                    .querySelector('meta[name="csrf-token"]')
+                    .getAttribute("content"),
+            },
         });
         const data = await response.json();
         if (data.success) {
             unreadCount.value = data.unread_count;
-            notifications.value = notifications.value.filter(n => n.id !== notificationId);
+            notifications.value = notifications.value.filter(
+                (n) => n.id !== notificationId
+            );
         }
     } catch (error) {
-        console.error('Error deleting notification:', error);
+        console.error("Error deleting notification:", error);
     }
 }
 
@@ -144,10 +156,10 @@ function toggleNotificationDropdown() {
 }
 
 function closeDropdowns(e) {
-    if (!e.target.closest('.profile-dropdown-wrapper')) {
+    if (!e.target.closest(".profile-dropdown-wrapper")) {
         profileDropdownOpen.value = false;
     }
-    if (!e.target.closest('.notification-dropdown-wrapper')) {
+    if (!e.target.closest(".notification-dropdown-wrapper")) {
         notificationDropdownOpen.value = false;
     }
 }
@@ -156,26 +168,26 @@ function closeDropdowns(e) {
 let unreadCountInterval;
 
 onMounted(() => {
-    document.addEventListener('click', closeDropdowns);
+    document.addEventListener("click", closeDropdowns);
     fetchUnreadCount();
 
     // Set up auto-refresh for unread count
     unreadCountInterval = setInterval(fetchUnreadCount, 30000);
     handleResize();
-    window.addEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
 
     if (showNotificationModal.value) {
-        document.body.classList.add('modal-open');
+        document.body.classList.add("modal-open");
     }
 });
 
 onBeforeUnmount(() => {
-    document.removeEventListener('click', closeDropdowns);
+    document.removeEventListener("click", closeDropdowns);
     if (unreadCountInterval) {
         clearInterval(unreadCountInterval);
     }
-    window.removeEventListener('resize', handleResize);
-    document.body.classList.remove('modal-open');
+    window.removeEventListener("resize", handleResize);
+    document.body.classList.remove("modal-open");
 });
 
 // Watch for new notifications
@@ -210,9 +222,9 @@ function handleResize() {
 // Add/remove 'modal-open' class to body when modal is open
 watch(showNotificationModal, (val) => {
     if (val) {
-        document.body.classList.add('modal-open');
+        document.body.classList.add("modal-open");
     } else {
-        document.body.classList.remove('modal-open');
+        document.body.classList.remove("modal-open");
     }
 });
 </script>
@@ -220,13 +232,21 @@ watch(showNotificationModal, (val) => {
 <template>
     <div class="min-vh-100 d-flex">
         <!-- Sidebar Toggle Button for Mobile -->
-        <button class="sidebar-toggle d-md-none btn btn-success position-fixed" @click="sidebarOpen = !sidebarOpen"
-            style="top: 16px; left: 16px; z-index: 1201;">
+        <button
+            class="sidebar-toggle d-md-none btn btn-success position-fixed"
+            @click="sidebarOpen = !sidebarOpen"
+            style="top: 16px; left: 16px; z-index: 1201"
+        >
             <i class="fa fa-bars"></i>
         </button>
         <!-- Enhanced Sidebar -->
-        <aside :class="['sidebar', { 'show': sidebarOpen, 'sidebar-mobile': isMobile }]"
-            @click.self="sidebarOpen = false">
+        <aside
+            :class="[
+                'sidebar',
+                { show: sidebarOpen, 'sidebar-mobile': isMobile },
+            ]"
+            @click.self="sidebarOpen = false"
+        >
             <div class="sidebar-header p-4 border-bottom border-light-subtle">
                 <div class="d-flex align-items-center justify-content-center">
                     <div class="logo-container me-3">
@@ -241,63 +261,115 @@ watch(showNotificationModal, (val) => {
             <div class="sidebar-content p-3">
                 <nav class="nav flex-column gap-2">
                     <!-- Dashboard -->
-                    <Link href="/dashboard" class="nav-item d-flex align-items-center text-white p-3 rounded-3"
-                        :class="{ 'nav-item-active': $page.url === '/dashboard' }">
-                    <div class="nav-icon me-3">
-                        <i class="fa-solid fa-house"></i>
-                    </div>
-                    <span class="nav-text fw-medium">Dashboard</span>
+                    <Link
+                        href="/dashboard"
+                        class="nav-item d-flex align-items-center text-white p-3 rounded-3"
+                        :class="{
+                            'nav-item-active': $page.url === '/dashboard',
+                        }"
+                    >
+                        <div class="nav-icon me-3">
+                            <i class="fa-solid fa-house"></i>
+                        </div>
+                        <span class="nav-text fw-medium">Dashboard</span>
                     </Link>
 
                     <!-- Books Section -->
                     <div class="nav-section">
                         <button
                             class="nav-item d-flex justify-content-between align-items-center text-white p-3 rounded-3 w-100"
-                            data-bs-toggle="collapse" data-bs-target="#booksMenu" aria-expanded="false"
-                            aria-controls="booksMenu" :class="{ 'nav-item-active': $page.url.startsWith('/books/') }">
+                            data-bs-toggle="collapse"
+                            data-bs-target="#booksMenu"
+                            aria-expanded="false"
+                            aria-controls="booksMenu"
+                            :class="{
+                                'nav-item-active':
+                                    $page.url.startsWith('/books/'),
+                            }"
+                        >
                             <div class="d-flex align-items-center">
                                 <div class="nav-icon me-3">
                                     <i class="fa-solid fa-book"></i>
                                 </div>
                                 <span class="nav-text fw-medium">Books</span>
                             </div>
-                            <i class="fa-solid fa-chevron-down nav-arrow"
-                                :class="{ 'rotated': $page.url.startsWith('/books/') }"></i>
+                            <i
+                                class="fa-solid fa-chevron-down nav-arrow"
+                                :class="{
+                                    rotated: $page.url.startsWith('/books/'),
+                                }"
+                            ></i>
                         </button>
 
-                        <div class="collapse" :class="{ show: $page.url.startsWith('/books/') }" id="booksMenu">
+                        <div
+                            class="collapse"
+                            :class="{ show: $page.url.startsWith('/books/') }"
+                            id="booksMenu"
+                        >
                             <div class="submenu">
-                                <Link href="/books/storybooks"
+                                <Link
+                                    href="/books/storybooks"
                                     class="submenu-item d-flex align-items-center text-white p-2 rounded-2"
-                                    :class="{ 'submenu-item-active': $page.url === '/books/storybooks' }">
-                                <div class="submenu-icon me-2">
-                                    <i class="fa-solid fa-book-open"></i>
-                                </div>
-                                <span class="submenu-text">Story Books</span>
+                                    :class="{
+                                        'submenu-item-active':
+                                            $page.url === '/books/storybooks',
+                                    }"
+                                >
+                                    <div class="submenu-icon me-2">
+                                        <i class="fa-solid fa-book-open"></i>
+                                    </div>
+                                    <span class="submenu-text"
+                                        >Story Books</span
+                                    >
                                 </Link>
-                                <Link href="/books/educational"
+                                <Link
+                                    href="/books/educational"
                                     class="submenu-item d-flex align-items-center text-white p-2 rounded-2"
-                                    :class="{ 'submenu-item-active': $page.url === '/books/educational' }">
-                                <div class="submenu-icon me-2">
-                                    <i class="fa-solid fa-graduation-cap"></i>
-                                </div>
-                                <span class="submenu-text">Educational</span>
+                                    :class="{
+                                        'submenu-item-active':
+                                            $page.url === '/books/educational',
+                                    }"
+                                >
+                                    <div class="submenu-icon me-2">
+                                        <i
+                                            class="fa-solid fa-graduation-cap"
+                                        ></i>
+                                    </div>
+                                    <span class="submenu-text"
+                                        >Educational</span
+                                    >
                                 </Link>
-                                <Link href="/books/agricultureandlivelihood"
+                                <Link
+                                    href="/books/agricultureandlivelihood"
                                     class="submenu-item d-flex align-items-center text-white p-2 rounded-2"
-                                    :class="{ 'submenu-item-active': $page.url === '/books/agricultureandlivelihood' }">
-                                <div class="submenu-icon me-2">
-                                    <i class="fa-solid fa-seedling"></i>
-                                </div>
-                                <span class="submenu-text">Agriculture & Livelihood</span>
+                                    :class="{
+                                        'submenu-item-active':
+                                            $page.url ===
+                                            '/books/agricultureandlivelihood',
+                                    }"
+                                >
+                                    <div class="submenu-icon me-2">
+                                        <i class="fa-solid fa-seedling"></i>
+                                    </div>
+                                    <span class="submenu-text"
+                                        >Agriculture & Livelihood</span
+                                    >
                                 </Link>
-                                <Link href="/books/culturalheritage"
+                                <Link
+                                    href="/books/culturalheritage"
                                     class="submenu-item d-flex align-items-center text-white p-2 rounded-2"
-                                    :class="{ 'submenu-item-active': $page.url === '/books/culturalheritage' }">
-                                <div class="submenu-icon me-2">
-                                    <i class="fa-solid fa-landmark"></i>
-                                </div>
-                                <span class="submenu-text">Cultural Heritage</span>
+                                    :class="{
+                                        'submenu-item-active':
+                                            $page.url ===
+                                            '/books/culturalheritage',
+                                    }"
+                                >
+                                    <div class="submenu-icon me-2">
+                                        <i class="fa-solid fa-landmark"></i>
+                                    </div>
+                                    <span class="submenu-text"
+                                        >Cultural Heritage</span
+                                    >
                                 </Link>
                             </div>
                         </div>
@@ -307,100 +379,161 @@ watch(showNotificationModal, (val) => {
                     <div class="nav-section">
                         <button
                             class="nav-item d-flex justify-content-between align-items-center text-white p-3 rounded-3 w-100"
-                            data-bs-toggle="collapse" data-bs-target="#usersMenu" aria-expanded="false"
-                            aria-controls="usersMenu" :class="{ 'nav-item-active': $page.url.startsWith('/users/') }">
+                            data-bs-toggle="collapse"
+                            data-bs-target="#usersMenu"
+                            aria-expanded="false"
+                            aria-controls="usersMenu"
+                            :class="{
+                                'nav-item-active':
+                                    $page.url.startsWith('/users/'),
+                            }"
+                        >
                             <div class="d-flex align-items-center">
                                 <div class="nav-icon me-3">
                                     <i class="fa-solid fa-users"></i>
                                 </div>
                                 <span class="nav-text fw-medium">Users</span>
                             </div>
-                            <i class="fa-solid fa-chevron-down nav-arrow"
-                                :class="{ 'rotated': $page.url.startsWith('/users/') }"></i>
+                            <i
+                                class="fa-solid fa-chevron-down nav-arrow"
+                                :class="{
+                                    rotated: $page.url.startsWith('/users/'),
+                                }"
+                            ></i>
                         </button>
 
-                        <div class="collapse" :class="{ show: $page.url.startsWith('/users/') }" id="usersMenu">
+                        <div
+                            class="collapse"
+                            :class="{ show: $page.url.startsWith('/users/') }"
+                            id="usersMenu"
+                        >
                             <div class="submenu">
-                                <Link :href="route('allusers')"
+                                <Link
+                                    :href="route('allusers')"
                                     class="submenu-item d-flex align-items-center text-white p-2 rounded-2"
-                                    :class="{ 'submenu-item-active': $page.url === '/users/allusers' }">
-                                <div class="submenu-icon me-2">
-                                    <i class="fa-solid fa-users"></i>
-                                </div>
-                                <span class="submenu-text">All Users</span>
+                                    :class="{
+                                        'submenu-item-active':
+                                            $page.url === '/users/allusers',
+                                    }"
+                                >
+                                    <div class="submenu-icon me-2">
+                                        <i class="fa-solid fa-users"></i>
+                                    </div>
+                                    <span class="submenu-text">All Users</span>
                                 </Link>
-                                <Link :href="route('verifiedusers')"
+                                <Link
+                                    :href="route('verifiedusers')"
                                     class="submenu-item d-flex align-items-center text-white p-2 rounded-2"
-                                    :class="{ 'submenu-item-active': $page.url === '/users/verifiedusers' }">
-                                <div class="submenu-icon me-2">
-                                    <i class="fa-solid fa-user-check"></i>
-                                </div>
-                                <span class="submenu-text">Verified Users</span>
+                                    :class="{
+                                        'submenu-item-active':
+                                            $page.url ===
+                                            '/users/verifiedusers',
+                                    }"
+                                >
+                                    <div class="submenu-icon me-2">
+                                        <i class="fa-solid fa-user-check"></i>
+                                    </div>
+                                    <span class="submenu-text"
+                                        >Verified Users</span
+                                    >
                                 </Link>
-                                <Link :href="route('unverifiedusers')"
+                                <Link
+                                    :href="route('unverifiedusers')"
                                     class="submenu-item d-flex align-items-center text-white p-2 rounded-2"
-                                    :class="{ 'submenu-item-active': $page.url === '/users/unverifiedusers' }">
-                                <div class="submenu-icon me-2">
-                                    <i class="fa-solid fa-user-clock"></i>
-                                </div>
-                                <span class="submenu-text">Unverified Users</span>
+                                    :class="{
+                                        'submenu-item-active':
+                                            $page.url ===
+                                            '/users/unverifiedusers',
+                                    }"
+                                >
+                                    <div class="submenu-icon me-2">
+                                        <i class="fa-solid fa-user-clock"></i>
+                                    </div>
+                                    <span class="submenu-text"
+                                        >Unverified Users</span
+                                    >
                                 </Link>
                             </div>
                         </div>
                     </div>
 
                     <!-- Digital Archive -->
-                    <Link :href="route('archive')"
+                    <Link
+                        :href="route('archive')"
                         class="nav-item d-flex align-items-center text-white p-3 rounded-3 mt-3"
-                        :class="{ 'nav-item-active': $page.url === '/archive' }">
-                    <div class="nav-icon me-3">
-                        <i class="fa-solid fa-archive"></i>
-                    </div>
-                    <span class="nav-text fw-medium">Digital Archive</span>
+                        :class="{ 'nav-item-active': $page.url === '/archive' }"
+                    >
+                        <div class="nav-icon me-3">
+                            <i class="fa-solid fa-archive"></i>
+                        </div>
+                        <span class="nav-text fw-medium">Digital Archive</span>
                     </Link>
                     <!-- Analytics Link -->
-                    <Link :href="route('analytics')"
+                    <Link
+                        :href="route('analytics')"
                         class="nav-item d-flex align-items-center text-white p-3 rounded-3 mt-3"
-                        :class="{ 'nav-item-active': $page.url === '/analytics' }">
-                    <div class="nav-icon me-3">
-                        <i class="fa-solid fa-chart-bar"></i>
-                    </div>
-                    <span class="nav-text fw-medium">Analytics</span>
+                        :class="{
+                            'nav-item-active': $page.url === '/analytics',
+                        }"
+                    >
+                        <div class="nav-icon me-3">
+                            <i class="fa-solid fa-chart-bar"></i>
+                        </div>
+                        <span class="nav-text fw-medium">Analytics</span>
                     </Link>
                     <!-- Announcements Link -->
-                    <Link :href="route('announcements')"
+                    <Link
+                        :href="route('announcements')"
                         class="nav-item d-flex align-items-center text-white p-3 rounded-3"
-                        :class="{ 'nav-item-active': $page.url === '/announcements' }">
-                    <div class="nav-icon me-3">
-                        <i class="fa-solid fa-bullhorn"></i>
-                    </div>
-                    <span class="nav-text fw-medium">Announcements</span>
+                        :class="{
+                            'nav-item-active': $page.url === '/announcements',
+                        }"
+                    >
+                        <div class="nav-icon me-3">
+                            <i class="fa-solid fa-bullhorn"></i>
+                        </div>
+                        <span class="nav-text fw-medium">Announcements</span>
                     </Link>
                     <!-- Reading Challenges Link -->
-                    <Link :href="route('challenges')"
+                    <Link
+                        :href="route('challenges')"
                         class="nav-item d-flex align-items-center text-white p-3 rounded-3"
-                        :class="{ 'nav-item-active': $page.url === '/challenges' }">
-                    <div class="nav-icon me-3">
-                        <i class="fa-solid fa-trophy"></i>
-                    </div>
-                    <span class="nav-text fw-medium">Reading Challenges</span>
+                        :class="{
+                            'nav-item-active': $page.url === '/challenges',
+                        }"
+                    >
+                        <div class="nav-icon me-3">
+                            <i class="fa-solid fa-trophy"></i>
+                        </div>
+                        <span class="nav-text fw-medium"
+                            >Reading Challenges</span
+                        >
                     </Link>
                     <!-- Suggestions Link -->
-                    <Link :href="route('admin.suggestions')"
+                    <Link
+                        :href="route('admin.suggestions')"
                         class="nav-item d-flex align-items-center text-white p-3 rounded-3"
-                        :class="{ 'nav-item-active': $page.url === '/suggestions' }">
-                    <div class="nav-icon me-3">
-                        <i class="fa-solid fa-lightbulb"></i>
-                    </div>
-                    <span class="nav-text fw-medium">Suggestions</span>
+                        :class="{
+                            'nav-item-active': $page.url === '/suggestions',
+                        }"
+                    >
+                        <div class="nav-icon me-3">
+                            <i class="fa-solid fa-lightbulb"></i>
+                        </div>
+                        <span class="nav-text fw-medium">Suggestions</span>
                     </Link>
                     <!-- Review Moderation Link -->
-                    <Link :href="route('reviews')" class="nav-item d-flex align-items-center text-white p-3 rounded-3"
-                        :class="{ 'nav-item-active': $page.url === '/reviews' }">
-                    <div class="nav-icon me-3">
-                        <i class="fa-solid fa-gavel"></i>
-                    </div>
-                    <span class="nav-text fw-medium">Review Moderation</span>
+                    <Link
+                        :href="route('reviews')"
+                        class="nav-item d-flex align-items-center text-white p-3 rounded-3"
+                        :class="{ 'nav-item-active': $page.url === '/reviews' }"
+                    >
+                        <div class="nav-icon me-3">
+                            <i class="fa-solid fa-gavel"></i>
+                        </div>
+                        <span class="nav-text fw-medium"
+                            >Review Moderation</span
+                        >
                     </Link>
                 </nav>
             </div>
@@ -411,90 +544,218 @@ watch(showNotificationModal, (val) => {
             <!-- Enhanced Header -->
             <header class="fixed-header">
                 <div class="container-fluid px-4">
-                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                    <div
+                        class="d-flex justify-content-between align-items-center flex-wrap gap-3"
+                    >
                         <!-- Sidebar Toggle for Mobile (inside header for better UX) -->
-                        <button class="sidebar-toggle d-md-none btn btn-outline-success me-2"
-                            @click="sidebarOpen = !sidebarOpen" style="z-index: 1202;">
+                        <button
+                            class="sidebar-toggle d-md-none btn btn-outline-success me-2"
+                            @click="sidebarOpen = !sidebarOpen"
+                            style="z-index: 1202"
+                        >
                             <i class="fa fa-bars"></i>
                         </button>
                         <!-- Page Title Slot or Fallback -->
 
                         <div class="d-flex align-items-center gap-3 ms-auto">
                             <!-- Notification Bell -->
-                            <div class="notification-dropdown-wrapper" style="position: relative;">
-                                <button class="btn btn-outline-secondary position-relative d-flex align-items-center"
-                                    type="button" @click="toggleNotificationDropdown">
+                            <div
+                                class="notification-dropdown-wrapper"
+                                style="position: relative"
+                            >
+                                <button
+                                    class="btn btn-outline-secondary position-relative d-flex align-items-center"
+                                    type="button"
+                                    @click="toggleNotificationDropdown"
+                                >
                                     <i class="fa fa-bell"></i>
-                                    <span v-if="unreadCount > 0"
+                                    <span
+                                        v-if="unreadCount > 0"
                                         class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger animate__animated animate__bounceIn"
-                                        style="font-size: 0.7rem;">{{ unreadCount }}</span>
+                                        style="font-size: 0.7rem"
+                                        >{{ unreadCount }}</span
+                                    >
                                 </button>
                                 <transition name="fade">
-                                    <ul v-show="notificationDropdownOpen"
+                                    <ul
+                                        v-show="notificationDropdownOpen"
                                         class="dropdown-menu dropdown-menu-end shadow border-0 show notification-dropdown-list"
-                                        style="display: block; position: absolute; right: 0; top: 110%; min-width: 340px; max-width: 400px; max-height: 420px; overflow-y: auto;">
+                                        style="
+                                            display: block;
+                                            position: absolute;
+                                            right: 0;
+                                            top: 110%;
+                                            min-width: 340px;
+                                            max-width: 400px;
+                                            max-height: 420px;
+                                            overflow-y: auto;
+                                        "
+                                    >
                                         <li
-                                            class="dropdown-header d-flex justify-content-between align-items-center fw-bold text-success py-2 px-3">
+                                            class="dropdown-header d-flex justify-content-between align-items-center fw-bold text-success py-2 px-3"
+                                        >
                                             <span>Notifications</span>
                                             <div class="d-flex gap-1">
-                                                <button v-if="notifications.length > 0"
-                                                    class="btn btn-sm btn-outline-success" @click="markAllAsRead"
-                                                    title="Mark all as read">
-                                                    <i class="fa-solid fa-check-double"></i>
+                                                <button
+                                                    v-if="
+                                                        notifications.length > 0
+                                                    "
+                                                    class="btn btn-sm btn-outline-success"
+                                                    @click="markAllAsRead"
+                                                    title="Mark all as read"
+                                                >
+                                                    <i
+                                                        class="fa-solid fa-check-double"
+                                                    ></i>
                                                 </button>
-                                                <button v-if="notifications.length > 0"
-                                                    class="btn btn-sm btn-outline-danger" @click="clearAllNotifications"
-                                                    title="Clear all">
-                                                    <i class="fa-solid fa-trash"></i>
+                                                <button
+                                                    v-if="
+                                                        notifications.length > 0
+                                                    "
+                                                    class="btn btn-sm btn-outline-danger"
+                                                    @click="
+                                                        clearAllNotifications
+                                                    "
+                                                    title="Clear all"
+                                                >
+                                                    <i
+                                                        class="fa-solid fa-trash"
+                                                    ></i>
                                                 </button>
                                             </div>
                                         </li>
                                         <li>
-                                            <hr class="dropdown-divider my-1">
+                                            <hr class="dropdown-divider my-1" />
                                         </li>
-                                        <li v-if="loading" class="dropdown-item text-center py-4">
-                                            <div class="spinner-border spinner-border-sm text-success" role="status">
-                                                <span class="visually-hidden">Loading...</span>
+                                        <li
+                                            v-if="loading"
+                                            class="dropdown-item text-center py-4"
+                                        >
+                                            <div
+                                                class="spinner-border spinner-border-sm text-success"
+                                                role="status"
+                                            >
+                                                <span class="visually-hidden"
+                                                    >Loading...</span
+                                                >
                                             </div>
-                                            <span class="ms-2">Loading notifications...</span>
+                                            <span class="ms-2"
+                                                >Loading notifications...</span
+                                            >
                                         </li>
-                                        <li v-else-if="notifications.length === 0"
-                                            class="dropdown-item text-muted text-center py-5">
+                                        <li
+                                            v-else-if="
+                                                notifications.length === 0
+                                            "
+                                            class="dropdown-item text-muted text-center py-5"
+                                        >
                                             <div class="mb-2">
-                                                <i class="fa-solid fa-bell-slash fa-2x text-secondary"></i>
+                                                <i
+                                                    class="fa-solid fa-bell-slash fa-2x text-secondary"
+                                                ></i>
                                             </div>
                                             <div>No notifications</div>
                                         </li>
-                                        <li v-else v-for="notification in notifications" :key="notification.id"
-                                            class="dropdown-item p-0">
-                                            <div class="notification-item p-3 d-flex gap-3 align-items-start"
-                                                :class="{ 'unread': !notification.is_read, 'animate__animated animate__fadeInDown': !notification.is_read }"
-                                                style="cursor:pointer" @click="openNotification(notification)">
-                                                <div class="notification-icon flex-shrink-0 d-flex align-items-center justify-content-center"
-                                                    :class="notification.color_class || 'text-muted'">
-                                                    <i :class="['fa-solid', notification.icon || 'fa-bell']"></i>
+                                        <li
+                                            v-else
+                                            v-for="notification in notifications"
+                                            :key="notification.id"
+                                            class="dropdown-item p-0"
+                                        >
+                                            <div
+                                                class="notification-item p-3 d-flex gap-3 align-items-start"
+                                                :class="{
+                                                    unread: !notification.is_read,
+                                                    'animate__animated animate__fadeInDown':
+                                                        !notification.is_read,
+                                                }"
+                                                style="cursor: pointer"
+                                                @click="
+                                                    openNotification(
+                                                        notification
+                                                    )
+                                                "
+                                            >
+                                                <div
+                                                    class="notification-icon flex-shrink-0 d-flex align-items-center justify-content-center"
+                                                    :class="
+                                                        notification.color_class ||
+                                                        'text-muted'
+                                                    "
+                                                >
+                                                    <i
+                                                        :class="[
+                                                            'fa-solid',
+                                                            notification.icon ||
+                                                                'fa-bell',
+                                                        ]"
+                                                    ></i>
                                                 </div>
                                                 <div class="flex-grow-1">
-                                                    <div class="d-flex align-items-center gap-2 mb-1">
-                                                        <strong class="notification-title">{{ notification.title
-                                                            }}</strong>
-                                                        <span v-if="!notification.is_read"
-                                                            class="badge bg-primary animate__animated animate__pulse animate__infinite">New</span>
+                                                    <div
+                                                        class="d-flex align-items-center gap-2 mb-1"
+                                                    >
+                                                        <strong
+                                                            class="notification-title"
+                                                            >{{
+                                                                notification.title
+                                                            }}</strong
+                                                        >
+                                                        <span
+                                                            v-if="
+                                                                !notification.is_read
+                                                            "
+                                                            class="badge bg-primary animate__animated animate__pulse animate__infinite"
+                                                            >New</span
+                                                        >
                                                     </div>
-                                                    <p class="notification-message mb-1">{{ notification.message }}</p>
-                                                    <small class="text-muted"><i class="fa-regular fa-clock me-1"></i>{{
-                                                        notification.time_ago }}</small>
+                                                    <p
+                                                        class="notification-message mb-1"
+                                                    >
+                                                        {{
+                                                            notification.message
+                                                        }}
+                                                    </p>
+                                                    <small class="text-muted"
+                                                        ><i
+                                                            class="fa-regular fa-clock me-1"
+                                                        ></i
+                                                        >{{
+                                                            notification.time_ago
+                                                        }}</small
+                                                    >
                                                 </div>
                                                 <div
-                                                    class="notification-actions d-flex flex-column gap-1 ms-2 align-items-end">
-                                                    <button v-if="!notification.is_read"
+                                                    class="notification-actions d-flex flex-column gap-1 ms-2 align-items-end"
+                                                >
+                                                    <button
+                                                        v-if="
+                                                            !notification.is_read
+                                                        "
                                                         class="btn btn-sm btn-outline-primary mb-1"
-                                                        @click="markAsRead(notification.id)" title="Mark as read">
-                                                        <i class="fa-solid fa-check"></i>
+                                                        @click="
+                                                            markAsRead(
+                                                                notification.id
+                                                            )
+                                                        "
+                                                        title="Mark as read"
+                                                    >
+                                                        <i
+                                                            class="fa-solid fa-check"
+                                                        ></i>
                                                     </button>
-                                                    <button class="btn btn-sm btn-outline-danger"
-                                                        @click="deleteNotification(notification.id)" title="Delete">
-                                                        <i class="fa-solid fa-times"></i>
+                                                    <button
+                                                        class="btn btn-sm btn-outline-danger"
+                                                        @click="
+                                                            deleteNotification(
+                                                                notification.id
+                                                            )
+                                                        "
+                                                        title="Delete"
+                                                    >
+                                                        <i
+                                                            class="fa-solid fa-times"
+                                                        ></i>
                                                     </button>
                                                 </div>
                                             </div>
@@ -503,31 +764,54 @@ watch(showNotificationModal, (val) => {
                                 </transition>
                             </div>
                             <!-- Profile Dropdown -->
-                            <div class="profile-dropdown-wrapper" style="position: relative;">
-                                <button class="btn btn-outline-success d-flex align-items-center gap-2" type="button"
-                                    @click="toggleProfileDropdown">
+                            <div
+                                class="profile-dropdown-wrapper"
+                                style="position: relative"
+                            >
+                                <button
+                                    class="btn btn-outline-success d-flex align-items-center gap-2"
+                                    type="button"
+                                    @click="toggleProfileDropdown"
+                                >
                                     <div class="admin-avatar">
                                         <i class="fas fa-user"></i>
                                     </div>
                                     <span>Admin</span>
                                     <i class="fa fa-caret-down"></i>
                                 </button>
-                                <ul v-show="profileDropdownOpen"
+                                <ul
+                                    v-show="profileDropdownOpen"
                                     class="dropdown-menu dropdown-menu-end shadow border-0 show"
-                                    style="display: block; position: absolute; right: 0; top: 110%; min-width: 180px;">
+                                    style="
+                                        display: block;
+                                        position: absolute;
+                                        right: 0;
+                                        top: 110%;
+                                        min-width: 180px;
+                                    "
+                                >
                                     <li>
-                                        <Link class="dropdown-item d-flex align-items-center gap-2"
-                                            :href="route('profile')">
-                                        <i class="fa-solid fa-user"></i> Profile
+                                        <Link
+                                            class="dropdown-item d-flex align-items-center gap-2"
+                                            :href="route('profile')"
+                                        >
+                                            <i class="fa-solid fa-user"></i>
+                                            Profile
                                         </Link>
                                     </li>
                                     <li>
-                                        <hr class="dropdown-divider">
+                                        <hr class="dropdown-divider" />
                                     </li>
                                     <li>
-                                        <Link class="dropdown-item d-flex align-items-center gap-2 text-danger"
-                                            :href="route('logout')" method="post">
-                                        <i class="fa-solid fa-sign-out-alt"></i> Logout
+                                        <Link
+                                            class="dropdown-item d-flex align-items-center gap-2 text-danger"
+                                            :href="route('logout')"
+                                            method="post"
+                                        >
+                                            <i
+                                                class="fa-solid fa-sign-out-alt"
+                                            ></i>
+                                            Logout
                                         </Link>
                                     </li>
                                 </ul>
@@ -539,9 +823,7 @@ watch(showNotificationModal, (val) => {
 
             <!-- Main Content -->
             <main class="flex-grow-1 bg-light py-4 px-4">
-
                 <slot />
-
             </main>
         </div>
         <Toast v-model="showToast" :duration="3500">
@@ -556,24 +838,60 @@ watch(showNotificationModal, (val) => {
             </template>
         </Toast>
         <!-- Notification Modal -->
-        <div v-if="showNotificationModal" class="modal-backdrop" @click.self="showNotificationModal = false"
-            style="z-index: 2000; position: fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.3); display:flex; align-items:center; justify-content:center;">
-            <div class="modal-dialog"
-                style="background: #fff; border-radius: 8px; max-width: 400px; width: 100%; box-shadow: 0 8px 32px rgba(0,0,0,0.18);">
+        <div
+            v-if="showNotificationModal"
+            class="modal-backdrop"
+            @click.self="showNotificationModal = false"
+            style="
+                z-index: 2000;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
+                background: rgba(0, 0, 0, 0.3);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            "
+        >
+            <div
+                class="modal-dialog"
+                style="
+                    background: #fff;
+                    border-radius: 8px;
+                    max-width: 400px;
+                    width: 100%;
+                    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+                "
+            >
                 <div class="modal-content p-3">
-                    <div class="modal-header d-flex align-items-center justify-content-between">
+                    <div
+                        class="modal-header d-flex align-items-center justify-content-between"
+                    >
                         <h5 class="modal-title d-flex align-items-center gap-2">
-                            <i :class="['fa-solid', selectedNotification?.icon || 'fa-bell', selectedNotification?.color_class]"
-                                style="font-size: 1.3em;"></i>
+                            <i
+                                :class="[
+                                    'fa-solid',
+                                    selectedNotification?.icon || 'fa-bell',
+                                    selectedNotification?.color_class,
+                                ]"
+                                style="font-size: 1.3em"
+                            ></i>
                             {{ selectedNotification?.title }}
                         </h5>
-                        <button type="button" class="btn-close" @click="showNotificationModal = false"></button>
+                        <button
+                            type="button"
+                            class="btn-close"
+                            @click="showNotificationModal = false"
+                        ></button>
                     </div>
                     <div class="modal-body">
                         <p>{{ selectedNotification?.message }}</p>
-                        <small class="text-muted"><i class="fa-regular fa-clock me-1"></i>{{
-                            selectedNotification?.time_ago
-                            }}</small>
+                        <small class="text-muted"
+                            ><i class="fa-regular fa-clock me-1"></i
+                            >{{ selectedNotification?.time_ago }}</small
+                        >
                     </div>
                 </div>
             </div>
@@ -582,7 +900,7 @@ watch(showNotificationModal, (val) => {
 </template>
 
 <style scoped>
-@import 'https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css';
+@import "https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css";
 
 /* Sidebar Styles */
 .sidebar {
@@ -622,7 +940,7 @@ watch(showNotificationModal, (val) => {
     height: 44px;
     border-radius: 50%;
     font-size: 1.3rem;
-    box-shadow: 0 2px 8px rgba(30, 41, 59, 0.10);
+    box-shadow: 0 2px 8px rgba(30, 41, 59, 0.1);
 }
 
 @media (max-width: 991.98px) {
@@ -664,7 +982,7 @@ watch(showNotificationModal, (val) => {
 }
 
 .fixed-header {
-    background: rgba(255,255,255,0.92);
+    background: rgba(255, 255, 255, 0.92);
     backdrop-filter: blur(8px);
     border-bottom: 1px solid #e9ecef;
     box-shadow: 0 2px 8px rgba(30, 41, 59, 0.06);
@@ -711,7 +1029,6 @@ watch(showNotificationModal, (val) => {
 }
 
 @media (max-width: 767.98px) {
-
     .main-content-with-header,
     .main-content-inner {
         padding: 1rem 0.5rem 0 0.5rem;
@@ -869,7 +1186,7 @@ watch(showNotificationModal, (val) => {
 
 .notification-item:hover {
     background: #f8f9fa;
-    box-shadow: 0 2px 8px rgba(25, 135, 84, 0.10);
+    box-shadow: 0 2px 8px rgba(25, 135, 84, 0.1);
 }
 
 .notification-icon {

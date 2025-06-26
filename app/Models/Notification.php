@@ -75,7 +75,7 @@ class Notification extends Model
      */
     public function getIconAttribute()
     {
-        return match($this->type) {
+        return match ($this->type) {
             'user_registered' => 'fa-user-plus',
             'book_added' => 'fa-book',
             'user_verified' => 'fa-user-check',
@@ -91,7 +91,7 @@ class Notification extends Model
      */
     public function getColorClassAttribute()
     {
-        return match($this->type) {
+        return match ($this->type) {
             'user_registered' => 'text-primary',
             'book_added' => 'text-success',
             'user_verified' => 'text-info',
@@ -101,4 +101,4 @@ class Notification extends Model
             default => 'text-muted',
         };
     }
-} 
+}

@@ -24,16 +24,16 @@ const loadingActivity = ref(false);
 
 function fetchActivityLog() {
     loadingActivity.value = true;
-    fetch('/profile/activity-log')
-        .then(res => res.json())
-        .then(data => {
+    fetch("/profile/activity-log")
+        .then((res) => res.json())
+        .then((data) => {
             activityLog.value = data.activities || [];
         })
-        .finally(() => loadingActivity.value = false);
+        .finally(() => (loadingActivity.value = false));
 }
 
 watch(activeTab, (tab) => {
-    if (tab === 'activity' && activityLog.value.length === 0) {
+    if (tab === "activity" && activityLog.value.length === 0) {
         fetchActivityLog();
     }
 });
@@ -72,30 +72,29 @@ function closeEditModal() {
 }
 
 function submitEditProfile() {
-    router.put(
-        route('profile'),
-        form.value,
-        {
-            preserveScroll: true,
-            onSuccess: () => {
-                toast.value = {
-                    show: true,
-                    message: "Profile updated successfully!",
-                    success: true,
-                };
-                showEditModal.value = false;
-                setTimeout(() => (toast.value.show = false), 3000);
-            },
-            onError: (errors) => {
-                toast.value = {
-                    show: true,
-                    message: errors && Object.values(errors)[0] ? Object.values(errors)[0] : "Failed to update profile.",
-                    success: false,
-                };
-                setTimeout(() => (toast.value.show = false), 3000);
-            },
-        }
-    );
+    router.put(route("profile"), form.value, {
+        preserveScroll: true,
+        onSuccess: () => {
+            toast.value = {
+                show: true,
+                message: "Profile updated successfully!",
+                success: true,
+            };
+            showEditModal.value = false;
+            setTimeout(() => (toast.value.show = false), 3000);
+        },
+        onError: (errors) => {
+            toast.value = {
+                show: true,
+                message:
+                    errors && Object.values(errors)[0]
+                        ? Object.values(errors)[0]
+                        : "Failed to update profile.",
+                success: false,
+            };
+            setTimeout(() => (toast.value.show = false), 3000);
+        },
+    });
 }
 
 function submitChangePassword() {
@@ -108,7 +107,7 @@ function submitChangePassword() {
         return setTimeout(() => (toast.value.show = false), 3000);
     }
     router.put(
-        route('profile'),
+        route("profile"),
         {
             current: passwordForm.value.current,
             new: passwordForm.value.new,
@@ -128,7 +127,10 @@ function submitChangePassword() {
             onError: (errors) => {
                 toast.value = {
                     show: true,
-                    message: errors && Object.values(errors)[0] ? Object.values(errors)[0] : "Failed to change password.",
+                    message:
+                        errors && Object.values(errors)[0]
+                            ? Object.values(errors)[0]
+                            : "Failed to change password.",
                     success: false,
                 };
                 setTimeout(() => (toast.value.show = false), 3000);
@@ -145,8 +147,8 @@ function handleAvatarChange(e) {
     const file = e.target.files[0];
     if (file) {
         const formData = new FormData();
-        formData.append('avatar', file);
-        router.post(route('profile'), formData, {
+        formData.append("avatar", file);
+        router.post(route("profile"), formData, {
             forceFormData: true,
             onSuccess: (page) => {
                 if (page.props.avatar_url) {
@@ -162,7 +164,10 @@ function handleAvatarChange(e) {
             onError: (errors) => {
                 toast.value = {
                     show: true,
-                    message: errors && Object.values(errors)[0] ? Object.values(errors)[0] : "Failed to upload avatar.",
+                    message:
+                        errors && Object.values(errors)[0]
+                            ? Object.values(errors)[0]
+                            : "Failed to upload avatar.",
                     success: false,
                 };
                 setTimeout(() => (toast.value.show = false), 3000);
@@ -173,7 +178,7 @@ function handleAvatarChange(e) {
 
 function sendVerificationEmail() {
     router.post(
-        route('profile'),
+        route("profile"),
         {},
         {
             preserveScroll: true,
@@ -188,7 +193,10 @@ function sendVerificationEmail() {
             onError: (errors) => {
                 toast.value = {
                     show: true,
-                    message: errors && Object.values(errors)[0] ? Object.values(errors)[0] : "Failed to send verification email.",
+                    message:
+                        errors && Object.values(errors)[0]
+                            ? Object.values(errors)[0]
+                            : "Failed to send verification email.",
                     success: false,
                 };
                 setTimeout(() => (toast.value.show = false), 3000);
@@ -198,7 +206,7 @@ function sendVerificationEmail() {
 }
 
 onMounted(() => {
-    if (page.props.status === 'verified') {
+    if (page.props.status === "verified") {
         toast.value = {
             show: true,
             message: "Your email is now verified!",
@@ -214,437 +222,452 @@ onMounted(() => {
         <Head title="Profile" />
         <div class="container">
             <div class="row justify-content-center">
-                
-                    <div
-                        class="profile-card card border-0 shadow-lg rounded-4 overflow-hidden"
-                    >
-                        <!-- Banner/Cover Image -->
-                        <div class="profile-banner position-relative">
-                            <img
-                                src="/assets/images/image.png"
-                                alt="Profile Banner"
-                                class="w-100 h-100 object-fit-cover"
-                            />
-                            <div
-                                class="profile-accent-bar bg-gradient-success position-absolute top-0 start-0 w-100"
-                            ></div>
-                            <button
-                                class="btn btn-success position-absolute top-0 end-0 m-3 z-3"
-                                style="border-radius: 50px;"
-                                @click="openEditModal"
-                            >
-                                <i class="fa fa-edit me-1"></i> Edit Profile
-                            </button>
-                        </div>
+                <div
+                    class="profile-card card border-0 shadow-lg rounded-4 overflow-hidden"
+                >
+                    <!-- Banner/Cover Image -->
+                    <div class="profile-banner position-relative">
+                        <img
+                            src="/assets/images/image.png"
+                            alt="Profile Banner"
+                            class="w-100 h-100 object-fit-cover"
+                        />
                         <div
-                            class="d-flex flex-column align-items-center p-4 pb-3 bg-white position-relative"
+                            class="profile-accent-bar bg-gradient-success position-absolute top-0 start-0 w-100"
+                        ></div>
+                        <button
+                            class="btn btn-success position-absolute top-0 end-0 m-3 z-3"
+                            style="border-radius: 50px"
+                            @click="openEditModal"
                         >
-                            <div
-                                class="profile-avatar-wrapper position-relative"
-                                @mouseenter="avatarHover = true"
-                                @mouseleave="avatarHover = false"
+                            <i class="fa fa-edit me-1"></i> Edit Profile
+                        </button>
+                    </div>
+                    <div
+                        class="d-flex flex-column align-items-center p-4 pb-3 bg-white position-relative"
+                    >
+                        <div
+                            class="profile-avatar-wrapper position-relative"
+                            @mouseenter="avatarHover = true"
+                            @mouseleave="avatarHover = false"
+                        >
+                            <div class="admin-avatar-lg position-relative">
+                                <img
+                                    v-if="user.avatar_url"
+                                    :src="user.avatar_url"
+                                    alt="Avatar"
+                                    class="avatar-img"
+                                />
+                                <i v-else class="fas fa-user"></i>
+                                <button
+                                    v-if="avatarHover"
+                                    class="btn btn-sm btn-light avatar-upload-btn position-absolute top-50 start-50 translate-middle"
+                                    @click="triggerAvatarUpload"
+                                    title="Change Avatar"
+                                >
+                                    <i class="fas fa-camera"></i>
+                                </button>
+                                <input
+                                    ref="avatarInput"
+                                    type="file"
+                                    class="d-none"
+                                    accept="image/*"
+                                    @change="handleAvatarChange"
+                                />
+                            </div>
+                        </div>
+                        <h3 class="fw-bold mb-1 mt-2">{{ user.name }}</h3>
+                        <p class="text-muted mb-2">
+                            <i class="fa fa-envelope me-2"></i>{{ user.email }}
+                        </p>
+                        <span class="badge bg-success text-uppercase mb-2"
+                            ><i class="fa fa-user-shield me-1"></i
+                            >{{ user.role }}</span
+                        >
+                    </div>
+
+                    <!-- Tabs Navigation -->
+                    <ul
+                        class="nav nav-pills justify-content-center p-3 bg-white border-top border-bottom"
+                    >
+                        <li class="nav-item" v-for="tab in tabs" :key="tab.id">
+                            <button
+                                class="nav-link"
+                                :class="{ active: activeTab === tab.id }"
+                                @click="activeTab = tab.id"
                             >
-                                <div class="admin-avatar-lg position-relative">
-                                    <img
-                                        v-if="user.avatar_url"
-                                        :src="user.avatar_url"
-                                        alt="Avatar"
-                                        class="avatar-img"
+                                <i :class="tab.icon" class="me-2"></i>
+                                {{ tab.name }}
+                            </button>
+                        </li>
+                    </ul>
+
+                    <!-- Tab Content -->
+                    <div class="p-4 bg-light">
+                        <!-- Overview Tab -->
+                        <div v-if="activeTab === 'overview'">
+                            <div class="row g-3">
+                                <div
+                                    class="col-12 col-md-6 d-flex align-items-center"
+                                >
+                                    <i
+                                        class="fa fa-map-marker-alt text-success me-2"
+                                        v-tooltip="'Barangay/Location'"
                                     />
-                                    <i v-else class="fas fa-user"></i>
-                                    <button
-                                        v-if="avatarHover"
-                                        class="btn btn-sm btn-light avatar-upload-btn position-absolute top-50 start-50 translate-middle"
-                                        @click="triggerAvatarUpload"
-                                        title="Change Avatar"
-                                    >
-                                        <i class="fas fa-camera"></i>
-                                    </button>
-                                    <input
-                                        ref="avatarInput"
-                                        type="file"
-                                        class="d-none"
-                                        accept="image/*"
-                                        @change="handleAvatarChange"
+                                    <div>
+                                        <div class="small text-muted">
+                                            Barangay
+                                            <i
+                                                class="fa fa-info-circle text-secondary ms-1"
+                                                v-tooltip="
+                                                    'Your registered barangay or location.'
+                                                "
+                                            />
+                                        </div>
+                                        <div class="fw-semibold">
+                                            {{ user.barangay || "N/A" }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div
+                                    class="col-12 col-md-6 d-flex align-items-center"
+                                >
+                                    <i
+                                        class="fa fa-user-graduate text-primary me-2"
+                                        v-tooltip="'Student Status'"
                                     />
+                                    <div>
+                                        <div class="small text-muted">
+                                            Is Student
+                                            <i
+                                                class="fa fa-info-circle text-secondary ms-1"
+                                                v-tooltip="
+                                                    'Are you currently a student?'
+                                                "
+                                            />
+                                        </div>
+                                        <div class="fw-semibold">
+                                            <span
+                                                :class="
+                                                    user.is_student
+                                                        ? 'badge bg-primary'
+                                                        : 'badge bg-secondary'
+                                                "
+                                            >
+                                                {{
+                                                    user.is_student
+                                                        ? "Yes"
+                                                        : "No"
+                                                }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div
+                                    class="col-12 col-md-6 d-flex align-items-center"
+                                >
+                                    <i
+                                        class="fa fa-school text-info me-2"
+                                        v-tooltip="'School Name'"
+                                    />
+                                    <div>
+                                        <div class="small text-muted">
+                                            School Name
+                                            <i
+                                                class="fa fa-info-circle text-secondary ms-1"
+                                                v-tooltip="
+                                                    'Your school, if applicable.'
+                                                "
+                                            />
+                                        </div>
+                                        <div class="fw-semibold">
+                                            {{ user.school_name || "N/A" }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div
+                                    class="col-12 col-md-6 d-flex align-items-center"
+                                >
+                                    <i
+                                        class="fa fa-check-circle me-2"
+                                        :class="
+                                            user.verified == '1' ||
+                                            user.verified === true
+                                                ? 'text-success'
+                                                : 'text-danger'
+                                        "
+                                        v-tooltip="'Account Verification'"
+                                    />
+                                    <div>
+                                        <div class="small text-muted">
+                                            Verified
+                                            <i
+                                                class="fa fa-info-circle text-secondary ms-1"
+                                                v-tooltip="
+                                                    'Is your account verified by admin?'
+                                                "
+                                            />
+                                        </div>
+                                        <div class="fw-semibold">
+                                            <span
+                                                :class="
+                                                    user.verified == '1' ||
+                                                    user.verified === true
+                                                        ? 'badge bg-success'
+                                                        : 'badge bg-danger'
+                                                "
+                                            >
+                                                {{
+                                                    user.verified == "1" ||
+                                                    user.verified === true
+                                                        ? "Yes"
+                                                        : "No"
+                                                }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div
+                                    class="col-12 col-md-6 d-flex align-items-center"
+                                >
+                                    <i
+                                        class="fa fa-envelope-open me-2"
+                                        :class="
+                                            user.email_verified_at
+                                                ? 'text-success'
+                                                : 'text-danger'
+                                        "
+                                        v-tooltip="'Email Verification'"
+                                    />
+                                    <div>
+                                        <div class="small text-muted">
+                                            Email Verified
+                                            <i
+                                                class="fa fa-info-circle text-secondary ms-1"
+                                                v-tooltip="
+                                                    'Is your email address verified?'
+                                                "
+                                            />
+                                        </div>
+                                        <div
+                                            class="fw-semibold d-flex align-items-center gap-2"
+                                        >
+                                            <span
+                                                :class="
+                                                    user.email_verified_at
+                                                        ? 'badge bg-success'
+                                                        : 'badge bg-danger'
+                                                "
+                                            >
+                                                {{
+                                                    user.email_verified_at
+                                                        ? "Yes"
+                                                        : "No"
+                                                }}
+                                            </span>
+                                            <button
+                                                v-if="!user.email_verified_at"
+                                                class="btn btn-sm btn-outline-success ms-2"
+                                                @click="sendVerificationEmail"
+                                                style="font-size: 0.85rem"
+                                            >
+                                                <i
+                                                    class="fa fa-envelope me-1"
+                                                ></i>
+                                                Verify Email
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            <h3 class="fw-bold mb-1 mt-2">{{ user.name }}</h3>
-                            <p class="text-muted mb-2">
-                                <i class="fa fa-envelope me-2"></i
-                                >{{ user.email }}
-                            </p>
-                            <span class="badge bg-success text-uppercase mb-2"
-                                ><i class="fa fa-user-shield me-1"></i
-                                >{{ user.role }}</span
-                            >
+                            <!-- Quick Stats Section -->
+                            <div class="row g-3 mt-4">
+                                <div class="col-12 col-md-6">
+                                    <div
+                                        class="stat-card bg-white shadow-sm rounded-3 p-3 d-flex align-items-center"
+                                    >
+                                        <i
+                                            class="fa fa-book-open text-success fs-4 me-3"
+                                        ></i>
+                                        <div>
+                                            <div class="small text-muted">
+                                                Books Managed
+                                            </div>
+                                            <div class="fw-bold fs-5">
+                                                {{ stats.books_managed || 0 }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <div
+                                        class="stat-card bg-white shadow-sm rounded-3 p-3 d-flex align-items-center"
+                                    >
+                                        <i
+                                            class="fa fa-users text-primary fs-4 me-3"
+                                        ></i>
+                                        <div>
+                                            <div class="small text-muted">
+                                                Users Verified
+                                            </div>
+                                            <div class="fw-bold fs-5">
+                                                {{ stats.users_verified || 0 }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
-                        <!-- Tabs Navigation -->
-                        <ul
-                            class="nav nav-pills justify-content-center p-3 bg-white border-top border-bottom"
-                        >
-                            <li
-                                class="nav-item"
-                                v-for="tab in tabs"
-                                :key="tab.id"
-                            >
-                                <button
-                                    class="nav-link"
-                                    :class="{ active: activeTab === tab.id }"
-                                    @click="activeTab = tab.id"
-                                >
-                                    <i :class="tab.icon" class="me-2"></i>
-                                    {{ tab.name }}
-                                </button>
-                            </li>
-                        </ul>
-
-                        <!-- Tab Content -->
-                        <div class="p-4 bg-light">
-                            <!-- Overview Tab -->
-                            <div v-if="activeTab === 'overview'">
-                                <div class="row g-3">
-                                    <div
-                                        class="col-12 col-md-6 d-flex align-items-center"
-                                    >
-                                        <i
-                                            class="fa fa-map-marker-alt text-success me-2"
-                                            v-tooltip="'Barangay/Location'"
-                                        />
-                                        <div>
-                                            <div class="small text-muted">
-                                                Barangay
-                                                <i
-                                                    class="fa fa-info-circle text-secondary ms-1"
-                                                    v-tooltip="
-                                                        'Your registered barangay or location.'
-                                                    "
-                                                />
-                                            </div>
-                                            <div class="fw-semibold">
-                                                {{ user.barangay || "N/A" }}
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div
-                                        class="col-12 col-md-6 d-flex align-items-center"
-                                    >
-                                        <i
-                                            class="fa fa-user-graduate text-primary me-2"
-                                            v-tooltip="'Student Status'"
-                                        />
-                                        <div>
-                                            <div class="small text-muted">
-                                                Is Student
-                                                <i
-                                                    class="fa fa-info-circle text-secondary ms-1"
-                                                    v-tooltip="
-                                                        'Are you currently a student?'
-                                                    "
-                                                />
-                                            </div>
-                                            <div class="fw-semibold">
-                                                <span
-                                                    :class="
-                                                        user.is_student
-                                                            ? 'badge bg-primary'
-                                                            : 'badge bg-secondary'
-                                                    "
-                                                >
-                                                    {{
-                                                        user.is_student
-                                                            ? "Yes"
-                                                            : "No"
-                                                    }}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div
-                                        class="col-12 col-md-6 d-flex align-items-center"
-                                    >
-                                        <i
-                                            class="fa fa-school text-info me-2"
-                                            v-tooltip="'School Name'"
-                                        />
-                                        <div>
-                                            <div class="small text-muted">
-                                                School Name
-                                                <i
-                                                    class="fa fa-info-circle text-secondary ms-1"
-                                                    v-tooltip="
-                                                        'Your school, if applicable.'
-                                                    "
-                                                />
-                                            </div>
-                                            <div class="fw-semibold">
-                                                {{ user.school_name || "N/A" }}
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div
-                                        class="col-12 col-md-6 d-flex align-items-center"
-                                    >
-                                        <i
-                                            class="fa fa-check-circle me-2"
-                                            :class="
-                                                user.verified == '1' ||
-                                                user.verified === true
-                                                    ? 'text-success'
-                                                    : 'text-danger'
-                                            "
-                                            v-tooltip="'Account Verification'"
-                                        />
-                                        <div>
-                                            <div class="small text-muted">
-                                                Verified
-                                                <i
-                                                    class="fa fa-info-circle text-secondary ms-1"
-                                                    v-tooltip="
-                                                        'Is your account verified by admin?'
-                                                    "
-                                                />
-                                            </div>
-                                            <div class="fw-semibold">
-                                                <span
-                                                    :class="
-                                                        user.verified == '1' ||
-                                                        user.verified === true
-                                                            ? 'badge bg-success'
-                                                            : 'badge bg-danger'
-                                                    "
-                                                >
-                                                    {{
-                                                        user.verified == "1" ||
-                                                        user.verified === true
-                                                            ? "Yes"
-                                                            : "No"
-                                                    }}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div
-                                        class="col-12 col-md-6 d-flex align-items-center"
-                                    >
-                                        <i
-                                            class="fa fa-envelope-open me-2"
-                                            :class="
-                                                user.email_verified_at
-                                                    ? 'text-success'
-                                                    : 'text-danger'
-                                            "
-                                            v-tooltip="'Email Verification'"
-                                        />
-                                        <div>
-                                            <div class="small text-muted">
-                                                Email Verified
-                                                <i
-                                                    class="fa fa-info-circle text-secondary ms-1"
-                                                    v-tooltip="
-                                                        'Is your email address verified?'
-                                                    "
-                                                />
-                                            </div>
-                                            <div class="fw-semibold d-flex align-items-center gap-2">
-                                                <span
-                                                    :class="
-                                                        user.email_verified_at
-                                                            ? 'badge bg-success'
-                                                            : 'badge bg-danger'
-                                                    "
-                                                >
-                                                    {{
-                                                        user.email_verified_at
-                                                            ? "Yes"
-                                                            : "No"
-                                                    }}
-                                                </span>
-                                                <button
-                                                    v-if="!user.email_verified_at"
-                                                    class="btn btn-sm btn-outline-success ms-2"
-                                                    @click="sendVerificationEmail"
-                                                    style="font-size: 0.85rem;"
-                                                >
-                                                    <i class="fa fa-envelope me-1"></i> Verify Email
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- Quick Stats Section -->
-                                <div class="row g-3 mt-4">
-                                    <div class="col-12 col-md-6">
-                                        <div
-                                            class="stat-card bg-white shadow-sm rounded-3 p-3 d-flex align-items-center"
-                                        >
-                                            <i
-                                                class="fa fa-book-open text-success fs-4 me-3"
-                                            ></i>
-                                            <div>
-                                                <div class="small text-muted">
-                                                    Books Managed
-                                                </div>
-                                                <div class="fw-bold fs-5">
-                                                    {{
-                                                        stats.books_managed || 0
-                                                    }}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-12 col-md-6">
-                                        <div
-                                            class="stat-card bg-white shadow-sm rounded-3 p-3 d-flex align-items-center"
-                                        >
-                                            <i
-                                                class="fa fa-users text-primary fs-4 me-3"
-                                            ></i>
-                                            <div>
-                                                <div class="small text-muted">
-                                                    Users Verified
-                                                </div>
-                                                <div class="fw-bold fs-5">
-                                                    {{
-                                                        stats.users_verified ||
-                                                        0
-                                                    }}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Security Tab -->
-                            <div v-if="activeTab === 'security'">
-                                <h5 class="fw-bold mb-4">Security Settings</h5>
-                                <div class="row">
-                                    <div class="col-lg-6">
-                                        <div class="card shadow-sm">
-                                            <div class="card-body">
-                                                <h6 class="card-title">
-                                                    Change Password
-                                                </h6>
-                                                <form
-                                                    @submit.prevent="
-                                                        submitChangePassword
-                                                    "
-                                                >
-                                                    <div class="mb-3">
-                                                        <label
-                                                            class="form-label"
-                                                            >Current
-                                                            Password</label
-                                                        >
-                                                        <input
-                                                            v-model="
-                                                                passwordForm.current
-                                                            "
-                                                            type="password"
-                                                            class="form-control custom-input"
-                                                            required
-                                                        />
-                                                    </div>
-                                                    <div class="mb-3">
-                                                        <label
-                                                            class="form-label"
-                                                            >New Password</label
-                                                        >
-                                                        <input
-                                                            v-model="
-                                                                passwordForm.new
-                                                            "
-                                                            type="password"
-                                                            class="form-control custom-input"
-                                                            required
-                                                        />
-                                                    </div>
-                                                    <div class="mb-3">
-                                                        <label
-                                                            class="form-label"
-                                                            >Confirm New
-                                                            Password</label
-                                                        >
-                                                        <input
-                                                            v-model="
-                                                                passwordForm.confirm
-                                                            "
-                                                            type="password"
-                                                            class="form-control custom-input"
-                                                            required
-                                                        />
-                                                    </div>
-                                                    <button
-                                                        type="submit"
-                                                        class="btn btn-success action-btn"
+                        <!-- Security Tab -->
+                        <div v-if="activeTab === 'security'">
+                            <h5 class="fw-bold mb-4">Security Settings</h5>
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <div class="card shadow-sm">
+                                        <div class="card-body">
+                                            <h6 class="card-title">
+                                                Change Password
+                                            </h6>
+                                            <form
+                                                @submit.prevent="
+                                                    submitChangePassword
+                                                "
+                                            >
+                                                <div class="mb-3">
+                                                    <label class="form-label"
+                                                        >Current Password</label
                                                     >
-                                                        <i
-                                                            class="fas fa-key me-2"
-                                                        ></i>
-                                                        Update Password
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-6 mt-3 mt-lg-0">
-                                        <div class="card shadow-sm">
-                                            <div class="card-body">
-                                                <h6 class="card-title">
-                                                    Two-Factor Authentication
-                                                </h6>
-                                                <p class="text-muted small">
-                                                    Add an additional layer of
-                                                    security to your account by
-                                                    enabling two-factor
-                                                    authentication.
-                                                </p>
+                                                    <input
+                                                        v-model="
+                                                            passwordForm.current
+                                                        "
+                                                        type="password"
+                                                        class="form-control custom-input"
+                                                        required
+                                                    />
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label"
+                                                        >New Password</label
+                                                    >
+                                                    <input
+                                                        v-model="
+                                                            passwordForm.new
+                                                        "
+                                                        type="password"
+                                                        class="form-control custom-input"
+                                                        required
+                                                    />
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label"
+                                                        >Confirm New
+                                                        Password</label
+                                                    >
+                                                    <input
+                                                        v-model="
+                                                            passwordForm.confirm
+                                                        "
+                                                        type="password"
+                                                        class="form-control custom-input"
+                                                        required
+                                                    />
+                                                </div>
                                                 <button
-                                                    class="btn btn-outline-secondary"
-                                                    disabled
+                                                    type="submit"
+                                                    class="btn btn-success action-btn"
                                                 >
-                                                    Enable 2FA (Coming Soon)
+                                                    <i
+                                                        class="fas fa-key me-2"
+                                                    ></i>
+                                                    Update Password
                                                 </button>
-                                            </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 mt-3 mt-lg-0">
+                                    <div class="card shadow-sm">
+                                        <div class="card-body">
+                                            <h6 class="card-title">
+                                                Two-Factor Authentication
+                                            </h6>
+                                            <p class="text-muted small">
+                                                Add an additional layer of
+                                                security to your account by
+                                                enabling two-factor
+                                                authentication.
+                                            </p>
+                                            <button
+                                                class="btn btn-outline-secondary"
+                                                disabled
+                                            >
+                                                Enable 2FA (Coming Soon)
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
                             </div>
+                        </div>
 
-                            <!-- Activity Tab -->
-                            <div v-if="activeTab === 'activity'">
-                                <h5 class="fw-bold mb-4">Recent Activity</h5>
-                                <div v-if="loadingActivity" class="text-center py-4">
-                                    <div class="spinner-border text-success" role="status">
-                                        <span class="visually-hidden">Loading...</span>
-                                    </div>
+                        <!-- Activity Tab -->
+                        <div v-if="activeTab === 'activity'">
+                            <h5 class="fw-bold mb-4">Recent Activity</h5>
+                            <div
+                                v-if="loadingActivity"
+                                class="text-center py-4"
+                            >
+                                <div
+                                    class="spinner-border text-success"
+                                    role="status"
+                                >
+                                    <span class="visually-hidden"
+                                        >Loading...</span
+                                    >
                                 </div>
-                                <template v-else>
-                                    <div v-if="activityLog.length === 0" class="text-muted text-center py-4">
-                                        <i class="fa-regular fa-bell-slash fa-2x mb-2"></i>
-                                        <div>No recent activity</div>
-                                    </div>
-                                    <ul v-else class="list-group list-group-flush">
-                                        <li
-                                            v-for="item in activityLog"
-                                            :key="item.id"
-                                            class="list-group-item d-flex justify-content-between align-items-center"
-                                        >
-                                            <div>
-                                                <i
-                                                    :class="['me-2', item.icon || 'fa-bell', item.color_class || 'text-secondary']"
-                                                ></i>
-                                                <span><strong>{{ item.title }}:</strong> {{ item.message }}</span>
-                                            </div>
-                                            <small class="text-muted">{{ item.time_ago }}</small>
-                                        </li>
-                                    </ul>
-                                </template>
                             </div>
+                            <template v-else>
+                                <div
+                                    v-if="activityLog.length === 0"
+                                    class="text-muted text-center py-4"
+                                >
+                                    <i
+                                        class="fa-regular fa-bell-slash fa-2x mb-2"
+                                    ></i>
+                                    <div>No recent activity</div>
+                                </div>
+                                <ul v-else class="list-group list-group-flush">
+                                    <li
+                                        v-for="item in activityLog"
+                                        :key="item.id"
+                                        class="list-group-item d-flex justify-content-between align-items-center"
+                                    >
+                                        <div>
+                                            <i
+                                                :class="[
+                                                    'me-2',
+                                                    item.icon || 'fa-bell',
+                                                    item.color_class ||
+                                                        'text-secondary',
+                                                ]"
+                                            ></i>
+                                            <span
+                                                ><strong
+                                                    >{{ item.title }}:</strong
+                                                >
+                                                {{ item.message }}</span
+                                            >
+                                        </div>
+                                        <small class="text-muted">{{
+                                            item.time_ago
+                                        }}</small>
+                                    </li>
+                                </ul>
+                            </template>
                         </div>
                     </div>
+                </div>
             </div>
 
             <!-- Toast/Alert for Success/Error -->

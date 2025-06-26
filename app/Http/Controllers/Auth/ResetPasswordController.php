@@ -10,15 +10,16 @@ use Illuminate\Support\Str;
 
 class ResetPasswordController extends Controller
 {
-    public function create (Request $request, $token) {
+    public function create(Request $request, $token)
+    {
         return inertia('Auth/ResetPassword', [
             'token' => $token,
             'email' => $request->query('email'),
         ]);
-
     }
 
-    public function store (Request $request) {
+    public function store(Request $request)
+    {
         $request->validate([
             'token' => 'required|string',
             'email' => 'required|string|email',

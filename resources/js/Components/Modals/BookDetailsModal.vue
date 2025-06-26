@@ -13,37 +13,39 @@ const modalInstance = ref(null);
 
 onMounted(() => {
     const modalEl = document.getElementById("bookDetailsModal");
-    modalInstance.value = new bootstrap.Modal(modalEl, { backdrop: 'static' });
+    modalInstance.value = new bootstrap.Modal(modalEl, { backdrop: "static" });
     modalEl.addEventListener("hidden.bs.modal", () => {
         emit("close");
     });
 });
 
-watch(() => props.show, (val) => {
-    if (modalInstance.value) {
-        if (val) {
-            modalInstance.value.show();
-        } else {
-            modalInstance.value.hide();
+watch(
+    () => props.show,
+    (val) => {
+        if (modalInstance.value) {
+            if (val) {
+                modalInstance.value.show();
+            } else {
+                modalInstance.value.hide();
+            }
         }
     }
-});
+);
 
 const onRead = () => {
-    emit('read', props.book);
-}
+    emit("read", props.book);
+};
 
 const onEdit = () => {
-    emit('edit', props.book);
-}
+    emit("edit", props.book);
+};
 
 const onDelete = (event) => {
     if (event && event.target) {
         event.target.blur();
     }
-    emit('delete', props.book);
-}
-
+    emit("delete", props.book);
+};
 </script>
 
 <template>
@@ -55,7 +57,9 @@ const onDelete = (event) => {
     >
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg">
-                <div class="modal-header bg-gradient-success text-white border-0">
+                <div
+                    class="modal-header bg-gradient-success text-white border-0"
+                >
                     <div class="d-flex align-items-center">
                         <div class="book-avatar me-3">
                             <div class="avatar-circle">
@@ -63,8 +67,12 @@ const onDelete = (event) => {
                             </div>
                         </div>
                         <div>
-                            <h5 class="modal-title mb-0 fw-bold">{{ book?.title || 'Book Details' }}</h5>
-                            <small class="text-white-50">{{ book?.author || 'Unknown Author' }}</small>
+                            <h5 class="modal-title mb-0 fw-bold">
+                                {{ book?.title || "Book Details" }}
+                            </h5>
+                            <small class="text-white-50">{{
+                                book?.author || "Unknown Author"
+                            }}</small>
                         </div>
                     </div>
                     <button
@@ -76,7 +84,10 @@ const onDelete = (event) => {
                 <div class="modal-body p-4">
                     <div v-if="!book" class="text-center py-5">
                         <div class="empty-state">
-                            <i class="fas fa-book-open text-muted mb-3" style="font-size: 3rem;"></i>
+                            <i
+                                class="fas fa-book-open text-muted mb-3"
+                                style="font-size: 3rem"
+                            ></i>
                             <p class="text-muted">No book selected</p>
                         </div>
                     </div>
@@ -104,18 +115,48 @@ const onDelete = (event) => {
                                             <i class="fas fa-check-circle"></i>
                                         </div>
                                         <div class="status-content">
-                                            <h6 class="status-title">Availability</h6>
-                                            <span class="status-badge bg-success">Available</span>
+                                            <h6 class="status-title">
+                                                Availability
+                                            </h6>
+                                            <span
+                                                class="status-badge bg-success"
+                                                >Available</span
+                                            >
                                         </div>
                                     </div>
                                     <div class="status-card file-type">
                                         <div class="status-icon">
-                                            <i :class="book.file_path?.endsWith('.pdf') ? 'fas fa-file-pdf' : 'fas fa-book-open'"></i>
+                                            <i
+                                                :class="
+                                                    book.file_path?.endsWith(
+                                                        '.pdf'
+                                                    )
+                                                        ? 'fas fa-file-pdf'
+                                                        : 'fas fa-book-open'
+                                                "
+                                            ></i>
                                         </div>
                                         <div class="status-content">
-                                            <h6 class="status-title">File Type</h6>
-                                            <span class="status-badge" :class="book.file_path?.endsWith('.pdf') ? 'bg-danger' : 'bg-info'">
-                                                {{ book.file_path?.endsWith('.pdf') ? 'PDF' : 'EPUB' }}
+                                            <h6 class="status-title">
+                                                File Type
+                                            </h6>
+                                            <span
+                                                class="status-badge"
+                                                :class="
+                                                    book.file_path?.endsWith(
+                                                        '.pdf'
+                                                    )
+                                                        ? 'bg-danger'
+                                                        : 'bg-info'
+                                                "
+                                            >
+                                                {{
+                                                    book.file_path?.endsWith(
+                                                        ".pdf"
+                                                    )
+                                                        ? "PDF"
+                                                        : "EPUB"
+                                                }}
                                             </span>
                                         </div>
                                     </div>
@@ -135,21 +176,30 @@ const onDelete = (event) => {
                                         <i class="fas fa-book me-2"></i>
                                         Title
                                     </div>
-                                    <div class="info-value">{{ book.title }}</div>
+                                    <div class="info-value">
+                                        {{ book.title }}
+                                    </div>
                                 </div>
                                 <div class="info-item">
                                     <div class="info-label">
                                         <i class="fas fa-user me-2"></i>
                                         Author
                                     </div>
-                                    <div class="info-value">{{ book.author }}</div>
+                                    <div class="info-value">
+                                        {{ book.author }}
+                                    </div>
                                 </div>
                                 <div class="info-item">
                                     <div class="info-label">
                                         <i class="fas fa-calendar me-2"></i>
                                         Published Year
                                     </div>
-                                    <div class="info-value">{{ book.published_year || 'Not specified' }}</div>
+                                    <div class="info-value">
+                                        {{
+                                            book.published_year ||
+                                            "Not specified"
+                                        }}
+                                    </div>
                                 </div>
                                 <div class="info-item">
                                     <div class="info-label">
@@ -157,7 +207,10 @@ const onDelete = (event) => {
                                         Category
                                     </div>
                                     <div class="info-value">
-                                        <span class="category-badge">{{ book.category?.name || 'Uncategorized' }}</span>
+                                        <span class="category-badge">{{
+                                            book.category?.name ||
+                                            "Uncategorized"
+                                        }}</span>
                                     </div>
                                 </div>
                                 <div class="info-item">
@@ -166,11 +219,15 @@ const onDelete = (event) => {
                                         Date Uploaded
                                     </div>
                                     <div class="info-value">
-                                        {{ new Date(book.created_at).toLocaleDateString("en-PH", {
-                                            year: "numeric",
-                                            month: "long",
-                                            day: "numeric",
-                                        }) }}
+                                        {{
+                                            new Date(
+                                                book.created_at
+                                            ).toLocaleDateString("en-PH", {
+                                                year: "numeric",
+                                                month: "long",
+                                                day: "numeric",
+                                            })
+                                        }}
                                     </div>
                                 </div>
                                 <div class="info-item full-width">
@@ -179,7 +236,10 @@ const onDelete = (event) => {
                                         Description
                                     </div>
                                     <div class="info-value description-text">
-                                        {{ book.description || "No description available." }}
+                                        {{
+                                            book.description ||
+                                            "No description available."
+                                        }}
                                     </div>
                                 </div>
                             </div>
@@ -192,13 +252,28 @@ const onDelete = (event) => {
                                 Book Reviews
                             </h6>
                             <div v-if="book.reviews && book.reviews.length">
-                                <div v-for="review in book.reviews" :key="review.id" class="review-item mb-3 p-2 border rounded">
+                                <div
+                                    v-for="review in book.reviews"
+                                    :key="review.id"
+                                    class="review-item mb-3 p-2 border rounded"
+                                >
                                     <div class="d-flex align-items-center mb-1">
-                                        <span class="fw-bold me-2">{{ review.user?.name || 'User' }}</span>
-                                        <span class="badge bg-secondary ms-auto">{{ review.rating }}★</span>
+                                        <span class="fw-bold me-2">{{
+                                            review.user?.name || "User"
+                                        }}</span>
+                                        <span class="badge bg-secondary ms-auto"
+                                            >{{ review.rating }}★</span
+                                        >
                                     </div>
-                                    <div class="review-text mb-1">{{ review.review }}</div>
-                                    <button class="btn btn-sm btn-outline-danger" @click="$emit('report-review', review)">Report</button>
+                                    <div class="review-text mb-1">
+                                        {{ review.review }}
+                                    </div>
+                                    <button
+                                        class="btn btn-sm btn-outline-danger"
+                                        @click="$emit('report-review', review)"
+                                    >
+                                        Report
+                                    </button>
                                 </div>
                             </div>
                             <div v-else class="text-muted">No reviews yet.</div>
@@ -208,7 +283,11 @@ const onDelete = (event) => {
                         <div class="action-buttons mt-4">
                             <div class="d-flex flex-wrap gap-2">
                                 <button
-                                    v-if="book?.file_path && (book.file_path.endsWith('.epub') || book.file_path.endsWith('.pdf'))"
+                                    v-if="
+                                        book?.file_path &&
+                                        (book.file_path.endsWith('.epub') ||
+                                            book.file_path.endsWith('.pdf'))
+                                    "
                                     class="btn btn-primary action-btn"
                                     @click="onRead"
                                 >
@@ -234,7 +313,11 @@ const onDelete = (event) => {
                     </div>
                 </div>
                 <div class="modal-footer border-0 bg-light">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal"
+                    >
                         <i class="fas fa-times me-2"></i>
                         Close
                     </button>
@@ -516,4 +599,4 @@ const onDelete = (event) => {
         max-width: 98vw;
     }
 }
-</style> 
+</style>

@@ -27,4 +27,4 @@ class SuggestionResponseMail extends Mailable
                 'response' => $this->response,
             ]);
     }
-} 
+}

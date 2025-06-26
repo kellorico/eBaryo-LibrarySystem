@@ -39,7 +39,7 @@ class NotificationController extends Controller
     public function unreadCount()
     {
         $count = Notification::unread()->count();
-        
+
         return response()->json(['count' => $count]);
     }
 
@@ -120,4 +120,4 @@ class NotificationController extends Controller
             });
         return response()->json(['activities' => $activities]);
     }
-} 
+}

@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
@@ -83,4 +84,4 @@ class DigitalArchiveController extends Controller
         }
         return Storage::disk('public')->download($archive->file_path, $archive->title);
     }
-} 
+}

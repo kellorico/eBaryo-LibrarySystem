@@ -10,7 +10,8 @@ use Illuminate\Support\Facades\Auth;
 
 class BookMarkController extends Controller
 {
-    public function store (Request $request) {
+    public function store(Request $request)
+    {
         $request->validate([
             'book_id' => 'required|exists:books,id',
         ]);
@@ -20,7 +21,7 @@ class BookMarkController extends Controller
         $exists = Bookmark::where('user_id', $userId)
             ->where('book_id', $request->book_id)
             ->exists();
-        
+
         if ($exists) {
             return response()->json(['message' => 'Bookmark already exists'], 409);
         }

@@ -37,8 +37,8 @@ class HandleInertiaRequests extends Middleware
                     ['avatar_url' => $request->user()->avatar_url]
                 ) : null,
             ],
-            'status' => fn () => $request->session()->get('status'),
-            'success' => fn () => $request->session()->get('success'),
+            'status' => fn() => $request->session()->get('status'),
+            'success' => fn() => $request->session()->get('success'),
         ];
     }
 }

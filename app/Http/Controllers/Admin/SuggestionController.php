@@ -36,7 +36,7 @@ class SuggestionController extends Controller
         // Notify user
         if ($suggestion->email) {
             $subject = $suggestion->status === 'approved' ? 'Your suggestion was approved!' : 'Your suggestion was rejected.';
-            Mail::raw($subject . "\n\nSuggestion: " . $suggestion->suggestion, function($message) use ($suggestion, $subject) {
+            Mail::raw($subject . "\n\nSuggestion: " . $suggestion->suggestion, function ($message) use ($suggestion, $subject) {
                 $message->to($suggestion->email)->subject('[eBaryo] ' . $subject);
             });
         }
@@ -84,4 +84,4 @@ class SuggestionController extends Controller
             'suggestions' => $suggestions,
         ]);
     }
-} 
+}
