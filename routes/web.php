@@ -68,6 +68,9 @@ Route::middleware(['auth', 'role:user'])->group(function () {
     Route::get('/user/profile/complete', [UserProfileController::class, 'complete'])->name('user.profile.complete');
     Route::post('/user/profile/complete', [UserProfileController::class, 'storeComplete']);
     Route::get('/user/saved-books', [UserProfileController::class, 'savedBooks'])->name('user.savedbooks');
+
+    // User book details page
+    Route::get('/books/{id}', [App\Http\Controllers\UserControllers\BookBrowseController::class, 'show'])->name('user.books.show');
 }); 
 
 

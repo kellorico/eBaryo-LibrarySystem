@@ -35,27 +35,19 @@ provide("showToast", showToast);
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
-                            <Link class="nav-link" :href="route('home')">Home</Link>
+                            <Link class="user-nav-link" :class="{ 'user-nav-link-active': $page.url === '/home' }" :href="route('home')">Home</Link>
                         </li>
                         <li class="nav-item">
-                            <Link class="nav-link" href="/books/browse">Browse Books</Link>
+                            <Link class="user-nav-link" :class="{ 'user-nav-link-active': $page.url === '/books/browse' }" href="/books/browse">Browse Books</Link>
                         </li>
                         <li class="nav-item">
-                            <Link
-                                class="nav-link"
-                                :href="route('user.challenges')"
-                                >Reading Challenges</Link
-                            >
+                            <Link class="user-nav-link" :class="{ 'user-nav-link-active': $page.url === '/challenges' }" :href="route('user.challenges')">Reading Challenges</Link>
                         </li>
                         <li class="nav-item">
-                            <Link class="nav-link" href="/suggestions"
-                                >Suggestions</Link
-                            >
+                            <Link class="user-nav-link" :class="{ 'user-nav-link-active': $page.url === '/suggestions' }" href="/suggestions">Suggestions</Link>
                         </li>
                         <li class="nav-item">
-                            <Link class="nav-link" href="/announcements"
-                                >Announcements</Link
-                            >
+                            <Link class="user-nav-link" :class="{ 'user-nav-link-active': $page.url === '/announcements' }" href="/announcements">Announcements</Link>
                         </li>
                     </ul>
                     <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
@@ -128,6 +120,20 @@ provide("showToast", showToast);
         <main class="py-4">
             <slot />
         </main>
+        <footer class="footer-modern bg-white-green border-top py-4">
+            <div class="container d-flex flex-column flex-md-row align-items-center justify-content-between gap-3">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fa fa-book text-success fs-4"></i>
+                    <span class="fw-bold text-success">eBaryo Library</span>
+                </div>
+                <div class="text-muted small">&copy; {{ new Date().getFullYear() }} eBaryo Library. All rights reserved.</div>
+                <div class="d-flex gap-3">
+                    <a href="#" class="text-success" title="Facebook"><i class="fab fa-facebook fa-lg"></i></a>
+                    <a href="#" class="text-success" title="Twitter"><i class="fab fa-twitter fa-lg"></i></a>
+                    <a href="#" class="text-success" title="Email"><i class="fa fa-envelope fa-lg"></i></a>
+                </div>
+            </div>
+        </footer>
         <GlobalToast
             :show="toast.show"
             :type="toast.type"
@@ -154,6 +160,31 @@ provide("showToast", showToast);
     align-items: center;
 }
 
+.user-nav-link {
+    background: none;
+    border: none;
+    color: #fff !important;
+    font-weight: 500;
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    transition: all 0.3s;
+    text-decoration: none;
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
+}
+.user-nav-link:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffc107 !important;
+    transform: translateY(-2px);
+}
+.user-nav-link-active {
+    background: rgba(255, 255, 255, 0.15) !important;
+    color: #ffc107 !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
 .navbar .nav-link {
     color: #fff !important;
     font-weight: 500;
@@ -170,20 +201,21 @@ provide("showToast", showToast);
 
 .navbar .dropdown-menu {
     border-radius: 12px;
+    padding: 0.5rem;
     box-shadow: 0 4px 16px rgba(30, 41, 59, 0.1);
     background: #fff;
     min-width: 180px;
-    padding: 0.5rem 0;
 }
 
 .navbar .dropdown-item {
     border-radius: 8px;
     padding: 0.75rem 1rem;
-    transition: background 0.2s, color 0.2s;
+    transition: all 0.2s ease;
 }
 
 .navbar .dropdown-item:hover {
-    background: #e8f5e8;
+    background: #f8f9fa;
+    transform: translateX(3px);
     color: #198754;
 }
 
@@ -204,5 +236,24 @@ main {
     .navbar .nav-link {
         padding: 0.5rem 0.75rem;
     }
+}
+
+.footer-modern {
+    background: linear-gradient(135deg, #f8fafc 0%, #e9f7ef 100%);
+    border-top: 1px solid #e9ecef;
+    font-size: 1rem;
+    z-index: 1;
+}
+
+.footer-modern a {
+    transition: color 0.2s;
+}
+
+.footer-modern a:hover {
+    color: #145c32 !important;
+}
+
+.bg-white-green {
+    background: linear-gradient(135deg, #f8fafc 0%, #e9f7ef 100%);
 }
 </style>

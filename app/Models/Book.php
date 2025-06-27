@@ -34,4 +34,14 @@ class Book extends Model
     {
         return $this->hasMany(Rating::class);
     }
+
+    public function ratings()
+    {
+        return $this->hasMany(\App\Models\Rating::class);
+    }
+
+    public function suggestions()
+    {
+        return $this->hasMany(\App\Models\Suggestion::class);
+    }
 }

@@ -33,8 +33,18 @@ watch(
 
 const modalInstance = ref(null);
 
+const getBookRoute = (category_id) => {
+    switch (category_id) {
+        case 1: return route('admin.storybooks');
+        case 2: return route('admin.educationalbooks');
+        case 3: return route('admin.agricultureandlivelihood');
+        case 4: return route('admin.culturalheritage');
+        default: return route('admin.storybooks');
+    }
+};
+
 const addBook = () => {
-    form.post(route("storybooks"), {
+    form.post(getBookRoute(form.category_id), {
         preserveScroll: true,
         onSuccess: () => {
             const modalEl = document.getElementById("addBookModal");

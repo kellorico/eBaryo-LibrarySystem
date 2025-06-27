@@ -25,12 +25,11 @@ class LoginController extends Controller
 
             $user = Auth::user();
 
-
+            session()->flash('success', 'Welcome back, ' . $user->name . '!');
             return redirect()->intended(
                 $user->role === 'admin' ? route('admin.dashboard') : route('home')
-            )->with('success', 'Login successful!');
+            );
         }
-
 
         return back()->withErrors([
             'email' => 'Invalid credentials. Please try again.',
@@ -43,5 +42,11 @@ class LoginController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
         return redirect()->route('welcome')->with('success', 'Logout successful!');
+    }
+
+    protected function authenticated($request, $user)
+    {
+        session()->flash('success', 'Welcome back, ' . $user->name . '!');
+        return redirect()->intended('/home');
     }
 }
