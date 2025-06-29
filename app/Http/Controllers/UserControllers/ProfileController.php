@@ -85,25 +85,12 @@ class ProfileController extends Controller
         $userId = $user->id;
         $bookmarkCount = \App\Models\Bookmark::where('user_id', $userId)->count();
         $readingProgressCount = \App\Models\ReadingProgress::where('user_id', $userId)->count();
-        $challengesJoined = $user->readingChallenges()->count();
-        $challengeProgress = $user->readingChallenges()->get()->map(function($challenge) use ($userId) {
-            $pivot = $challenge->participants()->where('user_id', $userId)->first();
-            return [
-                'id' => $challenge->id,
-                'title' => $challenge->title,
-                'target_books' => $challenge->target_books,
-                'progress' => $pivot ? $pivot->pivot->progress : 0,
-                'completed_at' => $pivot ? $pivot->pivot->completed_at : null,
-            ];
-        });
         return Inertia::render('User/Profile', [
             'user' => $user,
             'stats' => [
                 'bookmarks' => $bookmarkCount,
                 'readingProgress' => $readingProgressCount,
-                'challenges' => $challengesJoined,
             ],
-            'challengeProgress' => $challengeProgress,
         ]);
     }
 

@@ -45,6 +45,7 @@ const safeRecentArchives = computed(() =>
     Array.isArray(props.recentArchives) ? props.recentArchives : []
 );
 
+
 onMounted(() => {
     if (showWelcome.value) {
         setTimeout(() => (showWelcome.value = false), 5000);

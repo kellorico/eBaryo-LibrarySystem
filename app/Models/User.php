@@ -8,7 +8,6 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
-use App\Models\ReadingChallenge;
 use App\Models\Rating;
 
 class User extends Authenticatable implements MustVerifyEmail
@@ -62,13 +61,6 @@ class User extends Authenticatable implements MustVerifyEmail
             return Storage::url($this->avatar);
         }
         return '/assets/images/image.png'; // fallback default
-    }
-
-    public function readingChallenges()
-    {
-        return $this->belongsToMany(ReadingChallenge::class, 'challenge_user', 'user_id', 'challenge_id')
-            ->withPivot('progress', 'completed_at')
-            ->withTimestamps();
     }
 
     public function reviews()

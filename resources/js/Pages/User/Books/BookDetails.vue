@@ -47,7 +47,7 @@ function submitSuggestion() {
                             <div class="mb-2">
                                 <span class="fs-5 text-warning">
                                     <i class="fa fa-star me-1"></i>
-                                    {{ props.avgRating ? props.avgRating.toFixed(2) : 'N/A' }}
+                                    {{ (typeof props.avgRating === 'number' && !isNaN(props.avgRating)) ? props.avgRating.toFixed(2) : 'N/A' }}
                                 </span>
                                 <span class="text-muted small">Avg. Rating</span>
                             </div>

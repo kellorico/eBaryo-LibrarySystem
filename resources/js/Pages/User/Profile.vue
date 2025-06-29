@@ -6,7 +6,6 @@ import UserLayout from '@/Layouts/UserLayout.vue';
 const page = usePage();
 const user = computed(() => page.props.auth.user || {});
 const stats = computed(() => page.props.stats || {});
-const challengeProgress = computed(() => page.props.challengeProgress || []);
 
 const showEditModal = ref(false);
 const avatarInput = ref(null);
@@ -174,40 +173,6 @@ onMounted(() => {
             <div class="card-body text-center">
               <div class="fw-bold fs-4 mb-1">{{ stats.readingProgress ?? 0 }}</div>
               <div class="text-muted">Books In Progress</div>
-            </div>
-          </div>
-        </div>
-        <div class="col-12 col-md-4">
-          <div class="card shadow-sm h-100">
-            <div class="card-body text-center">
-              <div class="fw-bold fs-4 mb-1">{{ stats.challenges ?? 0 }}</div>
-              <div class="text-muted">Challenges Joined</div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <!-- Challenge Progress Section -->
-      <div v-if="challengeProgress.length" class="mb-4">
-        <h4 class="fw-bold mb-3"><i class="fa fa-trophy text-warning me-2"></i>My Challenges</h4>
-        <div class="row g-3">
-          <div v-for="c in challengeProgress" :key="c.id" class="col-12 col-md-6 col-lg-4">
-            <div class="card shadow-sm h-100">
-              <div class="card-body">
-                <div class="fw-bold mb-1">{{ c.title }}</div>
-                <div class="text-muted mb-2">Target: {{ c.target_books }} books</div>
-                <div class="mb-2">
-                  <label class="form-label mb-1">Progress:</label>
-                  <div class="progress" style="height: 18px;">
-                    <div class="progress-bar bg-success" :style="`width:${Math.min(100, Math.round((c.progress / c.target_books) * 100))}%`">
-                      {{ c.progress }} / {{ c.target_books }}
-                    </div>
-                  </div>
-                  <span v-if="c.progress >= c.target_books" class="badge bg-success mt-2">Completed!</span>
-                </div>
-                <div v-if="c.completed_at" class="text-success small mt-2">
-                  <i class="fa fa-check-circle me-1"></i>Completed at {{ c.completed_at }}
-                </div>
-              </div>
             </div>
           </div>
         </div>

@@ -8,10 +8,10 @@ use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use App\Models\Book;
 use App\Models\ReadingProgress;
-use App\Models\ReadingChallenge;
 use App\Models\Announcement;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use App\Models\User;
 
 class HomeController extends Controller
 {
@@ -24,11 +24,6 @@ class HomeController extends Controller
         $inProgress = ReadingProgress::where('user_id', $userId)
             ->where('progress', '<', 100)
             ->count();
-
-        // Challenges joined
-        $challengesJoined = ReadingChallenge::whereHas('participants', function($q) use ($userId) {
-            $q->where('user_id', $userId);
-        })->count();
 
         // Recommended books (random 5)
         $recommendedBooks = Book::inRandomOrder()->limit(5)->get(['id', 'title', 'author', 'cover_image', 'file_path', 'published_year'])
@@ -50,13 +45,6 @@ class HomeController extends Controller
             ->where('progress', '<', 100)
             ->with(['book:id,title,cover_image,file_path'])
             ->get(['id', 'book_id', 'progress']);
-
-        // Active challenges
-        $today = now()->toDateString();
-        $challenges = ReadingChallenge::where('start_date', '<=', $today)
-            ->where('end_date', '>=', $today)
-            ->orderBy('end_date')
-            ->get(['id', 'title', 'description', 'start_date', 'end_date', 'target_books']);
 
         // Leaderboard: leave empty, to be loaded on demand
         $leaderboard = [];
@@ -140,22 +128,27 @@ class HomeController extends Controller
                 return null;
             })->filter()->values();
 
+        // Saved Books (bookmarks)
+        $user = Auth::user();
+        $savedBooks = $user->bookmarks()->with('book')->get()->map(function($bm) {
+            return $bm->book;
+        })->filter()->values();
+
         return Inertia::render('User/Home', [
             'stats' => [
                 'bookmarks' => $bookmarkCount,
                 'inProgress' => $inProgress,
-                'challenges' => $challengesJoined,
             ],
             'recommendedBooks' => $recommendedBooks,
             'announcements' => $announcements,
             'readingProgress' => $readingProgress,
-            'challenges' => $challenges,
             'leaderboard' => $leaderboard,
             // New book lists:
             'latestBooks' => $latestBooks,
             'mostReadBooks' => $mostReadBooks,
             'hotBooks' => $hotBooks,
             'highestRatedBooks' => $highestRatedBooks,
+            'savedBooks' => $savedBooks,
         ]);
     }
 } 

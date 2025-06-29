@@ -17,14 +17,12 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Http\Controllers\AdminControllers\AnalyticsController;
 use App\Http\Controllers\AdminControllers\AnnouncementController;
-use App\Http\Controllers\AdminControllers\ReadingChallengeController;
 use App\Http\Controllers\AdminControllers\SuggestionController as AdminSuggestionController;
 use App\Http\Controllers\AdminControllers\ReviewModerationController;
 use App\Http\Controllers\AdminControllers\DigitalArchiveController;
 use App\Http\Controllers\UserControllers\BookBrowseController;
 use App\Http\Controllers\UserControllers\ReviewController;
 use App\Http\Controllers\UserControllers\ReadingProgressController;
-use App\Http\Controllers\UserControllers\UserReadingChallengeController;
 use App\Http\Controllers\UserControllers\HomeController;
 use App\Http\Controllers\UserControllers\ProfileController as UserProfileController;
 
@@ -53,12 +51,6 @@ Route::middleware(['auth', 'role:user'])->group(function () {
     // User-facing bookmarks
     Route::get('/bookmarks', [BookMarkController::class, 'index'])->name('user.bookmarks');
     Route::delete('/bookmarks/{book_id}', [BookMarkController::class, 'destroy']);
-
-    //user-facing reading challenges
-    Route::get('/challenges/list', [UserReadingChallengeController::class, 'list'])->name('user.challenges');
-    Route::post('/challenges/{id}/join', [UserReadingChallengeController::class, 'join']);
-    Route::post('/challenges/{id}/progress', [UserReadingChallengeController::class, 'progress']);
-    Route::get('/challenges/{id}/leaderboard', [UserReadingChallengeController::class, 'leaderboard']);
 
     //user-facing profile
     Route::get('/user/profile', [UserProfileController::class, 'index'])->name('user.profile');
@@ -152,11 +144,6 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::post('/announcements', [AnnouncementController::class, 'store']);
     Route::delete('/announcements/{id}', [AnnouncementController::class, 'destroy']);
 
-    // Reading Challenges (Admin)
-    Route::get('/challenges', [ReadingChallengeController::class, 'index'])->name('admin.challenges');
-    Route::post('/challenges', [ReadingChallengeController::class, 'store']);
-    Route::delete('/challenges/{id}', [ReadingChallengeController::class, 'destroy']);
-
     // User suggestion submission
     Route::get('/suggestions', [AdminSuggestionController::class, 'index'])->name('admin.suggestions');
     Route::post('/suggestions/{id}/status', [AdminSuggestionController::class, 'updateStatus']);
@@ -180,16 +167,6 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
 // Public/user-facing announcements list (for dashboard/homepage)
 Route::get('/announcements/list', [AnnouncementController::class, 'list']);
-
-// User endpoints for challenges
-// Route::middleware(['auth'])->group(function () {
-//     Route::get('/challenges/list', [ReadingChallengeController::class, 'list']);
-//     Route::post('/challenges/{id}/join', [ReadingChallengeController::class, 'join']);
-//     Route::post('/challenges/{id}/progress', [ReadingChallengeController::class, 'progress']);
-//     Route::get('/challenges/{id}/leaderboard', [ReadingChallengeController::class, 'leaderboard']);
-// });
-
-require __DIR__ . '/auth.php';
 
 // Add Laravel email verification routes
 Route::middleware('auth')->group(function () {
@@ -221,4 +198,5 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/suggestions/{id}/upvote', [\App\Http\Controllers\UserControllers\SuggestionController::class, 'upvote'])->name('suggestions.upvote');
 });
 
+require __DIR__ . '/auth.php';
 

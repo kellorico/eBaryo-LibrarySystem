@@ -494,21 +494,6 @@ watch(showNotificationModal, (val) => {
                         </div>
                         <span class="nav-text fw-medium">Announcements</span>
                     </Link>
-                    <!-- Reading Challenges Link -->
-                    <Link
-                        :href="route('admin.challenges')"
-                        class="nav-item d-flex align-items-center text-white p-3 rounded-3"
-                        :class="{
-                            'nav-item-active': $page.url === '/challenges',
-                        }"
-                    >
-                        <div class="nav-icon me-3">
-                            <i class="fa-solid fa-trophy"></i>
-                        </div>
-                        <span class="nav-text fw-medium"
-                            >Reading Challenges</span
-                        >
-                    </Link>
                     <!-- Suggestions Link -->
                     <Link
                         :href="route('admin.suggestions')"

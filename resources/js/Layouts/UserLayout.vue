@@ -1,7 +1,9 @@
 <script setup>
-import { usePage, Link } from "@inertiajs/vue3";
+import { usePage, Link, router } from "@inertiajs/vue3";
 import { computed, ref, provide } from "vue";
 import GlobalToast from "@/Components/GlobalToast.vue";
+import SearchBar from '@/Components/SearchBar.vue';
+
 const page = usePage();
 const user = computed(() => page.props.auth?.user);
 
@@ -10,6 +12,13 @@ function showToast(message, type = "success") {
     toast.value = { show: true, message, type };
 }
 provide("showToast", showToast);
+
+const bookSearch = ref('');
+function handleBookSearch() {
+    if (bookSearch.value.trim()) {
+        router.visit(`/books/browse?search=${encodeURIComponent(bookSearch.value.trim())}`);
+    }
+}
 </script>
 <template>
     <div>
@@ -38,18 +47,24 @@ provide("showToast", showToast);
                             <Link class="user-nav-link" :class="{ 'user-nav-link-active': $page.url === '/home' }" :href="route('home')">Home</Link>
                         </li>
                         <li class="nav-item">
-                            <Link class="user-nav-link" :class="{ 'user-nav-link-active': $page.url === '/books/browse' }" href="/books/browse">Browse Books</Link>
-                        </li>
-                        <li class="nav-item">
-                            <Link class="user-nav-link" :class="{ 'user-nav-link-active': $page.url === '/challenges' }" :href="route('user.challenges')">Reading Challenges</Link>
-                        </li>
-                        <li class="nav-item">
-                            <Link class="user-nav-link" :class="{ 'user-nav-link-active': $page.url === '/suggestions' }" href="/suggestions">Suggestions</Link>
-                        </li>
-                        <li class="nav-item">
-                            <Link class="user-nav-link" :class="{ 'user-nav-link-active': $page.url === '/announcements' }" href="/announcements">Announcements</Link>
+                            <Link class="user-nav-link" :class="{ 'user-nav-link-active': $page.url.startsWith('/books/browse') }" href="/books/browse">Browse Books</Link>
                         </li>
                     </ul>
+                    <div class="d-none d-lg-flex align-items-center ms-3" style="height:48px;">
+                        <SearchBar
+                            v-model="bookSearch"
+                            :placeholder="'Quick search books...'"
+                            @keyup.enter="handleBookSearch"
+                        />
+                        <button
+                            class="btn btn-success ms-2"
+                            @click="handleBookSearch"
+                            :disabled="!bookSearch.trim()"
+                            style="height:40px;"
+                        >
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
                     <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                         <li class="nav-item dropdown">
                             <button
@@ -89,8 +104,13 @@ provide("showToast", showToast);
                                     </Link>
                                 </li>
                                 <li>
-                                    <Link class="dropdown-item" :href="route('user.challenges')">
-                                        <i class="fa fa-trophy me-2 text-primary"></i>My Joined Challenges
+                                    <Link class="dropdown-item" href="/suggestions">
+                                        <i class="fa fa-lightbulb me-2 text-info"></i>Suggestions
+                                    </Link>
+                                </li>
+                                <li>
+                                    <Link class="dropdown-item" href="/announcements">
+                                        <i class="fa fa-bullhorn me-2 text-primary"></i>Announcements
                                     </Link>
                                 </li>
                                 <li><hr class="dropdown-divider" /></li>
@@ -255,5 +275,32 @@ main {
 
 .bg-white-green {
     background: linear-gradient(135deg, #f8fafc 0%, #e9f7ef 100%);
+}
+
+.searchbar-navbar {
+    background: #fff;
+    border-radius: 999px;
+    box-shadow: 0 2px 8px rgba(30,41,59,0.08);
+    padding: 0 0.5rem;
+    min-width: 260px;
+    align-items: center;
+}
+.searchbar-navbar .form-control {
+    background: #fff;
+    border: none;
+    box-shadow: none;
+    border-radius: 999px;
+    font-size: 1rem;
+}
+.searchbar-navbar .input-group-text {
+    background: #fff;
+    border: none;
+    border-radius: 999px 0 0 999px;
+    padding-right: 0.25rem;
+}
+.searchbar-navbar .btn-link {
+    color: #dc3545;
+    border: none;
+    box-shadow: none;
 }
 </style>
